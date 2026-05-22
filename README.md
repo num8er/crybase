@@ -69,10 +69,16 @@ shards install
 ```crystal
 require "crybase"
 
-client = CryBase::CouchBase::Client.connect("couchbase://127.0.0.1")
+client = CryBase::CouchBase::Client.new("couchbase://node1,node2")
 
+puts "Cluster nodes:"
+client.connection_string.hosts.each do |host|
+  puts "  - #{host}"
+end
+
+puts "Reachable endpoints:"
 client.connect.each do |endpoint|
-  puts endpoint
+  puts "  - #{endpoint}"
 end
 
 client.close
