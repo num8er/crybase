@@ -84,6 +84,7 @@ crystal tool format   # format code
 6. **Examples share env setup** - runnable examples should require `./constants` instead of reading Couchbase env vars directly
 7. **Do not do anything without providing plan** - after reading prompt, make plan of actions and show me before starting any work
 8. **Feature docs for implemented features** - for every feature implementation, create `docs/$N.FEAT_$FEATURENAME.md` where `$N` is the next sequence number and `$FEATURENAME` is the slugified feature title. First line must be the title, and the file must include Description, Implementation, and Files affected sections.
+9. **Session startup docs check** - when starting a session, check `README.md`, `CHANGELOG.md`, and `docs/*.FEAT_*.md` before making changes so current features, limitations, and release notes are understood.
 
 ## Current Limitations
 
