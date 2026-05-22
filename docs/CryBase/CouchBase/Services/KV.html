@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -240,29 +255,40 @@
     Overview
   </h2>
 
-  <p>Implementation of the Couchbase KV (Data) service over the memcached
-binary protocol.</p>
-<p>The public entry point is <code><a href="../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code>; everything else is structured
-as small composable pieces:</p>
+  <p>Implementation of the Couchbase KV (Data) service over Couchbase's
+memcached binary protocol, using plaintext or TLS sockets according to
+the endpoint or connection string.</p>
+<p>The main public entry points are <code><a href="../../../CryBase/CouchBase/Services/KV/Client.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method">KV::Client.from_string</a></code> for one
+authenticated connection, <code><a href="../../../CryBase/CouchBase/Services/KV/Pool.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3APool-class-method">KV::Pool.from_string</a></code> for a fixed-size pool,
+and <code><a href="../../../CryBase/CouchBase/Services/KV/Cluster.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method">KV::Cluster.from_string</a></code> for seed failover across multiple KV hosts.
+They accept connection strings with credentials, bucket, explicit KV port,
+and TLS query options:</p>
+<pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
+  <span class="s">&quot;couchbases://user:pass@node1,node2:11217/default?tls_verify=false&quot;</span>
+)
+cluster.set(<span class="s">&quot;hello&quot;</span>, <span class="s">&quot;world&quot;</span>)
+cluster.get(<span class="s">&quot;hello&quot;</span>) <span class="c"># =&gt; Bytes containing &quot;world&quot;</span>
+cluster.close</code></pre>
+<p>You can still construct an <code><a href="../../../CryBase/CouchBase/Endpoint.html">Endpoint</a></code> explicitly or through
+<code><a href="../../../CryBase/CouchBase/Endpoint.html#from_string%28input%3AString%2Cservice%3AService%7CNil%3Dnil%29%3AEndpoint-class-method">CryBase::CouchBase::Endpoint.from_string</a></code> and pass it to <code><a href="../../../CryBase/CouchBase/Services/KV/Client.html#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">KV::Client.new</a></code>
+or <code><a href="../../../CryBase/CouchBase/Services/KV/Pool.html#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">KV::Pool.new</a></code> when credentials and bucket should stay separate from
+the endpoint address.</p>
+<p>The namespace is structured as small composable pieces:</p>
 <ul>
+<li><code><a href="../../../CryBase/CouchBase/Services/KV/Constants.html">KV::Constants</a></code>     — protocol constants used by packet framing</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/Request.html">KV::Request</a></code>        — value type describing one outbound packet</li>
-<li><code><a href="../../../CryBase/CouchBase/Services/KV/RequestWriter.html">KV::RequestWriter</a></code>  — mixin: <code>write(req)</code> serializes to a socket</li>
+<li><code><a href="../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">KV::RequestBuffer</a></code>  — serializes one outbound packet into bytes</li>
+<li><code><a href="../../../CryBase/CouchBase/Services/KV/RequestWriter.html">KV::RequestWriter</a></code>  — mixin: writes and flushes a request buffer</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/Response.html">KV::Response</a></code>       — value type describing one inbound packet</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/ResponseReader.html">KV::ResponseReader</a></code> — mixin: <code>read</code> decodes one packet from a socket</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/Bucket.html">KV::Bucket</a></code>         — mixin: SELECT_BUCKET handshake</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/Serializable.html">KV::Serializable</a></code>   — typed value codec</li>
 <li><code><a href="../../../CryBase/CouchBase/Services/KV/Pool.html">KV::Pool</a></code>           — fixed-size pool of authenticated clients</li>
+<li><code><a href="../../../CryBase/CouchBase/Services/KV/Cluster.html">KV::Cluster</a></code>        — seed-failover client backed by <code><a href="../../../CryBase/CouchBase/Services/KV/Pool.html">KV::Pool</a></code></li>
 </ul>
-<p>These mixins are composed into <code><a href="../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code>, which also handles
-<code>HELLO</code>, <code>SASL_AUTH(PLAIN)</code> and offers <code>get</code>/<code>set</code>/<code>delete</code>.</p>
-<pre><code class="language-crystal">endpoint <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(
-  <span class="s">&quot;node1&quot;</span>, <span class="n">11210</span>, <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>
-)
-kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.new(endpoint, <span class="s">&quot;user&quot;</span>, <span class="s">&quot;pass&quot;</span>, <span class="s">&quot;default&quot;</span>)
-kv.set(<span class="s">&quot;hello&quot;</span>, <span class="s">&quot;world&quot;</span>)
-kv.get(<span class="s">&quot;hello&quot;</span>) <span class="c"># =&gt; Bytes containing &quot;world&quot;</span>
-kv.delete(<span class="s">&quot;hello&quot;</span>)
-kv.close</code></pre>
+<p><code><a href="../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code> composes the request/response/bucket mixins, performs
+<code>HELLO</code>, <code>SASL_AUTH(PLAIN)</code>, and <code>SELECT_BUCKET</code>, then exposes document,
+expiry, counter, and typed JSON helper operations.</p>
 
 
 
@@ -289,7 +315,7 @@ kv.close</code></pre>
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv.cr#L28" target="_blank">
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv.cr#L41" target="_blank">
         crybase/couchbase/services/kv.cr
       </a>
     
@@ -312,6 +338,13 @@ kv.close</code></pre>
     
       <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L1" target="_blank">
         crybase/couchbase/services/kv/client.cr
+      </a>
+    
+    <br/>
+  
+    
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L1" target="_blank">
+        crybase/couchbase/services/kv/cluster.cr
       </a>
     
     <br/>
@@ -366,6 +399,13 @@ kv.close</code></pre>
     <br/>
   
     
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_buffer.cr#L1" target="_blank">
+        crybase/couchbase/services/kv/request_buffer.cr
+      </a>
+    
+    <br/>
+  
+    
       <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_writer.cr#L1" target="_blank">
         crybase/couchbase/services/kv/request_writer.cr
       </a>
@@ -410,85 +450,6 @@ kv.close</code></pre>
 
 
 
-  
-    <h2>
-      <a id="constant-summary" class="anchor" href="#constant-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-      Constant Summary
-    </h2>
-  
-  <dl>
-    
-      <dt class="entry-const" id="AGENT">
-        <strong>AGENT</strong> = <code><span class="s">&quot;crybase&quot;</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>User-agent string sent in the HELLO request body.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="COUNTER_EXTRAS_SIZE">
-        <strong>COUNTER_EXTRAS_SIZE</strong> = <code><span class="n">20</span></code>
-      </dt>
-      
-    
-      <dt class="entry-const" id="EXPIRY_EXTRAS_SIZE">
-        <strong>EXPIRY_EXTRAS_SIZE</strong> = <code><span class="n">4</span></code>
-      </dt>
-      
-    
-      <dt class="entry-const" id="FEATURE_SELECT_BUCKET">
-        <strong>FEATURE_SELECT_BUCKET</strong> = <code><span class="n">8_u16</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>HELLO feature code that opts the connection into bucket selection.
-Sent during the handshake so the server accepts SELECT_BUCKET.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="HEADER_SIZE">
-        <strong>HEADER_SIZE</strong> = <code><span class="n">24</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>Fixed-width header size in bytes for both requests and responses.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="REQUEST_MAGIC">
-        <strong>REQUEST_MAGIC</strong> = <code><span class="n">128_u8</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>Binary-protocol magic byte indicating an outbound (request) packet.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="RESPONSE_MAGIC">
-        <strong>RESPONSE_MAGIC</strong> = <code><span class="n">129_u8</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>Binary-protocol magic byte indicating an inbound (response) packet.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="VBUCKET_COUNT">
-        <strong>VBUCKET_COUNT</strong> = <code><span class="n">1024_u16</span></code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>Number of vbuckets in Couchbase buckets.</p>
-      </dd>
-      
-    
-  </dl>
-
 
 
   
@@ -520,7 +481,7 @@ Sent during the handshake so the server accepts SELECT_BUCKET.</p>
       </li>
     
       <li class="entry-summary">
-        <a href="#vbucket_id%28key%3AString%2Ccount%3AUInt16%3DVBUCKET_COUNT%29%3AUInt16-class-method" class="signature"><strong>.vbucket_id</strong>(key : String, count : UInt16 = <span class="t">VBUCKET_COUNT</span>) : UInt16</a>
+        <a href="#vbucket_id%28key%3AString%2Ccount%3AUInt16%3DConstants%3A%3AVBUCKET_COUNT%29%3AUInt16-class-method" class="signature"><strong>.vbucket_id</strong>(key : String, count : UInt16 = <span class="t">Constants</span><span class="t">::</span><span class="t">VBUCKET_COUNT</span>) : UInt16</a>
         
       </li>
     
@@ -559,7 +520,7 @@ Sent during the handshake so the server accepts SELECT_BUCKET.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/counter.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/counter.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -575,7 +536,7 @@ Sent during the handshake so the server accepts SELECT_BUCKET.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/counter.cr#L12" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/counter.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -591,17 +552,17 @@ Sent during the handshake so the server accepts SELECT_BUCKET.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/expiry.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/expiry.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="vbucket_id(key:String,count:UInt16=VBUCKET_COUNT):UInt16-class-method">
+    <div class="entry-detail" id="vbucket_id(key:String,count:UInt16=Constants::VBUCKET_COUNT):UInt16-class-method">
       <div class="signature">
         
-        def self.<strong>vbucket_id</strong>(key : String, count : UInt16 = <span class="t">VBUCKET_COUNT</span>) : UInt16
+        def self.<strong>vbucket_id</strong>(key : String, count : UInt16 = <span class="t">Constants</span><span class="t">::</span><span class="t">VBUCKET_COUNT</span>) : UInt16
 
-        <a class="method-permalink" href="#vbucket_id%28key%3AString%2Ccount%3AUInt16%3DVBUCKET_COUNT%29%3AUInt16-class-method">#</a>
+        <a class="method-permalink" href="#vbucket_id%28key%3AString%2Ccount%3AUInt16%3DConstants%3A%3AVBUCKET_COUNT%29%3AUInt16-class-method">#</a>
       </div>
       
       <br/>

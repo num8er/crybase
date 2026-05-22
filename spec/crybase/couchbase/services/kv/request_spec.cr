@@ -30,4 +30,10 @@ describe KV::Request do
     req.opaque.should eq(9_u32)
     req.vbucket.should eq(475_u16)
   end
+
+  it "serializes itself through RequestBuffer" do
+    req = KV::Request.new(KV::Opcode::Get, key: "hello", opaque: 7_u32)
+
+    req.to_buffer.should eq(KV::RequestBuffer.make(req))
+  end
 end

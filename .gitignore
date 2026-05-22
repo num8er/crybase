@@ -17,3 +17,5 @@ AGENTS.md
 /bin/ameba
 /bin/ameba.cr
 examples/volumes/
+
+.obsidian/

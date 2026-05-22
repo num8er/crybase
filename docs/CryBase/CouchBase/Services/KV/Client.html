@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -243,11 +258,13 @@
   </h2>
 
   <p>Talks the Couchbase memcached binary protocol against a single KV
-node. Composed from <code><a href="../../../../CryBase/CouchBase/Services/KV/RequestWriter.html">RequestWriter</a></code>, <code><a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a></code>, and <code><a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a></code>
-mixins.</p>
-<p>On construct: TCP-connects to <em>endpoint</em>, sends <code>HELLO</code> (advertising
-<code><a href="../../../../CryBase/CouchBase/Services/KV.html#FEATURE_SELECT_BUCKET">FEATURE_SELECT_BUCKET</a></code>), <code>SASL_AUTH</code> (PLAIN), and <code>SELECT_BUCKET</code> for
-<em>bucket</em>. Then exposes plain <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#get</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%29%3ANil-instance-method">#delete</a></code> against that
+node over plaintext or TLS according to the endpoint. Composed from
+<code><a href="../../../../CryBase/CouchBase/Services/KV/RequestWriter.html">RequestWriter</a></code>, <code><a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a></code>, and <code><a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a></code> mixins.</p>
+<p>On construct: connects to <em>endpoint</em>, performs the TLS handshake when
+<code>endpoint.tls?</code>, sends <code>HELLO</code> (advertising
+<code><a href="../../../../CryBase/CouchBase/Services/KV/Constants.html#FEATURE_SELECT_BUCKET">Constants::FEATURE_SELECT_BUCKET</a></code>),
+<code>SASL_AUTH</code> (PLAIN), and <code>SELECT_BUCKET</code> for <em>bucket</em>. Then exposes
+<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#get</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%29%3ANil-instance-method">#delete</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#touch%28key%3AString%2Cexpiry%3AUInt32%29%3AUInt64-instance-method">#touch</a></code> / counter operations against that
 bucket.</p>
 <pre><code class="language-crystal">endpoint <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(
   <span class="s">&quot;node1&quot;</span>, <span class="n">11210</span>, <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>
@@ -257,6 +274,8 @@ kv.set(<span class="s">&quot;hello&quot;</span>, <span class="s">&quot;world&quo
 kv.get(<span class="s">&quot;hello&quot;</span>) <span class="c"># =&gt; &quot;world&quot;.to_slice</span>
 kv.delete(<span class="s">&quot;hello&quot;</span>)
 kv.close</code></pre>
+<p>For connection strings, use <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method">.from_string</a></code>:</p>
+<pre><code class="language-crystal">kv <span class="o">=</span> <span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(<span class="s">&quot;couchbase://user:pass@node1/default&quot;</span>)</code></pre>
 <p>Out of scope (deliberate, can be layered on top later):</p>
 <ul>
 <li>CAS, flags, durability, observe, and other op modifiers</li>
@@ -306,7 +325,7 @@ kv.close</code></pre>
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L25" target="_blank">
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L33" target="_blank">
         crybase/couchbase/services/kv/client.cr
       </a>
     
@@ -329,9 +348,16 @@ kv.close</code></pre>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%29-class-method" class="signature"><strong>.new</strong>(endpoint : Endpoint, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds)</a>
+        <a href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method" class="signature"><strong>.from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : Client</a>
         
-          <div class="summary"><p>Connects, performs HELLO + SASL PLAIN + SELECT_BUCKET, and leaves the client ready for <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#get</a></code>/<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code>/<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%29%3ANil-instance-method">#delete</a></code>.</p></div>
+          <div class="summary"><p>Builds a KV endpoint from <em>uri</em>, connects, authenticates, and selects a bucket.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(endpoint : Endpoint, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)</a>
+        
+          <div class="summary"><p>Connects, optionally performs TLS, then performs HELLO, SASL PLAIN auth, and SELECT_BUCKET, leaving the client ready for KV operations.</p></div>
         
       </li>
     
@@ -363,7 +389,7 @@ kv.close</code></pre>
       <li class="entry-summary">
         <a href="#close%3ANil-instance-method" class="signature"><strong>#close</strong> : Nil</a>
         
-          <div class="summary"><p>Closes the underlying TCP socket.</p></div>
+          <div class="summary"><p>Closes the underlying socket.</p></div>
         
       </li>
     
@@ -520,21 +546,51 @@ kv.close</code></pre>
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(endpoint:Endpoint,username:String,password:String,bucket:String,connect_timeout:Time::Span=5.seconds)-class-method">
+    <div class="entry-detail" id="from_string(uri:String,username:String|Nil=nil,password:String|Nil=nil,bucket:String|Nil=nil,connect_timeout:Time::Span=5.seconds,*,tls_verify:Bool|Nil=nil,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil):Client-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(endpoint : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds)
+        def self.<strong>from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : <a href="../../../../CryBase/CouchBase/Services/KV/Client.html">Client</a>
 
-        <a class="method-permalink" href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%29-class-method">#</a>
+        <a class="method-permalink" href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method">#</a>
       </div>
       
         <div class="doc">
           
-          <p>Connects, performs HELLO + SASL PLAIN + SELECT_BUCKET, and leaves
-the client ready for <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#get</a></code>/<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code>/<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%29%3ANil-instance-method">#delete</a></code>.</p>
+          <p>Builds a KV endpoint from <em>uri</em>, connects, authenticates, and selects
+a bucket. The first host in the connection string is used.</p>
+<p><code>username</code>, <code>password</code>, and <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#bucket%3AString-instance-method">#bucket</a></code> may be passed explicitly or
+embedded as <code>couchbase://user:pass@host/bucket</code>. Query parameters
+currently supported by this helper: <code>tls_verify</code> and <code>tls_hostname</code>.</p>
+<pre><code class="language-crystal">kv <span class="o">=</span> <span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(<span class="s">&quot;couchbases://user:pass@node1:11217/default?tls_verify=false&quot;</span>)</code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L57" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(endpoint:Endpoint,username:String,password:String,bucket:String,connect_timeout:Time::Span=5.seconds,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(endpoint : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)
+
+        <a class="method-permalink" href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Connects, optionally performs TLS, then performs HELLO, SASL PLAIN
+auth, and SELECT_BUCKET, leaving the client ready for KV operations.</p>
+<p><code>tls_verify</code> and <code>tls_hostname</code> apply only when <code>endpoint.tls?</code>.
+Provide <code>tls_context</code> to use a custom CA or other OpenSSL settings;
+when supplied, it is used as-is.</p>
 <p>Raises:</p>
 <ul>
-<li><code>IO::Error</code> / <code>Socket::Error</code> — TCP connect failed</li>
+<li><code>IO::Error</code> / <code>Socket::Error</code> — socket connect failed</li>
+<li><code>OpenSSL::SSL::Error</code> — TLS handshake or certificate verification failed</li>
 <li><code><a href="../../../../CryBase/CouchBase/Services/KV/AuthFailed.html">KV::AuthFailed</a></code> — SASL auth or bucket selection denied</li>
 <li><code><a href="../../../../CryBase/CouchBase/Services/KV/Error.html">KV::Error</a></code> — server returned any other non-success status</li>
 </ul>
@@ -545,7 +601,7 @@ step fails.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L49" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L97" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -582,7 +638,7 @@ step fails.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L34" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L42" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -597,14 +653,14 @@ step fails.</p>
       
         <div class="doc">
           
-          <p>Closes the underlying TCP socket. Idempotent — safe to call when
+          <p>Closes the underlying socket. Idempotent — safe to call when
 already closed.</p>
         </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L204" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L255" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -626,7 +682,7 @@ already closed.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L193" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L244" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -648,7 +704,7 @@ already closed.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L161" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L212" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -669,7 +725,7 @@ already closed.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L31" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L39" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -694,7 +750,7 @@ if absent.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L77" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L128" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -715,7 +771,7 @@ if absent.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L114" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L165" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -748,7 +804,7 @@ profile <span class="o">=</span> kv.get_as(<span class="s">&quot;user:42&quot;</
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L109" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L160" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -771,7 +827,7 @@ and applies <em>expiry</em>.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L182" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L233" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -795,7 +851,7 @@ cas <span class="o">=</span> kv.set(<span class="s">&quot;hello&quot;</span>, <s
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L125" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L176" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -828,7 +884,7 @@ cas <span class="o">=</span> kv.set(<span class="s">&quot;user:42&quot;</span>, 
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L152" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L203" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -850,7 +906,7 @@ Returns the new CAS token.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L168" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L219" target="_blank">View source</a>]
         
       </div>
     </div>

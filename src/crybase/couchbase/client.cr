@@ -97,11 +97,11 @@ module CryBase::CouchBase
 
     private def build_endpoints(cs : ConnectionString) : Array(Endpoint)
       list = [] of Endpoint
-      cs.hosts.each do |host|
+      cs.hosts.each_with_index do |host, index|
         Services.list.each do |service|
           port =
-            if service.management? && (explicit_port = cs.explicit_port)
-              explicit_port
+            if service.management? && (port_override = cs.ports[index] || cs.explicit_port)
+              port_override
             else
               service.default_port(cs.tls?)
             end

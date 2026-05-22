@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -219,12 +234,12 @@
 
 
 <div class="main-content">
-<pre><code class="language-text">  ______           ____                 
- / ____/______  __/ __ )____ _________ 
+<pre><code class="language-text">  ______           ____
+ / ____/______  __/ __ )____ _________
 / /   / ___/ / / / __  / __ `/ ___/ _ \
 / /___/ /  / /_/ / /_/ / /_/ (__  )  __/
-\____/_/   \__, /_____/\__,_/____/\___/ 
-          /____/                         </code></pre>
+\____/_/   \__, /_____/\__,_/____/\___/
+          /____/</code></pre>
 <h1><a id="cry-base" class="anchor" href="#cry-base">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -237,9 +252,9 @@
 <ul>
 <li>A cluster-level client that expands Couchbase connection strings into service
 endpoints and TCP-probes them.</li>
-<li>A KV client that speaks the Couchbase binary protocol for authenticated
-<code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, and counter operations, plus a fixed-size
-connection pool.</li>
+<li>A KV client that speaks the Couchbase binary protocol over plaintext or TLS
+sockets for authenticated <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, and counter
+operations, plus fixed-size and seed-failover connection pools.</li>
 </ul>
 <h2><a id="status" class="anchor" href="#status">
   <svg class="octicon-link" aria-hidden="true">
@@ -254,15 +269,16 @@ connection pool.</li>
 Eventing, Views, and Management.</li>
 <li>Plain TCP reachability probing for cluster service endpoints.</li>
 <li>KV binary protocol handshake: <code>HELLO</code>, SASL PLAIN auth, and <code>SELECT_BUCKET</code>.</li>
+<li>TLS socket support for KV operations.</li>
 <li>KV document operations: <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, <code>increment</code>,
 <code>decrement</code>.</li>
 <li>Couchbase vbucket hashing for KV document routing.</li>
 <li><code>KV::Pool</code> with 10 authenticated connections by default.</li>
+<li><code>KV::Cluster</code> seed failover across multiple KV hosts.</li>
 <li>Real Couchbase integration specs in GitHub Actions.</li>
 </ul>
 <p>Not implemented yet:</p>
 <ul>
-<li>TLS socket handshake for KV operations.</li>
 <li>Cluster config loading and node/vbucket map routing.</li>
 <li>Retry, reconnect, durability, observe, CAS helpers, scopes, or collections.</li>
 <li>Query, Search, Analytics, Index, Eventing, Views, and Management protocols.</li>
@@ -304,18 +320,8 @@ client.close</code></pre>
 </a>Use One KV Connection</h3>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
 
-endpoint <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(
-  <span class="s">&quot;127.0.0.1&quot;</span>,
-  <span class="n">11210</span>,
-  <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>,
-  <span class="n">false</span>,
-)
-
-kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.new(
-  endpoint,
-  <span class="s">&quot;Administrator&quot;</span>,
-  <span class="s">&quot;password&quot;</span>,
-  <span class="s">&quot;default&quot;</span>,
+kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
 )
 
 kv.set(<span class="s">&quot;crybase:hello&quot;</span>, <span class="s">%({&quot;hello&quot;:&quot;world&quot;})</span>)
@@ -324,6 +330,13 @@ kv.touch(<span class="s">&quot;crybase:hello&quot;</span>, <span class="n">3600_
 puts <span class="t">String</span>.new(kv.get(<span class="s">&quot;crybase:hello&quot;</span>, expiry: <span class="n">3600_u32</span>))
 kv.delete(<span class="s">&quot;crybase:hello&quot;</span>)
 kv.close</code></pre>
+<p>Use a TLS KV endpoint with <code>couchbases://</code>:</p>
+<pre><code class="language-crystal">kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(
+  <span class="s">&quot;couchbases://Administrator:password@127.0.0.1:11207/default?tls_verify=false&quot;</span>,
+)</code></pre>
+<p><code>tls_verify</code> defaults to <code>true</code>. Pass <code>tls_hostname:</code> when the certificate
+hostname differs from the endpoint host, or <code>tls_context:</code> with a configured
+<code>OpenSSL::SSL::Context::Client</code> for a custom cluster CA.</p>
 <h3><a id="store-typed-kv-values" class="anchor" href="#store-typed-kv-values">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -356,18 +369,8 @@ them back with <code>get(key, String)</code> or raw <code>get(key)</code>.</p>
 </a>Use The KV Pool</h3>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
 
-endpoint <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(
-  <span class="s">&quot;127.0.0.1&quot;</span>,
-  <span class="n">11210</span>,
-  <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>,
-  <span class="n">false</span>,
-)
-
-pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.new(
-  endpoint,
-  <span class="s">&quot;Administrator&quot;</span>,
-  <span class="s">&quot;password&quot;</span>,
-  <span class="s">&quot;default&quot;</span>,
+pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
 )
 
 pool.set(<span class="s">&quot;crybase:pooled&quot;</span>, <span class="s">&quot;value&quot;</span>)
@@ -383,19 +386,35 @@ pool.touch(<span class="s">&quot;crybase:pooled&quot;</span>, <span class="n">36
 
 pool.close</code></pre>
 <p><code>KV::Pool</code> opens 10 connections by default. Override it with <code>size:</code>:</p>
-<pre><code class="language-crystal">pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.new(
-  endpoint,
-  <span class="s">&quot;Administrator&quot;</span>,
-  <span class="s">&quot;password&quot;</span>,
-  <span class="s">&quot;default&quot;</span>,
+<pre><code class="language-crystal">pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
   size: <span class="n">20</span>,
 )</code></pre>
+<p><code>KV::Pool</code> accepts the same <code>tls_verify:</code>, <code>tls_hostname:</code>, and <code>tls_context:</code>
+options as <code>KV::Client</code> and passes them to each pooled connection.</p>
 <p><code>KV::Client</code> and <code>KV::Pool</code> both expose <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>,
 <code>increment</code>, <code>decrement</code>, and <code>close</code>. Pass <code>expiry:</code> to <code>get</code> to fetch a
 document and reset expiration atomically.
 Each <code>KV::Pool</code> operation checks out one authenticated client, delegates the
 call, and returns that client to the pool.
 <code>KV::Pool</code> also exposes <code>checkout</code>, <code>closed?</code>, <code>size</code>, <code>endpoint</code>, and <code>bucket</code>.</p>
+<h3><a id="use-seed-failover" class="anchor" href="#use-seed-failover">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Use Seed Failover</h3>
+<p><code>KV::Cluster</code> accepts multiple seed hosts and keeps one active <code>KV::Pool</code>.
+It tries the next seed if the active seed cannot connect or a delegated
+operation hits a connection-level failure. This is seed failover, not
+vbucket-map routing.</p>
+<pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@node1,node2,node3/default&quot;</span>,
+  size: <span class="n">10</span>,
+)
+
+cluster.set(<span class="s">&quot;crybase:cluster&quot;</span>, <span class="s">&quot;value&quot;</span>)
+puts <span class="t">String</span>.new(cluster.get(<span class="s">&quot;crybase:cluster&quot;</span>))
+cluster.close</code></pre>
 <h2><a id="public-api-map" class="anchor" href="#public-api-map">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -406,7 +425,7 @@ call, and returns that client to the pool.
 | <code><a href="CryBase.html">CryBase</a></code> | Top-level namespace and shard entry point. |
 | <code><a href="CryBase/CouchBase.html">CryBase::CouchBase</a></code> | Couchbase-specific namespace. |
 | <code><a href="CryBase/CouchBase/ConnectionString.html">CryBase::CouchBase::ConnectionString</a></code> | Parses supported connection string schemes and seed hosts. |
-| <code><a href="CryBase/CouchBase/Endpoint.html">CryBase::CouchBase::Endpoint</a></code> | Value type for one Couchbase service endpoint. |
+| <code><a href="CryBase/CouchBase/Endpoint.html">CryBase::CouchBase::Endpoint</a></code> | Value type for one Couchbase service endpoint, with <code>from_string</code> parsing. |
 | <code><a href="CryBase/CouchBase/Service.html">CryBase::CouchBase::Service</a></code> | Service enum with plaintext and TLS default ports. |
 | <code><a href="CryBase/CouchBase/Client.html">CryBase::CouchBase::Client</a></code> | Cluster endpoint enumerator and TCP probe client. |
 | <code><a href="CryBase/CouchBase/Services.html">CryBase::CouchBase::Services</a></code> | Namespace for service-specific protocol clients. |
@@ -414,6 +433,7 @@ call, and returns that client to the pool.
 | <code><a href="CryBase/CouchBase/Services/KV.html">CryBase::CouchBase::Services::KV</a></code> | Couchbase binary KV protocol namespace. |
 | <code><a href="CryBase/CouchBase/Services/KV/Client.html">CryBase::CouchBase::Services::KV::Client</a></code> | Single authenticated KV connection. |
 | <code><a href="CryBase/CouchBase/Services/KV/Pool.html">CryBase::CouchBase::Services::KV::Pool</a></code> | Fixed-size pool of authenticated KV clients. |
+| <code><a href="CryBase/CouchBase/Services/KV/Cluster.html">CryBase::CouchBase::Services::KV::Cluster</a></code> | Seed-failover KV client backed by one active pool. |
 | <code><a href="CryBase/Interfaces.html">CryBase::Interfaces</a></code> | Abstract interface aliases for connection strings, endpoints, and clients. |</p>
 <p>Generated API docs are committed in <a href="docs/index.html"><code>docs/</code></a>.</p>
 <h2><a id="connection-strings" class="anchor" href="#connection-strings">
@@ -429,8 +449,32 @@ call, and returns that client to the pool.
 | <code>https://</code> | yes | Treated as a Management URL. |</p>
 <p>Multiple seed nodes are comma-separated:</p>
 <pre><code class="language-text">couchbase://node1,node2,node3</code></pre>
+<p>KV connection strings may include credentials, bucket, and supported query
+parameters:</p>
+<pre><code class="language-text">couchbases://user:pass@node1:11207/default?tls_verify=false&amp;tls_hostname=cb.local</code></pre>
+<p><code>KV::Client.from_string</code>, <code>KV::Pool.from_string</code>, and <code>KV::Cluster.from_string</code>
+use <code>user</code>, <code>pass</code>, and <code>bucket</code> from the URI when they are not passed as
+arguments. Supported query parameters are <code>tls_verify</code> (<code>true</code>, <code>false</code>, <code>1</code>,
+<code>0</code>) and <code>tls_hostname</code>.</p>
 <p>An explicit <code>:port</code> is currently forwarded to the Management endpoint only.
-Other services use their standard Couchbase ports.</p>
+Other services use their standard Couchbase ports when using
+<code><a href="CryBase/CouchBase/Client.html">CryBase::CouchBase::Client</a></code> for cluster probing.</p>
+<p>For one concrete endpoint, <code>Endpoint.from_string</code> uses the first host and
+honors an explicit port:</p>
+<pre><code class="language-crystal"><span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbase://node1&quot;</span>)
+<span class="c"># =&gt; Data (KV) couchbase://node1:11210</span>
+
+<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbases://node1:11217&quot;</span>)
+<span class="c"># =&gt; Data (KV) couchbases://node1:11217</span>
+
+<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbases://user:pass@node1:11217/default&quot;</span>)
+<span class="c"># =&gt; Data (KV) couchbases://node1:11217</span>
+
+<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(
+  <span class="s">&quot;couchbases://node1&quot;</span>,
+  <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">Query</span>,
+)
+<span class="c"># =&gt; Query (N1QL) https://node1:18093</span></code></pre>
 <h2><a id="service-ports" class="anchor" href="#service-ports">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -455,15 +499,29 @@ Other services use their standard Couchbase ports.</p>
 <ul>
 <li><code>cluster_probe.cr</code> - probe reachable service endpoints.</li>
 <li><code>kv_basics.cr</code> - run a basic KV set/get flow against one endpoint.</li>
+<li><code>kv_cluster.cr</code> - run a basic KV set/get flow through seed failover.</li>
+<li><code>kv_expiration.cr</code> - run KV expiry, touch, and get-and-touch operations.</li>
 <li><code>kv_endpoint_from_cluster.cr</code> - probe the cluster, pick a KV endpoint, and
 run a KV operation.</li>
+<li><code>constants.cr</code> - shared environment parsing and connection string helpers
+used by the runnable examples.</li>
 <li><code>docker-compose.yml</code> - local Couchbase Community setup for development.</li>
 </ul>
-<p>The examples read Couchbase settings from environment variables:</p>
+<p>The examples read Couchbase settings through <code>examples/constants.cr</code> from
+environment variables. The checked-in <code>examples/.env</code> file contains the same
+defaults for local shells that load it:</p>
 <pre><code class="language-sh">export COUCHBASE_HOST=127.0.0.1
+export COUCHBASE_SEEDS=127.0.0.1
+export COUCHBASE_KV_PORT=
 export COUCHBASE_USER=Administrator
 export COUCHBASE_PASS=password
-export COUCHBASE_BUCKET=default</code></pre>
+export COUCHBASE_BUCKET=default
+export COUCHBASE_TLS=false
+export COUCHBASE_TLS_VERIFY=true
+export COUCHBASE_TLS_HOSTNAME=</code></pre>
+<p>When adding another runnable example, require <code>./constants</code> and use the shared
+connection string helpers instead of reading these variables again in the
+example body.</p>
 <h2><a id="development" class="anchor" href="#development">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -477,6 +535,14 @@ crystal spec --error-trace</code></pre>
 <pre><code class="language-sh">crystal docs -o docs --project-version=main-dev --source-refname=main</code></pre>
 <p>Run real Couchbase integration specs:</p>
 <pre><code class="language-sh">COUCHBASE_INTEGRATION=1 crystal spec spec/integration --error-trace</code></pre>
+<p>Run TLS KV integration specs against a TLS-enabled Couchbase node:</p>
+<pre><code class="language-sh">COUCHBASE_INTEGRATION=1 \
+COUCHBASE_TLS=true \
+COUCHBASE_TLS_VERIFY=false \
+COUCHBASE_KV_PORT=11217 \
+COUCHBASE_MANAGEMENT_PORT=8097 \
+crystal spec spec/integration --error-trace</code></pre>
+<p><code>COUCHBASE_TLS</code> and <code>COUCHBASE_TLS_VERIFY</code> accept <code>true</code>/<code>false</code> and <code>1</code>/<code>0</code>.</p>
 <p>Enable local hooks once per clone:</p>
 <pre><code class="language-sh">git config core.hooksPath .githooks</code></pre>
 <p>The pre-commit hook:</p>

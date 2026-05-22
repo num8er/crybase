@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -245,9 +260,9 @@
   <p>Common contract every database-specific endpoint in CryBase must
 satisfy. Subtypes add their own service/role metadata and stringification
 rules on top of this base.</p>
-<pre><code class="language-crystal">ep <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">11210</span>, <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>)
+<pre><code class="language-crystal">ep <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(<span class="s">&quot;localhost&quot;</span>, <span class="n">11210</span>, <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>)
 ep.<span class="k">is_a?</span>(<span class="t">CryBase</span><span class="t">::</span><span class="t">Interfaces</span><span class="t">::</span><span class="t">Endpoint</span>) <span class="c"># =&gt; true</span>
-ep.host                                 <span class="c"># =&gt; &quot;h&quot;</span>
+ep.host                                 <span class="c"># =&gt; &quot;localhost&quot;</span>
 ep.port                                 <span class="c"># =&gt; 11210</span>
 ep.tls?                                 <span class="c"># =&gt; false</span></code></pre>
 
@@ -338,8 +353,6 @@ ep.tls?                                 <span class="c"># =&gt; false</span></co
       <li class="entry-summary">
         <a href="#host%3AString-instance-method" class="signature"><strong>#host</strong> : String</a>
         
-          <div class="summary"><p>The hostname or IP address for this endpoint.</p></div>
-        
       </li>
     
       <li class="entry-summary">
@@ -350,14 +363,10 @@ ep.tls?                                 <span class="c"># =&gt; false</span></co
       <li class="entry-summary">
         <a href="#port%3AInt32-instance-method" class="signature"><strong>#port</strong> : Int32</a>
         
-          <div class="summary"><p>The TCP port for this endpoint.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#tls%3F%3ABool-instance-method" class="signature"><strong>#tls?</strong> : Bool</a>
-        
-          <div class="summary"><p>Whether this endpoint speaks TLS.</p></div>
         
       </li>
     
@@ -458,15 +467,10 @@ ep.tls?                                 <span class="c"># =&gt; false</span></co
         <a class="method-permalink" href="#host%3AString-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>The hostname or IP address for this endpoint.</p>
-        </div>
-      
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L15" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L14" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -495,15 +499,10 @@ ep.tls?                                 <span class="c"># =&gt; false</span></co
         <a class="method-permalink" href="#port%3AInt32-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>The TCP port for this endpoint.</p>
-        </div>
-      
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L18" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L15" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -516,15 +515,10 @@ ep.tls?                                 <span class="c"># =&gt; false</span></co
         <a class="method-permalink" href="#tls%3F%3ABool-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Whether this endpoint speaks TLS.</p>
-        </div>
-      
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L21" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/interfaces/endpoint.cr#L16" target="_blank">View source</a>]
         
       </div>
     </div>

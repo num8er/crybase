@@ -31,4 +31,52 @@ describe KV::Pool do
     typeof(pool.increment("key", delta: 2_u64, initial: 10_u64, expiry: 1_u32)).should eq(UInt64)
     typeof(pool.decrement("key")).should eq(UInt64)
   end
+
+  it "accepts TLS options for pooled clients" do
+    endpoint = uninitialized CB::Endpoint
+    context = uninitialized OpenSSL::SSL::Context::Client
+
+    typeof(KV::Pool.new(
+      endpoint,
+      "user",
+      "pass",
+      "bucket",
+      tls_verify: false,
+      tls_hostname: "cb.local",
+      tls_context: context,
+    )).should eq(KV::Pool)
+  end
+
+  it "accepts connection strings" do
+    context = uninitialized OpenSSL::SSL::Context::Client
+
+    typeof(KV::Pool.from_string(
+      "couchbases://user:pass@127.0.0.1:11217/bucket?tls_verify=false&tls_hostname=cb.local",
+      size: 2,
+      tls_context: context,
+    )).should eq(KV::Pool)
+  end
+
+  it "accepts explicit credentials with a connection string endpoint" do
+    typeof(KV::Pool.from_string(
+      "couchbases://127.0.0.1:11217",
+      "user",
+      "pass",
+      "bucket",
+      size: 2,
+      tls_verify: false,
+    )).should eq(KV::Pool)
+  end
+
+  it "requires a bucket when it is not passed or embedded" do
+    expect_raises(ArgumentError, /bucket/) do
+      KV::Pool.from_string("couchbase://user:pass@127.0.0.1")
+    end
+  end
+
+  it "validates tls_verify query parameters before opening pooled sockets" do
+    expect_raises(ArgumentError, /tls_verify/) do
+      KV::Pool.from_string("couchbase://user:pass@127.0.0.1/default?tls_verify=nope")
+    end
+  end
 end

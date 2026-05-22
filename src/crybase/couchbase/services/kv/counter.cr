@@ -1,12 +1,10 @@
 module CryBase::CouchBase::Services::KV
-  COUNTER_EXTRAS_SIZE = 20
-
   def self.counter_extras(delta : UInt64, initial : UInt64, expiry : UInt32) : Bytes
-    io = IO::Memory.new(COUNTER_EXTRAS_SIZE)
-    io.write_bytes(delta, IO::ByteFormat::BigEndian)
-    io.write_bytes(initial, IO::ByteFormat::BigEndian)
-    io.write_bytes(expiry, IO::ByteFormat::BigEndian)
-    io.to_slice
+    buffer = Bytes.new(Constants::COUNTER_EXTRAS_SIZE)
+    IO::ByteFormat::BigEndian.encode(delta, buffer[0, 8])
+    IO::ByteFormat::BigEndian.encode(initial, buffer[8, 8])
+    IO::ByteFormat::BigEndian.encode(expiry, buffer[16, 4])
+    buffer
   end
 
   def self.counter_value(value : Bytes) : UInt64

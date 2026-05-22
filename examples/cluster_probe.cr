@@ -2,15 +2,12 @@
 # interface (KV, Query, Search, …) on every host in the connection
 # string, prints the reachable subset.
 #
-# Reads from `.envrc` (loaded via direnv): COUCHBASE_HOST.
+# Reads Couchbase settings from `examples/constants.cr`.
 #
 #   crystal run examples/cluster_probe.cr
-require "../src/crybase"
+require "./constants"
 
-host = ENV["COUCHBASE_HOST"]? || "localhost"
-uri = "couchbase://#{host}"
-
-client = CryBase::CouchBase::Client.new(uri)
+client = CryBase::CouchBase::Client.new(CryBaseExamples.cluster_connection_string)
 puts "Probing #{client.connection_string.hosts.join(", ")} (#{client.endpoints.size} endpoints total)..."
 
 reachable = client.connect

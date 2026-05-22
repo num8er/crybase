@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -244,14 +259,19 @@
 
   <p>Parses a Couchbase connection string of the form:</p>
 <ul>
-<li><code>couchbase://host[,host2][:port]</code>     — plaintext</li>
-<li><code>couchbases://host[,host2][:port]</code>    — TLS</li>
-<li><code>http(s)://host[:port]</code>               — treated as the Management URL</li>
+<li><code>couchbase://host[,host2][:port]</code>                  — plaintext</li>
+<li><code>couchbases://host[,host2][:port]</code>                 — TLS</li>
+<li><code>couchbase://user:pass@host[:port]/bucket?params</code>  — KV credentials/options</li>
+<li><code>http(s)://host[:port]</code>                            — treated as the Management URL</li>
 </ul>
-<pre><code class="language-crystal">cs <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">ConnectionString</span>.parse(<span class="s">&quot;couchbases://n1,n2:18091&quot;</span>)
+<pre><code class="language-crystal">cs <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">ConnectionString</span>.parse(
+  <span class="s">&quot;couchbases://user:pass@n1,n2:11207/default?tls_verify=false&quot;</span>
+)
 cs.hosts         <span class="c"># =&gt; [&quot;n1&quot;, &quot;n2&quot;]</span>
 cs.tls?          <span class="c"># =&gt; true</span>
-cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
+cs.explicit_port <span class="c"># =&gt; 11207</span>
+cs.username      <span class="c"># =&gt; &quot;user&quot;</span>
+cs.bucket        <span class="c"># =&gt; &quot;default&quot;</span></code></pre>
 
 
 
@@ -278,7 +298,7 @@ cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L14" target="_blank">
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L21" target="_blank">
         crybase/couchbase/connection_string.cr
       </a>
     
@@ -301,7 +321,7 @@ cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28hosts%3AArray%28String%29%2Ctls%3ABool%2Cexplicit_port%3AInt32%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(hosts : Array(String), tls : Bool, explicit_port : Int32 | Nil = <span class="n">nil</span>)</a>
+        <a href="#new%28hosts%3AArray%28String%29%2Ctls%3ABool%2Cexplicit_port%3AInt32%7CNil%3Dnil%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cparams%3AURI%3A%3AParams%3DURI%3A%3AParams.new%2Cports%3AArray%28Int32%7CNil%29%3D%5B%5DofInt32%7C%3A%3ANil%29-class-method" class="signature"><strong>.new</strong>(hosts : Array(String), tls : Bool, explicit_port : Int32 | Nil = <span class="n">nil</span>, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, params : URI::Params = <span class="t">URI</span><span class="t">::</span><span class="t">Params</span>.new, ports : Array(Int32 | Nil) = <span class="o">[]</span> <span class="k">of</span> <span class="t">Int32</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>)</a>
         
       </li>
     
@@ -331,6 +351,18 @@ cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
   <ul class="list-summary">
     
       <li class="entry-summary">
+        <a href="#bool_param%28name%3AString%2Cdefault%3ABool%29%3ABool-instance-method" class="signature"><strong>#bool_param</strong>(name : String, default : Bool) : Bool</a>
+        
+          <div class="summary"><p>Reads a boolean query parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#bucket%3AString%7CNil-instance-method" class="signature"><strong>#bucket</strong> : String | Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#explicit_port%3AInt32%7CNil-instance-method" class="signature"><strong>#explicit_port</strong> : Int32 | Nil</a>
         
           <div class="summary"><p>Port explicitly given in the URI, or <code>nil</code> when none was supplied.</p></div>
@@ -345,9 +377,36 @@ cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
       </li>
     
       <li class="entry-summary">
+        <a href="#param%28name%3AString%29%3AString%7CNil-instance-method" class="signature"><strong>#param</strong>(name : String) : String | Nil</a>
+        
+          <div class="summary"><p>Returns the first value for <em>name</em> from the connection string query.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#params%3AURI%3A%3AParams-instance-method" class="signature"><strong>#params</strong> : URI::Params</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#password%3AString%7CNil-instance-method" class="signature"><strong>#password</strong> : String | Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#ports%3AArray%28Int32%7CNil%29-instance-method" class="signature"><strong>#ports</strong> : Array(Int32 | Nil)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#tls%3F%3ABool-instance-method" class="signature"><strong>#tls?</strong> : Bool</a>
         
           <div class="summary"><p>Whether the connection should be made over TLS.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#username%3AString%7CNil-instance-method" class="signature"><strong>#username</strong> : String | Nil</a>
         
       </li>
     
@@ -449,18 +508,18 @@ cs.explicit_port <span class="c"># =&gt; 18091</span></code></pre>
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(hosts:Array(String),tls:Bool,explicit_port:Int32|Nil=nil)-class-method">
+    <div class="entry-detail" id="new(hosts:Array(String),tls:Bool,explicit_port:Int32|Nil=nil,username:String|Nil=nil,password:String|Nil=nil,bucket:String|Nil=nil,params:URI::Params=URI::Params.new,ports:Array(Int32|Nil)=[]ofInt32|::Nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(hosts : Array(String), tls : Bool, explicit_port : Int32 | Nil = <span class="n">nil</span>)
+        def self.<strong>new</strong>(hosts : Array(String), tls : Bool, explicit_port : Int32 | Nil = <span class="n">nil</span>, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, params : URI::Params = <span class="t">URI</span><span class="t">::</span><span class="t">Params</span>.new, ports : Array(Int32 | Nil) = <span class="o">[]</span> <span class="k">of</span> <span class="t">Int32</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>)
 
-        <a class="method-permalink" href="#new%28hosts%3AArray%28String%29%2Ctls%3ABool%2Cexplicit_port%3AInt32%7CNil%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28hosts%3AArray%28String%29%2Ctls%3ABool%2Cexplicit_port%3AInt32%7CNil%3Dnil%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cparams%3AURI%3A%3AParams%3DURI%3A%3AParams.new%2Cports%3AArray%28Int32%7CNil%29%3D%5B%5DofInt32%7C%3A%3ANil%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L35" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -485,7 +544,7 @@ component.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L36" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L59" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -506,6 +565,44 @@ component.</p>
     Instance Method Detail
   </h2>
   
+    <div class="entry-detail" id="bool_param(name:String,default:Bool):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>bool_param</strong>(name : String, default : Bool) : Bool
+
+        <a class="method-permalink" href="#bool_param%28name%3AString%2Cdefault%3ABool%29%3ABool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Reads a boolean query parameter. Accepted true values are <code>true</code> and
+<code>1</code>; accepted false values are <code>false</code> and <code>0</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L91" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="bucket:String|Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>bucket</strong> : String | Nil
+
+        <a class="method-permalink" href="#bucket%3AString%7CNil-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L26" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
     <div class="entry-detail" id="explicit_port:Int32|Nil-instance-method">
       <div class="signature">
         
@@ -517,14 +614,14 @@ component.</p>
         <div class="doc">
           
           <p>Port explicitly given in the URI, or <code>nil</code> when none was supplied.
-Used to override the <code>Management</code> service's default port; other
-services always use their <code><a href="../../CryBase/CouchBase/Service.html#default_port%28tls%3ABool%29%3AInt32-instance-method">Service#default_port</a></code>.</p>
+<code><a href="../../CryBase/CouchBase/Endpoint.html#from_string%28input%3AString%2Cservice%3AService%7CNil%3Dnil%29%3AEndpoint-class-method">Endpoint.from_string</a></code> uses it for the selected endpoint. The
+cluster-level <code><a href="../../CryBase/CouchBase/Client.html">Client</a></code> uses it only for the Management endpoint.</p>
         </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L21" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L33" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -549,7 +646,76 @@ services always use their <code><a href="../../CryBase/CouchBase/Service.html#de
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L15" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L22" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="param(name:String):String|Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>param</strong>(name : String) : String | Nil
+
+        <a class="method-permalink" href="#param%28name%3AString%29%3AString%7CNil-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the first value for <em>name</em> from the connection string query.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L85" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="params:URI::Params-instance-method">
+      <div class="signature">
+        
+        def <strong>params</strong> : URI::Params
+
+        <a class="method-permalink" href="#params%3AURI%3A%3AParams-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L27" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="password:String|Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>password</strong> : String | Nil
+
+        <a class="method-permalink" href="#password%3AString%7CNil-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L25" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="ports:Array(Int32|Nil)-instance-method">
+      <div class="signature">
+        
+        def <strong>ports</strong> : Array(Int32 | Nil)
+
+        <a class="method-permalink" href="#ports%3AArray%28Int32%7CNil%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L28" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -574,7 +740,23 @@ services always use their <code><a href="../../CryBase/CouchBase/Service.html#de
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L16" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L23" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="username:String|Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>username</strong> : String | Nil
+
+        <a class="method-permalink" href="#username%3AString%7CNil-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/connection_string.cr#L24" target="_blank">View source</a>]
         
       </div>
     </div>

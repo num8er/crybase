@@ -1,0 +1,58 @@
+require "../../../../spec_helper"
+
+private alias CB = CryBase::CouchBase
+private alias KV = CryBase::CouchBase::Services::KV
+
+describe KV::Client do
+  it "accepts TLS constructor options" do
+    endpoint = uninitialized CB::Endpoint
+    context = uninitialized OpenSSL::SSL::Context::Client
+
+    typeof(KV::Client.new(
+      endpoint,
+      "user",
+      "pass",
+      "bucket",
+      tls_verify: false,
+      tls_hostname: "cb.local",
+      tls_context: context,
+    )).should eq(KV::Client)
+  end
+
+  it "accepts connection strings" do
+    context = uninitialized OpenSSL::SSL::Context::Client
+
+    typeof(KV::Client.from_string(
+      "couchbases://user:pass@127.0.0.1:11217/bucket?tls_verify=false&tls_hostname=cb.local",
+      tls_context: context,
+    )).should eq(KV::Client)
+  end
+
+  it "accepts explicit credentials with a connection string endpoint" do
+    typeof(KV::Client.from_string(
+      "couchbases://127.0.0.1:11217",
+      "user",
+      "pass",
+      "bucket",
+      tls_verify: false,
+    )).should eq(KV::Client)
+  end
+
+  it "requires credentials when they are not passed or embedded" do
+    expect_raises(ArgumentError, /username/) do
+      KV::Client.from_string("couchbase://127.0.0.1/default")
+    end
+  end
+
+  it "requires a password when only username is embedded" do
+    expect_raises(ArgumentError, /password/) do
+      KV::Client.from_string("couchbase://user@127.0.0.1/default")
+    end
+  end
+
+  it "validates tls_verify query parameters before opening a socket" do
+    expect_raises(ArgumentError, /tls_verify/) do
+      KV::Client.from_string("couchbase://user:pass@127.0.0.1/default?tls_verify=nope")
+    end
+  end
+end

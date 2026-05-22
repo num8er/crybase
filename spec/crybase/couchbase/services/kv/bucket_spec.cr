@@ -16,9 +16,9 @@ describe KV::Bucket do
     BucketPeer.new(io).call("default")
 
     write_buf.rewind
-    header = Bytes.new(KV::HEADER_SIZE)
+    header = Bytes.new(KV::Constants::HEADER_SIZE)
     write_buf.read_fully(header)
-    header[0].should eq(KV::REQUEST_MAGIC)
+    header[0].should eq(KV::Constants::REQUEST_MAGIC)
     header[1].should eq(KV::Opcode::SelectBucket.value)
     key_len = IO::ByteFormat::BigEndian.decode(UInt16, header[2, 2])
     key_len.should eq(7_u16)

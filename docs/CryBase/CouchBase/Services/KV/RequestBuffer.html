@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../../js/doc.js"></script>
 
   <meta name="repository-name" content="crybase">
-  <title>CryBase::CouchBase::Services::KV::Bucket - crybase main-dev</title>
+  <title>CryBase::CouchBase::Services::KV::RequestBuffer - crybase main-dev</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../../";
   </script>
@@ -107,7 +107,7 @@
       
     </li>
   
-  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/Bucket" data-name="crybase::couchbase::services::kv::bucket">
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Bucket" data-name="crybase::couchbase::services::kv::bucket">
       <a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a>
       
     </li>
@@ -152,7 +152,7 @@
       
     </li>
   
-  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
       <a href="../../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
@@ -238,7 +238,7 @@
 
   <span class="kind">
     module
-  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>Bucket
+  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>RequestBuffer
 
 </h1>
 
@@ -255,23 +255,7 @@
     Overview
   </h2>
 
-  <p>Mixin that performs the SELECT_BUCKET handshake — switches the
-connection's active bucket. Depends on the includer also mixing
-in <code><a href="../../../../CryBase/CouchBase/Services/KV/RequestWriter.html">RequestWriter</a></code> (for <code>write</code>) and <code><a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a></code> (for <code>read</code>).</p>
-<p>Maps server-side errors onto typed exceptions:
-<code><a href="../../../../CryBase/CouchBase/Services/KV/Status.html#AuthError">Status::AuthError</a></code>/<code>AuthContinue</code> → <code><a href="../../../../CryBase/CouchBase/Services/KV/AuthFailed.html">AuthFailed</a></code>, anything else
-non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/Error.html">Error</a></code>.</p>
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Peer</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">RequestWriter</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">ResponseReader</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">Bucket</span>
-
-  <span class="k">def</span> <span class="m">initialize</span>(@socket : <span class="t">IO</span>)
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="c"># `io` is wired to a real KV node (or a fake responder)</span>
-<span class="t">Peer</span>.new(io).use(<span class="s">&quot;default&quot;</span>)</code></pre>
+  <p>Builds binary KV request buffers from <code><a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a></code> values.</p>
 
 
 
@@ -284,20 +268,6 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
 
 
 
-
-  <h2>
-    <a id="direct-including-types" class="anchor" href="#direct-including-types">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Direct including types
-  </h2>
-  <ul class="other-types-list">
-    
-      <li class="other-type"><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">CryBase::CouchBase::Services::KV::Client</a></li>
-    
-  </ul>
 
 
 
@@ -312,8 +282,8 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket.cr#L23" target="_blank">
-        crybase/couchbase/services/kv/bucket.cr
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_buffer.cr#L3" target="_blank">
+        crybase/couchbase/services/kv/request_buffer.cr
       </a>
     
     <br/>
@@ -326,6 +296,23 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
   
 
   
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#make%28request%3ARequest%29%3ABytes-class-method" class="signature"><strong>.make</strong>(request : Request) : Bytes</a>
+        
+      </li>
+    
+  </ul>
+
 
   
 
@@ -339,6 +326,32 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
   
 
   
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="make(request:Request):Bytes-class-method">
+      <div class="signature">
+        
+        def self.<strong>make</strong>(request : <a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a>) : Bytes
+
+        <a class="method-permalink" href="#make%28request%3ARequest%29%3ABytes-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_buffer.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
 
   
 

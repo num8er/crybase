@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -298,6 +313,13 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
   <ul class="list-summary">
     
       <li class="entry-summary">
+        <a href="#from_string%28input%3AString%2Cservice%3AService%7CNil%3Dnil%29%3AEndpoint-class-method" class="signature"><strong>.from_string</strong>(input : String, service : Service | Nil = <span class="n">nil</span>) : Endpoint</a>
+        
+          <div class="summary"><p>Parses a connection string and returns one concrete endpoint for the first host.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#new%28host%3AString%2Cport%3AInt32%2Cservice%3AService%2Ctls%3ABool%29-class-method" class="signature"><strong>.new</strong>(host : String, port : Int32, service : Service, tls : Bool)</a>
         
       </li>
@@ -330,14 +352,10 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
       <li class="entry-summary">
         <a href="#host%3AString-instance-method" class="signature"><strong>#host</strong> : String</a>
         
-          <div class="summary"><p>The hostname or IP address for this endpoint.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#port%3AInt32-instance-method" class="signature"><strong>#port</strong> : Int32</a>
-        
-          <div class="summary"><p>The TCP port for this endpoint.</p></div>
         
       </li>
     
@@ -355,8 +373,6 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
     
       <li class="entry-summary">
         <a href="#tls%3F%3ABool-instance-method" class="signature"><strong>#tls?</strong> : Bool</a>
-        
-          <div class="summary"><p>Whether this endpoint speaks TLS.</p></div>
         
       </li>
     
@@ -470,6 +486,37 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
     Constructor Detail
   </h2>
   
+    <div class="entry-detail" id="from_string(input:String,service:Service|Nil=nil):Endpoint-class-method">
+      <div class="signature">
+        
+        def self.<strong>from_string</strong>(input : String, service : <a href="../../CryBase/CouchBase/Service.html">Service</a> | Nil = <span class="n">nil</span>) : <a href="../../CryBase/CouchBase/Endpoint.html">Endpoint</a>
+
+        <a class="method-permalink" href="#from_string%28input%3AString%2Cservice%3AService%7CNil%3Dnil%29%3AEndpoint-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Parses a connection string and returns one concrete endpoint for
+the first host.</p>
+<p>Pass <em>service</em> to choose a specific Couchbase service. When omitted,
+<code>couchbase://</code> and <code>couchbases://</code> strings produce a KV endpoint,
+while <code>http://</code> and <code>https://</code> strings produce a Management endpoint.
+An explicit port in the string overrides the selected service's
+default port.</p>
+<pre><code class="language-crystal"><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbase://node1&quot;</span>).address              <span class="c"># =&gt; &quot;couchbase://node1:11210&quot;</span>
+<span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbases://node1:11217&quot;</span>).port          <span class="c"># =&gt; 11217</span>
+<span class="t">Endpoint</span>.from_string(<span class="s">&quot;https://node1:18091&quot;</span>).service            <span class="c"># =&gt; Service::Management</span>
+<span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbase://node1&quot;</span>, <span class="t">Service</span><span class="t">::</span><span class="t">Query</span>).port <span class="c"># =&gt; 8093</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L36" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
     <div class="entry-detail" id="new(host:String,port:Int32,service:Service,tls:Bool)-class-method">
       <div class="signature">
         
@@ -513,13 +560,13 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
         <div class="doc">
           
           <p>Full <code>scheme://host:port</code> string for this endpoint.</p>
-<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).address <span class="c"># =&gt; &quot;couchbase://h:11210&quot;</span></code></pre>
+<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;host&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).address <span class="c"># =&gt; &quot;couchbase://host:11210&quot;</span></code></pre>
         </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L44" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L67" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -531,15 +578,6 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
 
         <a class="method-permalink" href="#host%3AString-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from struct <a href="../../CryBase/Interfaces/Endpoint.html">CryBase::Interfaces::Endpoint</a>
-            </div>
-          
-          <p>The hostname or IP address for this endpoint.</p>
-        </div>
       
       <br/>
       <div>
@@ -556,15 +594,6 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
 
         <a class="method-permalink" href="#port%3AInt32-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from struct <a href="../../CryBase/Interfaces/Endpoint.html">CryBase::Interfaces::Endpoint</a>
-            </div>
-          
-          <p>The TCP port for this endpoint.</p>
-        </div>
       
       <br/>
       <div>
@@ -589,15 +618,15 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
 <li><code>&quot;couchbase&quot;</code> / <code>&quot;couchbases&quot;</code> for the KV service</li>
 <li><code>&quot;http&quot;</code> / <code>&quot;https&quot;</code> for every other service</li>
 </ul>
-<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).scheme   <span class="c"># =&gt; &quot;couchbase&quot;</span>
-<span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">11207</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">true</span>).scheme    <span class="c"># =&gt; &quot;couchbases&quot;</span>
-<span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">8093</span>, <span class="t">Service</span><span class="t">::</span><span class="t">Query</span>, <span class="n">false</span>).scheme <span class="c"># =&gt; &quot;http&quot;</span></code></pre>
+<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;host&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).scheme   <span class="c"># =&gt; &quot;couchbase&quot;</span>
+<span class="t">Endpoint</span>.new(<span class="s">&quot;host&quot;</span>, <span class="n">11207</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">true</span>).scheme    <span class="c"># =&gt; &quot;couchbases&quot;</span>
+<span class="t">Endpoint</span>.new(<span class="s">&quot;host&quot;</span>, <span class="n">8093</span>, <span class="t">Service</span><span class="t">::</span><span class="t">Query</span>, <span class="n">false</span>).scheme <span class="c"># =&gt; &quot;http&quot;</span></code></pre>
         </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L30" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L53" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -626,15 +655,6 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
         <a class="method-permalink" href="#tls%3F%3ABool-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from struct <a href="../../CryBase/Interfaces/Endpoint.html">CryBase::Interfaces::Endpoint</a>
-            </div>
-          
-          <p>Whether this endpoint speaks TLS.</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -654,13 +674,13 @@ ep.to_s    <span class="c"># =&gt; &quot;Data (KV) couchbase://h1:11210&quot;</s
         <div class="doc">
           
           <p>Renders the endpoint as <code>&quot;&lt;service display name&gt; &lt;address&gt;&quot;</code>.</p>
-<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;h&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).to_s <span class="c"># =&gt; &quot;Data (KV) couchbase://h:11210&quot;</span></code></pre>
+<pre><code class="language-crystal"><span class="t">Endpoint</span>.new(<span class="s">&quot;host&quot;</span>, <span class="n">11210</span>, <span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>).to_s <span class="c"># =&gt; &quot;Data (KV) couchbase://host:11210&quot;</span></code></pre>
         </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L53" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/endpoint.cr#L76" target="_blank">View source</a>]
         
       </div>
     </div>

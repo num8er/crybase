@@ -24,12 +24,28 @@ describe "Couchbase KV integration" do
   keys = [] of String
   kv = uninitialized KV::Client
   pool = uninitialized KV::Pool
+  cluster = uninitialized KV::Cluster
 
   before_all do
     next unless Couchbase.enabled?
 
-    kv = KV::Client.new(Couchbase.kv_endpoint(config), config.user, config.pass, config.bucket)
-    pool = KV::Pool.new(Couchbase.kv_endpoint(config), config.user, config.pass, config.bucket, size: 2)
+    kv = KV::Client.from_string(
+      Couchbase.kv_connection_string(config),
+      tls_verify: config.tls_verify,
+      tls_hostname: config.tls_hostname,
+    )
+    pool = KV::Pool.from_string(
+      Couchbase.kv_connection_string(config),
+      size: 2,
+      tls_verify: config.tls_verify,
+      tls_hostname: config.tls_hostname,
+    )
+    cluster = KV::Cluster.from_string(
+      Couchbase.kv_cluster_connection_string(config),
+      size: 2,
+      tls_verify: config.tls_verify,
+      tls_hostname: config.tls_hostname,
+    )
   end
 
   before_each do
@@ -41,6 +57,7 @@ describe "Couchbase KV integration" do
       keys.each do |key|
         kv.delete(key) rescue nil
         pool.delete(key) rescue nil
+        cluster.delete(key) rescue nil
       end
       keys.clear
     end
@@ -50,6 +67,7 @@ describe "Couchbase KV integration" do
     if Couchbase.enabled?
       kv.close rescue nil
       pool.close rescue nil
+      cluster.close rescue nil
     end
   end
 
@@ -68,6 +86,16 @@ describe "Couchbase KV integration" do
 
     response.status_code.should eq(200)
     response.body.should contain(key)
+  end
+
+  it "stores and loads a document over TLS when configured" do
+    pending! "set COUCHBASE_TLS=true to run TLS KV integration spec" unless config.tls
+
+    key = "crybase:tls:#{Time.utc.to_unix_ms}"
+    keys << key
+
+    kv.set(key, "tls-ok")
+    String.new(kv.get(key)).should eq("tls-ok")
   end
 
   it "reuses pooled connections for KV operations" do
@@ -144,5 +172,13 @@ describe "Couchbase KV integration" do
     loaded_from_pool = pool.get_as(pool_key, Profile)
     loaded_from_pool.name.should eq("ada")
     loaded_from_pool.score.should eq(42)
+  end
+
+  it "stores and loads through a seed-failover cluster" do
+    key = "crybase:cluster:#{Time.utc.to_unix_ms}"
+    keys << key
+
+    cluster.set(key, "cluster-ok")
+    String.new(cluster.get(key)).should eq("cluster-ok")
   end
 end

@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -243,11 +258,12 @@
   </h2>
 
   <p>One outbound packet for the KV service, as a pure value type.
-<code>RequestWriter#write</code> knows how to serialize it.</p>
+<code><a href="../../../../CryBase/CouchBase/Services/KV/RequestBuffer.html#make%28request%3ARequest%29%3ABytes-class-method">RequestBuffer.make</a></code> serializes it; <code>RequestWriter#write</code> sends it.</p>
 <pre><code class="language-crystal">req <span class="o">=</span> <span class="t">KV</span><span class="t">::</span><span class="t">Request</span>.new(<span class="t">KV</span><span class="t">::</span><span class="t">Opcode</span><span class="t">::</span><span class="t">Get</span>, key: <span class="s">&quot;hello&quot;</span>)
-req.opcode <span class="c"># =&gt; KV::Opcode::Get</span>
-req.key    <span class="c"># =&gt; &quot;hello&quot;</span>
-req.opaque <span class="c"># =&gt; 0_u32</span></code></pre>
+req.opcode    <span class="c"># =&gt; KV::Opcode::Get</span>
+req.key       <span class="c"># =&gt; &quot;hello&quot;</span>
+req.opaque    <span class="c"># =&gt; 0_u32</span>
+req.to_buffer <span class="c"># =&gt; Bytes</span></code></pre>
 <p>The fields:</p>
 <ul>
 <li><em>opcode</em>  — the command code (<code><a href="../../../../CryBase/CouchBase/Services/KV/Opcode.html#Get">Opcode::Get</a></code>, <code>::Set</code>, etc.)</li>
@@ -285,8 +301,15 @@ verbatim in the response</li>
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L22" target="_blank">
-        crybase/couchbase/services/kv/request.cr
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">
+        crybase/couchbase/services/kv/request.cr:23
+      </a>
+    
+    <br/>
+  
+    
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L32" target="_blank">
+        crybase/couchbase/services/kv/request.cr:32
       </a>
     
     <br/>
@@ -362,6 +385,13 @@ verbatim in the response</li>
     
       <li class="entry-summary">
         <a href="#opcode%3AOpcode-instance-method" class="signature"><strong>#opcode</strong> : Opcode</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_buffer%3ABytes-instance-method" class="signature"><strong>#to_buffer</strong> : Bytes</a>
+        
+          <div class="summary"><p>Serializes this request into one binary KV packet.</p></div>
         
       </li>
     
@@ -443,7 +473,7 @@ verbatim in the response</li>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L22" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -489,7 +519,7 @@ verbatim in the response</li>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L22" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -505,7 +535,7 @@ verbatim in the response</li>
       <br/>
       <div>
         
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L22" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -562,6 +592,27 @@ verbatim in the response</li>
       
       <br/>
       <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_buffer:Bytes-instance-method">
+      <div class="signature">
+        
+        def <strong>to_buffer</strong> : Bytes
+
+        <a class="method-permalink" href="#to_buffer%3ABytes-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Serializes this request into one binary KV packet.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L34" target="_blank">View source</a>]
         
       </div>
     </div>
