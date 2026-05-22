@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `COUCHBASE_KV_PORT`, and `COUCHBASE_MANAGEMENT_PORT`.
 - Generated API documentation under `docs/`, plus a pre-commit hook step that
   refreshes it with deterministic project metadata.
+- Feature implementation notes under `docs/`: [KV Client](docs/1.FEAT_kv-client.md),
+  [KV Client Pool](docs/2.FEAT_kv-client-pool.md),
+  [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md),
+  and [KV Cluster](docs/4.FEAT_kv-cluster.md).
 - `Endpoint.from_string`, plus `KV::Client.from_string` and
   `KV::Pool.from_string` helpers for building KV connections from Couchbase
   connection strings, including `user:pass@host/bucket?tls_verify=...`

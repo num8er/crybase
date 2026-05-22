@@ -220,6 +220,13 @@ cluster.close
 
 Generated API docs are committed in [`docs/`](docs/index.html).
 
+Feature notes:
+
+- [KV Client](docs/1.FEAT_kv-client.md)
+- [KV Client Pool](docs/2.FEAT_kv-client-pool.md)
+- [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md)
+- [KV Cluster](docs/4.FEAT_kv-cluster.md)
+
 ## Connection Strings
 
 | Scheme | TLS | Notes |
