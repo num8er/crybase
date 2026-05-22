@@ -1,53 +1,50 @@
-# Implementation of the Couchbase KV (Data) service over the memcached
-# binary protocol.
+# Implementation of the Couchbase KV (Data) service over Couchbase's
+# memcached binary protocol, using plaintext or TLS sockets according to
+# the endpoint or connection string.
 #
-# The public entry point is `KV::Client`; everything else is structured
-# as small composable pieces:
+# The main public entry points are `KV::Client.from_string` for one
+# authenticated connection, `KV::Pool.from_string` for a fixed-size pool,
+# and `KV::Cluster.from_string` for seed failover across multiple KV hosts.
+# They accept connection strings with credentials, bucket, explicit KV port,
+# and TLS query options:
 #
+# ```
+# cluster = CryBase::CouchBase::KV::Cluster.from_string(
+#   "couchbases://user:pass@node1,node2:11217/default?tls_verify=false"
+# )
+# cluster.set("hello", "world")
+# cluster.get("hello") # => Bytes containing "world"
+# cluster.close
+# ```
+#
+# You can still construct an `Endpoint` explicitly or through
+# `CryBase::CouchBase::Endpoint.from_string` and pass it to `KV::Client.new`
+# or `KV::Pool.new` when credentials and bucket should stay separate from
+# the endpoint address.
+#
+# The namespace is structured as small composable pieces:
+#
+# * `KV::Constants`     — protocol constants used by packet framing
 # * `KV::Request`        — value type describing one outbound packet
-# * `KV::RequestWriter`  — mixin: `write(req)` serializes to a socket
+# * `KV::RequestBuffer`  — serializes one outbound packet into bytes
+# * `KV::RequestWriter`  — mixin: writes and flushes a request buffer
 # * `KV::Response`       — value type describing one inbound packet
 # * `KV::ResponseReader` — mixin: `read` decodes one packet from a socket
 # * `KV::Bucket`         — mixin: SELECT_BUCKET handshake
 # * `KV::Serializable`   — typed value codec
 # * `KV::Pool`           — fixed-size pool of authenticated clients
+# * `KV::Cluster`        — seed-failover client backed by `KV::Pool`
 #
-# These mixins are composed into `KV::Client`, which also handles
-# `HELLO`, `SASL_AUTH(PLAIN)` and offers `get`/`set`/`delete`.
-#
-# ```
-# endpoint = CryBase::CouchBase::Endpoint.new(
-#   "node1", 11210, CryBase::CouchBase::Service::KV, false
-# )
-# kv = CryBase::CouchBase::Services::KV::Client.new(endpoint, "user", "pass", "default")
-# kv.set("hello", "world")
-# kv.get("hello") # => Bytes containing "world"
-# kv.delete("hello")
-# kv.close
-# ```
+# `KV::Client` composes the request/response/bucket mixins, performs
+# `HELLO`, `SASL_AUTH(PLAIN)`, and `SELECT_BUCKET`, then exposes document,
+# expiry, counter, and typed JSON helper operations.
 module CryBase::CouchBase::Services::KV
-  # Binary-protocol magic byte indicating an outbound (request) packet.
-  REQUEST_MAGIC = 0x80_u8
-
-  # Binary-protocol magic byte indicating an inbound (response) packet.
-  RESPONSE_MAGIC = 0x81_u8
-
-  # Fixed-width header size in bytes for both requests and responses.
-  HEADER_SIZE = 24
-
-  # User-agent string sent in the HELLO request body.
-  AGENT = "crybase"
-
-  # HELLO feature code that opts the connection into bucket selection.
-  # Sent during the handshake so the server accepts SELECT_BUCKET.
-  FEATURE_SELECT_BUCKET = 0x0008_u16
-
-  # Number of vbuckets in Couchbase buckets.
-  VBUCKET_COUNT = 1024_u16
 end
 
 require "digest/crc32"
+require "openssl"
 
+require "./kv/constants"
 require "./kv/opcode"
 require "./kv/status"
 require "./kv/vbucket"
@@ -59,9 +56,11 @@ require "./kv/error"
 require "./kv/not_found"
 require "./kv/auth_failed"
 require "./kv/request"
+require "./kv/request_buffer"
 require "./kv/request_writer"
 require "./kv/response_reader"
 require "./kv/bucket"
 require "./kv/client"
 require "./kv/client_delegator"
 require "./kv/pool"
+require "./kv/cluster"

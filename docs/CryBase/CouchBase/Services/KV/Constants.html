@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../../js/doc.js"></script>
 
   <meta name="repository-name" content="crybase">
-  <title>CryBase::CouchBase::Services::KV::Bucket - crybase main-dev</title>
+  <title>CryBase::CouchBase::Services::KV::Constants - crybase main-dev</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../../";
   </script>
@@ -107,7 +107,7 @@
       
     </li>
   
-  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/Bucket" data-name="crybase::couchbase::services::kv::bucket">
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Bucket" data-name="crybase::couchbase::services::kv::bucket">
       <a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a>
       
     </li>
@@ -122,7 +122,7 @@
       
     </li>
   
-  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
       
     </li>
@@ -238,7 +238,7 @@
 
   <span class="kind">
     module
-  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>Bucket
+  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>Constants
 
 </h1>
 
@@ -246,32 +246,6 @@
 
 
 
-  <h2>
-    <a id="overview" class="anchor" href="#overview">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Overview
-  </h2>
-
-  <p>Mixin that performs the SELECT_BUCKET handshake — switches the
-connection's active bucket. Depends on the includer also mixing
-in <code><a href="../../../../CryBase/CouchBase/Services/KV/RequestWriter.html">RequestWriter</a></code> (for <code>write</code>) and <code><a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a></code> (for <code>read</code>).</p>
-<p>Maps server-side errors onto typed exceptions:
-<code><a href="../../../../CryBase/CouchBase/Services/KV/Status.html#AuthError">Status::AuthError</a></code>/<code>AuthContinue</code> → <code><a href="../../../../CryBase/CouchBase/Services/KV/AuthFailed.html">AuthFailed</a></code>, anything else
-non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/Error.html">Error</a></code>.</p>
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Peer</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">RequestWriter</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">ResponseReader</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">Bucket</span>
-
-  <span class="k">def</span> <span class="m">initialize</span>(@socket : <span class="t">IO</span>)
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="c"># `io` is wired to a real KV node (or a fake responder)</span>
-<span class="t">Peer</span>.new(io).use(<span class="s">&quot;default&quot;</span>)</code></pre>
 
 
 
@@ -283,21 +257,6 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
 
 
 
-
-
-  <h2>
-    <a id="direct-including-types" class="anchor" href="#direct-including-types">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Direct including types
-  </h2>
-  <ul class="other-types-list">
-    
-      <li class="other-type"><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">CryBase::CouchBase::Services::KV::Client</a></li>
-    
-  </ul>
 
 
 
@@ -312,14 +271,101 @@ non-success → plain <code><a href="../../../../CryBase/CouchBase/Services/KV/E
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket.cr#L23" target="_blank">
-        crybase/couchbase/services/kv/bucket.cr
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/constants.cr#L1" target="_blank">
+        crybase/couchbase/services/kv/constants.cr
       </a>
     
     <br/>
   
 
 
+
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="AGENT">
+        <strong>AGENT</strong> = <code><span class="s">&quot;crybase&quot;</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>User-agent string sent in the HELLO request body.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="COUNTER_EXTRAS_SIZE">
+        <strong>COUNTER_EXTRAS_SIZE</strong> = <code><span class="n">20</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Fixed-width extras size for KV counter operations.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="EXPIRY_EXTRAS_SIZE">
+        <strong>EXPIRY_EXTRAS_SIZE</strong> = <code><span class="n">4</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Fixed-width extras size for KV expiration operations.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="FEATURE_SELECT_BUCKET">
+        <strong>FEATURE_SELECT_BUCKET</strong> = <code><span class="n">8_u16</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>HELLO feature code that opts the connection into bucket selection.
+Sent during the handshake so the server accepts SELECT_BUCKET.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="HEADER_SIZE">
+        <strong>HEADER_SIZE</strong> = <code><span class="n">24</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Fixed-width header size in bytes for both requests and responses.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="REQUEST_MAGIC">
+        <strong>REQUEST_MAGIC</strong> = <code><span class="n">128_u8</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Binary-protocol magic byte indicating an outbound (request) packet.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="RESPONSE_MAGIC">
+        <strong>RESPONSE_MAGIC</strong> = <code><span class="n">129_u8</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Binary-protocol magic byte indicating an inbound (response) packet.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="VBUCKET_COUNT">
+        <strong>VBUCKET_COUNT</strong> = <code><span class="n">1024_u16</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Number of vbuckets in Couchbase buckets.</p>
+      </dd>
+      
+    
+  </dl>
 
 
 

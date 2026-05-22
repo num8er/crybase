@@ -117,6 +117,16 @@
       
     </li>
   
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Cluster" data-name="crybase::couchbase::services::kv::cluster">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
+      <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
+      
+    </li>
+  
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Error" data-name="crybase::couchbase::services::kv::error">
       <a href="../../../../CryBase/CouchBase/Services/KV/Error.html">Error</a>
       
@@ -139,6 +149,11 @@
   
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Request" data-name="crybase::couchbase::services::kv::request">
       <a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a>
+      
+    </li>
+  
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/RequestBuffer" data-name="crybase::couchbase::services::kv::requestbuffer">
+      <a href="../../../../CryBase/CouchBase/Services/KV/RequestBuffer.html">RequestBuffer</a>
       
     </li>
   
@@ -240,9 +255,8 @@
     Overview
   </h2>
 
-  <p>Mixin that serializes a <code><a href="../../../../CryBase/CouchBase/Services/KV/Request.html">Request</a></code> into the binary KV wire format
-and writes it to the includer's <code>@socket</code>. The includer is expected
-to own an IO-typed <code>@socket</code> (e.g. <code>TCPSocket</code> in <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code>).</p>
+  <p>Mixin that writes <code>request.to_buffer</code> to the includer's <code>@socket</code>.
+The includer is expected to own an IO-typed <code>@socket</code>.</p>
 <p>Used together with <code><a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a></code> and <code><a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a></code> to compose
 <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code>. Stateless on its own.</p>
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">Peer</span>
@@ -250,10 +264,7 @@ to own an IO-typed <code>@socket</code> (e.g. <code>TCPSocket</code> in <code><a
 
   <span class="k">def</span> <span class="m">initialize</span>(@socket : <span class="t">IO</span>)
   <span class="k">end</span>
-<span class="k">end</span>
-
-io <span class="o">=</span> <span class="t">IO</span><span class="t">::</span><span class="t">Memory</span>.new
-<span class="t">Peer</span>.new(io).write(<span class="t">KV</span><span class="t">::</span><span class="t">Request</span>.new(<span class="t">KV</span><span class="t">::</span><span class="t">Opcode</span><span class="t">::</span><span class="t">Get</span>, key: <span class="s">&quot;foo&quot;</span>))</code></pre>
+<span class="k">end</span></code></pre>
 
 
 
@@ -294,7 +305,7 @@ io <span class="o">=</span> <span class="t">IO</span><span class="t">::</span><s
   </h2>
   
     
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_writer.cr#L20" target="_blank">
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request_writer.cr#L16" target="_blank">
         crybase/couchbase/services/kv/request_writer.cr
       </a>
     

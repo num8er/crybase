@@ -1,19 +1,12 @@
 # KV expiration operations — set a document with TTL, extend it with
 # TOUCH, and fetch while atomically resetting expiry with GET_AND_TOUCH.
 #
-# Reads from `.envrc` (loaded via direnv): COUCHBASE_HOST,
-# COUCHBASE_USER, COUCHBASE_PASS, COUCHBASE_BUCKET.
+# Reads Couchbase settings from `examples/constants.cr`.
 #
 #   crystal run examples/kv_expiration.cr
-require "../src/crybase"
+require "./constants"
 
-host = ENV["COUCHBASE_HOST"]? || "localhost"
-user = ENV["COUCHBASE_USER"]? || "Administrator"
-pass = ENV["COUCHBASE_PASS"]? || "password"
-bucket = ENV["COUCHBASE_BUCKET"]? || "default"
-
-endpoint = CryBase::CouchBase::Endpoint.new(host, 11210, CryBase::CouchBase::Service::KV, false)
-kv = CryBase::CouchBase::Services::KV::Client.new(endpoint, user, pass, bucket)
+kv = CryBase::CouchBase::Services::KV::Client.from_string(CryBaseExamples.kv_connection_string)
 
 key = "crybase:expiration"
 

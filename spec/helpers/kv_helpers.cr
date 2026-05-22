@@ -13,7 +13,7 @@ module CryBase::SpecHelpers::KVHelpers
   ) : Nil
     key_bytes = key.to_slice
     total_body = extras.size + key_bytes.size + value.size
-    io.write_byte(KV::RESPONSE_MAGIC)
+    io.write_byte(KV::Constants::RESPONSE_MAGIC)
     io.write_byte(opcode)
     io.write_bytes(key_bytes.size.to_u16, IO::ByteFormat::BigEndian)
     io.write_byte(extras.size.to_u8)

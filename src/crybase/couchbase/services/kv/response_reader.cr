@@ -22,13 +22,13 @@ module CryBase::CouchBase::Services::KV
     # `Response`.
     #
     # Raises `IO::Error` if the magic byte doesn't match
-    # `RESPONSE_MAGIC` or the status code is unknown to `Status`.
+    # `Constants::RESPONSE_MAGIC` or the status code is unknown to `Status`.
     private def read : Response
-      header = Bytes.new(HEADER_SIZE)
+      header = Bytes.new(Constants::HEADER_SIZE)
       @socket.read_fully(header)
 
       magic = header[0]
-      raise IO::Error.new("invalid KV response magic 0x#{magic.to_s(16)}") unless magic == RESPONSE_MAGIC
+      raise IO::Error.new("invalid KV response magic 0x#{magic.to_s(16)}") unless magic == Constants::RESPONSE_MAGIC
 
       opcode = header[1]
       key_len = IO::ByteFormat::BigEndian.decode(UInt16, header[2, 2])

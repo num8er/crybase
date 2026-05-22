@@ -12,6 +12,69 @@ describe Endpoint do
     ep.tls?.should be_false
   end
 
+  it "builds a plaintext KV endpoint from a connection string" do
+    ep = Endpoint.from_string("couchbase://node1")
+    ep.host.should eq("node1")
+    ep.port.should eq(11210)
+    ep.service.should eq(Service::KV)
+    ep.tls?.should be_false
+  end
+
+  it "builds a TLS KV endpoint from a connection string" do
+    ep = Endpoint.from_string("couchbases://node1")
+    ep.host.should eq("node1")
+    ep.port.should eq(11207)
+    ep.service.should eq(Service::KV)
+    ep.tls?.should be_true
+  end
+
+  it "honors explicit ports for the selected endpoint" do
+    ep = Endpoint.from_string("couchbases://node1:11217")
+    ep.port.should eq(11217)
+    ep.tls?.should be_true
+  end
+
+  it "ignores credentials and bucket when building the endpoint" do
+    ep = Endpoint.from_string("couchbases://user:pass@node1:11217/default?tls_verify=false")
+    ep.host.should eq("node1")
+    ep.port.should eq(11217)
+    ep.service.should eq(Service::KV)
+    ep.tls?.should be_true
+  end
+
+  it "uses the first host from a multi-host connection string" do
+    ep = Endpoint.from_string("couchbase://node1,node2")
+    ep.host.should eq("node1")
+  end
+
+  it "uses the first host port from a per-host seed list" do
+    ep = Endpoint.from_string("couchbase://node1:11231,node2:11232")
+    ep.host.should eq("node1")
+    ep.port.should eq(11231)
+  end
+
+  it "defaults http schemes to management endpoints" do
+    ep = Endpoint.from_string("https://node1:18091")
+    ep.host.should eq("node1")
+    ep.port.should eq(18091)
+    ep.service.should eq(Service::Management)
+    ep.tls?.should be_true
+  end
+
+  it "accepts an explicit service" do
+    ep = Endpoint.from_string("couchbases://node1", Service::Query)
+    ep.port.should eq(18093)
+    ep.service.should eq(Service::Query)
+    ep.tls?.should be_true
+  end
+
+  it "honors explicit ports with an explicit service" do
+    ep = Endpoint.from_string("couchbases://node1:19093", Service::Query)
+    ep.port.should eq(19093)
+    ep.service.should eq(Service::Query)
+    ep.tls?.should be_true
+  end
+
   it "renders the couchbase scheme for plaintext KV" do
     ep = Endpoint.new("h", 11210, Service::KV, false)
     ep.scheme.should eq("couchbase")

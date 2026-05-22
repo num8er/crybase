@@ -7,13 +7,13 @@ private alias ReaderPeer = KVSpec::ReaderPeer
 describe KV::ResponseReader do
   it "decodes a successful GET response with extras, key, and value" do
     io = IO::Memory.new
-    flags = IO::Memory.new
-    flags.write_bytes(0_u32, IO::ByteFormat::BigEndian)
+    flags = Bytes.new(4)
+    IO::ByteFormat::BigEndian.encode(0_u32, flags)
     KVSpec.encode_response(io,
       opcode: KV::Opcode::Get.value,
       status: KV::Status::Success.value,
       cas: 0xCAFE_u64,
-      extras: flags.to_slice,
+      extras: flags,
       key: "k",
       value: "world".to_slice,
     )

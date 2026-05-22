@@ -1,12 +1,13 @@
 module CryBase::CouchBase::Services::KV
   # One outbound packet for the KV service, as a pure value type.
-  # `RequestWriter#write` knows how to serialize it.
+  # `RequestBuffer.make` serializes it; `RequestWriter#write` sends it.
   #
   # ```
   # req = KV::Request.new(KV::Opcode::Get, key: "hello")
-  # req.opcode # => KV::Opcode::Get
-  # req.key    # => "hello"
-  # req.opaque # => 0_u32
+  # req.opcode    # => KV::Opcode::Get
+  # req.key       # => "hello"
+  # req.opaque    # => 0_u32
+  # req.to_buffer # => Bytes
   # ```
   #
   # The fields:
@@ -27,4 +28,11 @@ module CryBase::CouchBase::Services::KV
     cas : UInt64 = 0_u64,
     opaque : UInt32 = 0_u32,
     vbucket : UInt16 = 0_u16
+
+  struct Request
+    # Serializes this request into one binary KV packet.
+    def to_buffer : Bytes
+      RequestBuffer.make(self)
+    end
+  end
 end

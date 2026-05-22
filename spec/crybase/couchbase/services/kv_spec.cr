@@ -25,12 +25,12 @@ describe KV do
   end
 
   it "pins protocol framing constants" do
-    KV::REQUEST_MAGIC.should eq(0x80_u8)
-    KV::RESPONSE_MAGIC.should eq(0x81_u8)
-    KV::HEADER_SIZE.should eq(24)
-    KV::VBUCKET_COUNT.should eq(1024_u16)
-    KV::EXPIRY_EXTRAS_SIZE.should eq(4)
-    KV::COUNTER_EXTRAS_SIZE.should eq(20)
+    KV::Constants::REQUEST_MAGIC.should eq(0x80_u8)
+    KV::Constants::RESPONSE_MAGIC.should eq(0x81_u8)
+    KV::Constants::HEADER_SIZE.should eq(24)
+    KV::Constants::VBUCKET_COUNT.should eq(1024_u16)
+    KV::Constants::EXPIRY_EXTRAS_SIZE.should eq(4)
+    KV::Constants::COUNTER_EXTRAS_SIZE.should eq(20)
   end
 
   it "maps document keys to Couchbase vbuckets" do
@@ -41,7 +41,7 @@ describe KV do
   it "encodes counter extras as delta, initial, expiry" do
     extras = KV.counter_extras(3_u64, 10_u64, 60_u32)
 
-    extras.size.should eq(KV::COUNTER_EXTRAS_SIZE)
+    extras.size.should eq(KV::Constants::COUNTER_EXTRAS_SIZE)
     IO::ByteFormat::BigEndian.decode(UInt64, extras[0, 8]).should eq(3_u64)
     IO::ByteFormat::BigEndian.decode(UInt64, extras[8, 8]).should eq(10_u64)
     IO::ByteFormat::BigEndian.decode(UInt32, extras[16, 4]).should eq(60_u32)
@@ -50,15 +50,15 @@ describe KV do
   it "encodes expiry extras" do
     extras = KV.expiry_extras(60_u32)
 
-    extras.size.should eq(KV::EXPIRY_EXTRAS_SIZE)
+    extras.size.should eq(KV::Constants::EXPIRY_EXTRAS_SIZE)
     IO::ByteFormat::BigEndian.decode(UInt32, extras).should eq(60_u32)
   end
 
   it "decodes counter response values" do
-    io = IO::Memory.new(8)
-    io.write_bytes(42_u64, IO::ByteFormat::BigEndian)
+    buffer = Bytes.new(8)
+    IO::ByteFormat::BigEndian.encode(42_u64, buffer)
 
-    KV.counter_value(io.to_slice).should eq(42_u64)
+    KV.counter_value(buffer).should eq(42_u64)
   end
 
   it "rejects invalid counter response sizes" do

@@ -1,11 +1,13 @@
 module CryBase::CouchBase::Services::KV
   # Talks the Couchbase memcached binary protocol against a single KV
-  # node. Composed from `RequestWriter`, `ResponseReader`, and `Bucket`
-  # mixins.
+  # node over plaintext or TLS according to the endpoint. Composed from
+  # `RequestWriter`, `ResponseReader`, and `Bucket` mixins.
   #
-  # On construct: TCP-connects to *endpoint*, sends `HELLO` (advertising
-  # `FEATURE_SELECT_BUCKET`), `SASL_AUTH` (PLAIN), and `SELECT_BUCKET` for
-  # *bucket*. Then exposes plain `get` / `set` / `delete` against that
+  # On construct: connects to *endpoint*, performs the TLS handshake when
+  # `endpoint.tls?`, sends `HELLO` (advertising
+  # `Constants::FEATURE_SELECT_BUCKET`),
+  # `SASL_AUTH` (PLAIN), and `SELECT_BUCKET` for *bucket*. Then exposes
+  # `get` / `set` / `delete` / `touch` / counter operations against that
   # bucket.
   #
   # ```
@@ -17,6 +19,12 @@ module CryBase::CouchBase::Services::KV
   # kv.get("hello") # => "world".to_slice
   # kv.delete("hello")
   # kv.close
+  # ```
+  #
+  # For connection strings, use `from_string`:
+  #
+  # ```
+  # kv = KV::Client.from_string("couchbase://user:pass@node1/default")
   # ```
   #
   # Out of scope (deliberate, can be layered on top later):
@@ -33,14 +41,54 @@ module CryBase::CouchBase::Services::KV
     # The bucket selected during the construction handshake.
     getter bucket : String
 
-    @socket : TCPSocket
+    @socket : IO
     @opaque : UInt32
 
-    # Connects, performs HELLO + SASL PLAIN + SELECT_BUCKET, and leaves
-    # the client ready for `get`/`set`/`delete`.
+    # Builds a KV endpoint from *uri*, connects, authenticates, and selects
+    # a bucket. The first host in the connection string is used.
+    #
+    # `username`, `password`, and `bucket` may be passed explicitly or
+    # embedded as `couchbase://user:pass@host/bucket`. Query parameters
+    # currently supported by this helper: `tls_verify` and `tls_hostname`.
+    #
+    # ```
+    # kv = KV::Client.from_string("couchbases://user:pass@node1:11217/default?tls_verify=false")
+    # ```
+    def self.from_string(
+      uri : String,
+      username : String? = nil,
+      password : String? = nil,
+      bucket : String? = nil,
+      connect_timeout : Time::Span = 5.seconds,
+      *,
+      tls_verify : Bool? = nil,
+      tls_hostname : String? = nil,
+      tls_context : OpenSSL::SSL::Context::Client? = nil,
+    ) : Client
+      connection_string = ConnectionString.parse(uri)
+
+      new(
+        Endpoint.from_string(uri, Service::KV),
+        required(username || connection_string.username, "username"),
+        required(password || connection_string.password, "password"),
+        required(bucket || connection_string.bucket, "bucket"),
+        connect_timeout,
+        tls_verify: tls_verify.nil? ? connection_string.bool_param("tls_verify", true) : tls_verify,
+        tls_hostname: tls_hostname || connection_string.param("tls_hostname"),
+        tls_context: tls_context,
+      )
+    end
+
+    # Connects, optionally performs TLS, then performs HELLO, SASL PLAIN
+    # auth, and SELECT_BUCKET, leaving the client ready for KV operations.
+    #
+    # `tls_verify` and `tls_hostname` apply only when `endpoint.tls?`.
+    # Provide `tls_context` to use a custom CA or other OpenSSL settings;
+    # when supplied, it is used as-is.
     #
     # Raises:
-    # * `IO::Error` / `Socket::Error` — TCP connect failed
+    # * `IO::Error` / `Socket::Error` — socket connect failed
+    # * `OpenSSL::SSL::Error` — TLS handshake or certificate verification failed
     # * `KV::AuthFailed` — SASL auth or bucket selection denied
     # * `KV::Error` — server returned any other non-success status
     #
@@ -52,9 +100,12 @@ module CryBase::CouchBase::Services::KV
       password : String,
       @bucket : String,
       connect_timeout : Time::Span = 5.seconds,
+      *,
+      tls_verify : Bool = true,
+      tls_hostname : String? = nil,
+      tls_context : OpenSSL::SSL::Context::Client? = nil,
     )
-      @socket = TCPSocket.new(@endpoint.host, @endpoint.port, connect_timeout: connect_timeout)
-      @socket.sync = false
+      @socket = open_socket(@endpoint, connect_timeout, tls_verify, tls_hostname, tls_context)
       @opaque = 0_u32
       begin
         hello
@@ -124,10 +175,10 @@ module CryBase::CouchBase::Services::KV
     # ```
     def set(key : String, value : String | Bytes, expiry : UInt32 = 0_u32) : UInt64
       bytes = value.is_a?(String) ? value.to_slice : value
-      extras = IO::Memory.new(8)
-      extras.write_bytes(0_u32, IO::ByteFormat::BigEndian) # flags
-      extras.write_bytes(expiry, IO::ByteFormat::BigEndian)
-      resp = call(Opcode::Set, key: key, extras: extras.to_slice, value: bytes, vbucket: vbucket_id(key))
+      extras = Bytes.new(8)
+      IO::ByteFormat::BigEndian.encode(0_u32, extras[0, 4])
+      IO::ByteFormat::BigEndian.encode(expiry, extras[4, 4])
+      resp = call(Opcode::Set, key: key, extras: extras, value: bytes, vbucket: vbucket_id(key))
       ensure_success!(resp, "SET #{key}")
       resp.cas
     end
@@ -199,7 +250,7 @@ module CryBase::CouchBase::Services::KV
       counter(Opcode::Decrement, "DECREMENT", key, delta, initial, expiry)
     end
 
-    # Closes the underlying TCP socket. Idempotent — safe to call when
+    # Closes the underlying socket. Idempotent — safe to call when
     # already closed.
     def close : Nil
       @socket.close
@@ -207,10 +258,42 @@ module CryBase::CouchBase::Services::KV
       # already closed / mid-shutdown — nothing useful to do
     end
 
+    private def open_socket(
+      endpoint : Endpoint,
+      connect_timeout : Time::Span,
+      tls_verify : Bool,
+      tls_hostname : String?,
+      tls_context : OpenSSL::SSL::Context::Client?,
+    ) : IO
+      tcp = TCPSocket.new(endpoint.host, endpoint.port, connect_timeout: connect_timeout)
+      tcp.sync = false
+      return tcp unless endpoint.tls?
+
+      begin
+        OpenSSL::SSL::Socket::Client.new(
+          tcp,
+          tls_context || default_tls_context(tls_verify),
+          sync_close: true,
+          hostname: tls_hostname || endpoint.host,
+        )
+      rescue ex
+        tcp.close rescue nil
+        raise ex
+      end
+    end
+
+    private def default_tls_context(tls_verify : Bool) : OpenSSL::SSL::Context::Client
+      return OpenSSL::SSL::Context::Client.new if tls_verify
+
+      context = OpenSSL::SSL::Context::Client.new
+      context.verify_mode = OpenSSL::SSL::VerifyMode::NONE
+      context
+    end
+
     private def hello : Nil
-      features = IO::Memory.new(2)
-      features.write_bytes(FEATURE_SELECT_BUCKET, IO::ByteFormat::BigEndian)
-      resp = call(Opcode::Hello, key: AGENT, value: features.to_slice)
+      features = Bytes.new(2)
+      IO::ByteFormat::BigEndian.encode(Constants::FEATURE_SELECT_BUCKET, features)
+      resp = call(Opcode::Hello, key: Constants::AGENT, value: features)
       ensure_success!(resp, "HELLO")
     end
 
@@ -271,6 +354,10 @@ module CryBase::CouchBase::Services::KV
       else
         raise Error.new(resp.status, op)
       end
+    end
+
+    private def self.required(value : String?, name : String) : String
+      value || raise ArgumentError.new("#{name} required")
     end
   end
 end

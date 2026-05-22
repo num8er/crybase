@@ -1,12 +1,11 @@
 # Basic KV operations — connect to one Couchbase KV node, store a
 # document, read it back, and store a typed JSON value.
 #
-# Reads from `.envrc` (loaded via direnv): COUCHBASE_HOST,
-# COUCHBASE_USER, COUCHBASE_PASS, COUCHBASE_BUCKET.
+# Reads Couchbase settings from `examples/constants.cr`.
 #
 #   crystal run examples/kv_basics.cr
 require "json"
-require "../src/crybase"
+require "./constants"
 
 struct Profile
   include JSON::Serializable
@@ -18,13 +17,7 @@ struct Profile
   end
 end
 
-host = ENV["COUCHBASE_HOST"]? || "localhost"
-user = ENV["COUCHBASE_USER"]? || "Administrator"
-pass = ENV["COUCHBASE_PASS"]? || "password"
-bucket = ENV["COUCHBASE_BUCKET"]? || "default"
-
-endpoint = CryBase::CouchBase::Endpoint.new(host, 11210, CryBase::CouchBase::Service::KV, false)
-kv = CryBase::CouchBase::Services::KV::Client.new(endpoint, user, pass, bucket)
+kv = CryBase::CouchBase::Services::KV::Client.from_string(CryBaseExamples.kv_connection_string)
 
 cas = kv.set("crybase:hello", "world")
 puts "SET    crybase:hello => CAS=#{cas}"
