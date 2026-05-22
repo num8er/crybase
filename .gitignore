@@ -18,4 +18,5 @@ AGENTS.md
 /bin/ameba.cr
 examples/volumes/
 
+.gitconfig
 .obsidian/
