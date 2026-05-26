@@ -14,13 +14,15 @@
 
 Crystal client primitives for Couchbase.
 
-CryBase is still early, but it now has two useful layers:
+CryBase is still early, but it now has three useful layers:
 
 - A cluster-level client that expands Couchbase connection strings into service
   endpoints and TCP-probes them.
 - A KV client that speaks the Couchbase binary protocol over plaintext or TLS
   sockets for authenticated `get`, `set`, `delete`, `touch`, and counter
   operations, plus fixed-size and seed-failover connection pools.
+- A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
+  service, with JSON result parsing and seed failover.
 
 ## Status
 
@@ -38,13 +40,15 @@ Implemented:
 - Couchbase vbucket hashing for KV document routing.
 - `KV::Pool` with 10 authenticated connections by default.
 - `KV::Cluster` seed failover across multiple KV hosts.
+- Query service N1QL/SQL++ execution over HTTP/HTTPS.
+- `Query::Cluster` seed failover across multiple Query hosts.
 - Real Couchbase integration specs in GitHub Actions.
 
 Not implemented yet:
 
 - Cluster config loading and node/vbucket map routing.
 - Retry, reconnect, durability, observe, CAS helpers, scopes, or collections.
-- Query, Search, Analytics, Index, Eventing, Views, and Management protocols.
+- Search, Analytics, Index, Eventing, Views, and Management protocols.
 
 ## Installation
 
@@ -200,11 +204,62 @@ puts String.new(cluster.get("crybase:cluster"))
 cluster.close
 ```
 
+### Run N1QL Queries
+
+Use `Query::Client` for one Query endpoint:
+
+```crystal
+query = CryBase::CouchBase::Query::Client.from_string(
+  "couchbase://Administrator:password@127.0.0.1",
+)
+
+result = query.query(
+  "SELECT $name AS name, $score AS score",
+  named_args: {name: "crybase", score: 42},
+  readonly: true,
+)
+
+puts result.rows.first["name"].as_s
+query.close
+```
+
+Pass positional parameters after the statement:
+
+```crystal
+result = query.query("SELECT $1 AS value", "hello", readonly: true)
+puts result.rows.first["value"].as_s
+```
+
+Use typed scan consistency values when needed:
+
+```crystal
+result = query.query(
+  "SELECT 1 AS one",
+  scan_consistency: CryBase::CouchBase::Query::ScanConsistency::RequestPlus,
+)
+```
+
+`Query::Cluster` accepts multiple seed hosts and tries the next endpoint when a
+transport failure or retryable Query service HTTP error occurs. It is seed
+failover only; it does not load Query node topology yet.
+
+```crystal
+cluster = CryBase::CouchBase::Query::Cluster.from_string(
+  "couchbase://Administrator:password@node1,node2,node3",
+)
+
+puts cluster.query("SELECT 1 AS one").rows.first["one"].as_i
+cluster.close
+```
+
 ## Public API Map
 
 | Module / Type | Purpose |
 | ------------- | ------- |
 | `CryBase` | Top-level namespace and shard entry point. |
+| `CryBase::Connectivity` | Shared plaintext TCP and TLS socket construction helpers, including `host:port` overloads. |
+| `CryBase::Connectivity::HostPort` | Strict parser/value object for `host:port` strings. |
+| `CryBase::Connectivity::SocketConfig` | Shared timeout and TLS socket options. |
 | `CryBase::CouchBase` | Couchbase-specific namespace. |
 | `CryBase::CouchBase::ConnectionString` | Parses supported connection string schemes and seed hosts. |
 | `CryBase::CouchBase::Endpoint` | Value type for one Couchbase service endpoint, with `from_string` parsing. |
@@ -212,10 +267,15 @@ cluster.close
 | `CryBase::CouchBase::Client` | Cluster endpoint enumerator and TCP probe client. |
 | `CryBase::CouchBase::Services` | Namespace for service-specific protocol clients. |
 | `CryBase::CouchBase::KV` | Alias for `CryBase::CouchBase::Services::KV`. |
+| `CryBase::CouchBase::Query` | Alias for `CryBase::CouchBase::Services::Query`. |
 | `CryBase::CouchBase::Services::KV` | Couchbase binary KV protocol namespace. |
 | `CryBase::CouchBase::Services::KV::Client` | Single authenticated KV connection. |
 | `CryBase::CouchBase::Services::KV::Pool` | Fixed-size pool of authenticated KV clients. |
 | `CryBase::CouchBase::Services::KV::Cluster` | Seed-failover KV client backed by one active pool. |
+| `CryBase::CouchBase::Services::Query` | Couchbase HTTP Query service namespace. |
+| `CryBase::CouchBase::Services::Query::Client` | Authenticated N1QL/SQL++ Query endpoint client. |
+| `CryBase::CouchBase::Services::Query::Cluster` | Seed-failover Query client over multiple endpoints. |
+| `CryBase::CouchBase::Services::Query::Result` | Parsed Query response rows, metadata, warnings, and errors. |
 | `CryBase::Interfaces` | Abstract interface aliases for connection strings, endpoints, and clients. |
 
 Generated API docs are committed in [`docs/`](docs/index.html).
@@ -226,6 +286,8 @@ Feature notes:
 - [KV Client Pool](docs/2.FEAT_kv-client-pool.md)
 - [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md)
 - [KV Cluster](docs/4.FEAT_kv-cluster.md)
+- [Query Service](docs/5.FEAT_query-service.md)
+- [Connectivity](docs/6.FEAT_connectivity.md)
 
 ## Connection Strings
 
@@ -251,8 +313,9 @@ couchbases://user:pass@node1:11207/default?tls_verify=false&tls_hostname=cb.loca
 
 `KV::Client.from_string`, `KV::Pool.from_string`, and `KV::Cluster.from_string`
 use `user`, `pass`, and `bucket` from the URI when they are not passed as
-arguments. Supported query parameters are `tls_verify` (`true`, `false`, `1`,
-`0`) and `tls_hostname`.
+arguments. `Query::Client.from_string` and `Query::Cluster.from_string` use
+`user` and `pass` from the URI. Supported query parameters are `tls_verify`
+(`true`, `false`, `1`, `0`) and `tls_hostname`.
 
 An explicit `:port` is currently forwarded to the Management endpoint only.
 Other services use their standard Couchbase ports when using
@@ -301,6 +364,7 @@ The `examples/` directory contains:
 - `kv_expiration.cr` - run KV expiry, touch, and get-and-touch operations.
 - `kv_endpoint_from_cluster.cr` - probe the cluster, pick a KV endpoint, and
   run a KV operation.
+- `query_basics.cr` - run a parameterized readonly N1QL statement.
 - `constants.cr` - shared environment parsing and connection string helpers
   used by the runnable examples.
 - `docker-compose.yml` - local Couchbase Community setup for development.
@@ -319,6 +383,7 @@ export COUCHBASE_BUCKET=default
 export COUCHBASE_TLS=false
 export COUCHBASE_TLS_VERIFY=true
 export COUCHBASE_TLS_HOSTNAME=
+export COUCHBASE_QUERY_PORT=
 ```
 
 When adding another runnable example, require `./constants` and use the shared
@@ -339,6 +404,7 @@ Generate API docs:
 
 ```sh
 crystal docs -o docs --project-version=main-dev --source-refname=main
+find docs -name '*.html' -print0 | xargs -0 perl -pi -e 's/[ \t]+$//'
 ```
 
 Run real Couchbase integration specs:
@@ -372,6 +438,7 @@ The pre-commit hook:
 - Runs Ameba from `bin/ameba` on staged Crystal files.
 - Verifies the library builds.
 - Regenerates `docs/` with deterministic project metadata.
+- Strips trailing whitespace from generated HTML docs.
 - Fails if regenerated docs are not staged.
 - Runs the spec suite.
 

@@ -123,6 +123,7 @@ jobs:
           docker run -d \
             --name crybase-couchbase \
             -p 8091:8091 \
+            -p 8093:8093 \
             -p 11210:11210 \
             couchbase:community-7.6.0
 

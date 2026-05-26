@@ -11,6 +11,7 @@ module CryBaseExamples
   TLS_VERIFY   = env_bool("COUCHBASE_TLS_VERIFY", true)
   TLS_HOSTNAME = env_optional("COUCHBASE_TLS_HOSTNAME")
   KV_PORT      = env_optional("COUCHBASE_KV_PORT")
+  QUERY_PORT   = env_optional("COUCHBASE_QUERY_PORT")
   SCHEME       = TLS ? "couchbases" : "couchbase"
 
   def self.cluster_connection_string : String
@@ -29,15 +30,34 @@ module CryBaseExamples
     kv_connection_string(seed_hosts, nil, SCHEME, TLS)
   end
 
+  def self.query_connection_string : String
+    query_connection_string(HOST, QUERY_PORT, SCHEME, TLS)
+  end
+
+  def self.query_cluster_connection_string : String
+    query_connection_string(query_seed_hosts, nil, SCHEME, TLS)
+  end
+
   private def self.kv_connection_string(host : String, port : String?, scheme : String, tls : Bool) : String
     host_port = port ? "#{host}:#{port}" : host
     "#{scheme}://#{URI.encode_www_form(USER)}:#{URI.encode_www_form(PASS)}@#{host_port}/#{URI.encode_www_form(BUCKET)}#{tls_query_string(tls)}"
+  end
+
+  private def self.query_connection_string(host : String, port : String?, scheme : String, tls : Bool) : String
+    host_port = port ? "#{host}:#{port}" : host
+    "#{scheme}://#{URI.encode_www_form(USER)}:#{URI.encode_www_form(PASS)}@#{host_port}#{tls_query_string(tls)}"
   end
 
   private def self.seed_hosts : String
     return SEEDS if SEEDS.includes?(":") || KV_PORT.nil?
 
     "#{SEEDS}:#{KV_PORT}"
+  end
+
+  private def self.query_seed_hosts : String
+    return SEEDS if SEEDS.includes?(":") || QUERY_PORT.nil?
+
+    "#{SEEDS}:#{QUERY_PORT}"
   end
 
   private def self.tls_query_string(tls : Bool) : String

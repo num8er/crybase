@@ -37,6 +37,9 @@ crystal build --no-codegen src/crybase.cr
 echo "[pre-commit] crystal docs -o docs --project-version=main-dev --source-refname=main"
 crystal docs -o docs --project-version=main-dev --source-refname=main
 
+echo "[pre-commit] strip trailing whitespace from generated docs"
+find docs -name '*.html' -print0 | xargs -0 perl -pi -e 's/[ \t]+$//'
+
 if ! git diff --quiet -- docs; then
   echo "[pre-commit] docs/ changed after deterministic docs generation"
   echo "[pre-commit] review and stage generated docs before committing"

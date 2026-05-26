@@ -25,4 +25,5 @@ require "./couchbase/client"
 
 module CryBase::CouchBase
   alias KV = Services::KV
+  alias Query = Services::Query
 end

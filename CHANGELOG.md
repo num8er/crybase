@@ -11,12 +11,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature implementation notes under `docs/`: [KV Client](docs/1.FEAT_kv-client.md),
   [KV Client Pool](docs/2.FEAT_kv-client-pool.md),
   [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md),
-  and [KV Cluster](docs/4.FEAT_kv-cluster.md).
+  [KV Cluster](docs/4.FEAT_kv-cluster.md), and
+  [Query Service](docs/5.FEAT_query-service.md), and
+  [Connectivity](docs/6.FEAT_connectivity.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
+- `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
+  over the Couchbase HTTP Query service.
+- `CryBase::CouchBase::Query::Cluster` for seed failover across Query service
+  endpoints.
+- `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
+  used by service-specific clients.
+- `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
+- `CryBase::Connectivity::SocketConfig` for shared timeout and TLS socket
+  options.
+- `CryBase::Connectivity::TCPSocket.open(host_port)` for host-port strings
+  such as `127.0.0.1:12345`.
+- `CryBase::Connectivity::TLSSocket.open(host_port, config)` for TLS sockets
+  from host-port strings such as `127.0.0.1:12345`.
+- `CryBase::Connectivity.open_socket(host_port, config)` for shared plaintext
+  or TLS sockets from host-port strings such as `127.0.0.1:12345`.
+- Query result parsing for rows, metadata, warnings, and errors.
+- `examples/query_basics.cr` for a readonly parameterized Query service call.
 
 ### Changed
 - README now links to the feature implementation notes.
+- CI now exposes the Couchbase Query service port for integration specs.
+- The pre-commit hook now strips trailing whitespace from generated HTML docs
+  after `crystal docs`.
+- KV and Query clients now reuse the shared connectivity layer for socket and
+  TLS setup.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22
