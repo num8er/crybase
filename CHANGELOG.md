@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [KV Cluster](docs/4.FEAT_kv-cluster.md), and
   [Query Service](docs/5.FEAT_query-service.md), and
   [Connectivity](docs/6.FEAT_connectivity.md), and
-  [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md).
+  [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md), and
+  [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -26,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CryBase::CouchBase::Query::TopologyClient` for authenticated Query topology
   loading from Couchbase Management.
 - `Query::Cluster#refresh_topology` for explicit Query node topology refresh.
+- `CryBase::CouchBase::Query::PreparedStatement` for prepared Query plan names
+  and metadata.
+- `Query::Client#prepare`, `Query::Client#execute_prepared`,
+  `Query::Cluster#prepare`, and `Query::Cluster#execute_prepared`.
+- `query(..., adhoc: false)` for prepared statement caching and execution.
 - `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
   used by service-specific clients.
 - `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
@@ -39,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or TLS sockets from host-port strings such as `127.0.0.1:12345`.
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics.cr` for a readonly parameterized Query service call.
+- `examples/query_prepared.cr` for prepared Query execution.
 
 ### Changed
 - README now links to the feature implementation notes.
@@ -49,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   TLS setup.
 - `Query::Cluster.from_string` now discovers Query nodes from Couchbase
   topology by default and keeps static Query seeds as fallback.
+- Query clients now clear and reprepare cached plans once when Couchbase reports
+  a missing prepared statement.
+- Query examples now use `client` variable names and run against seeded random
+  user documents.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22

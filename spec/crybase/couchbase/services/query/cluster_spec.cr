@@ -76,6 +76,9 @@ describe Query::Cluster do
     typeof(cluster.query("SELECT 1")).should eq(Query::Result)
     typeof(cluster.query("SELECT $1", "value")).should eq(Query::Result)
     typeof(cluster.query("SELECT $name", named_args: {name: "value"})).should eq(Query::Result)
+    typeof(cluster.query("SELECT 1", adhoc: false)).should eq(Query::Result)
+    typeof(cluster.prepare("SELECT 1")).should eq(Query::PreparedStatement)
+    typeof(cluster.execute_prepared("[127.0.0.1:8093]plan")).should eq(Query::Result)
   end
 
   it "accepts connection strings" do
@@ -153,5 +156,38 @@ describe Query::Cluster do
     cluster.try(&.close)
     query_server.try(&.close)
     topology_server.try(&.close)
+  end
+
+  it "caches prepared statements across cluster queries" do
+    server = QueryHelpers.start_sequence([
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"name":"[127.0.0.1:8093]cluster"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"value":"one"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"value":"two"}]
+      })),
+    ])
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    first = cluster.query("SELECT $1 AS value", "one", adhoc: false)
+    second = cluster.query("SELECT $1 AS value", "two", adhoc: false)
+    prepare_request = server.requests.receive
+    first_execute = server.requests.receive
+    second_execute = server.requests.receive
+
+    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    first_execute.params["prepared"].should eq("[127.0.0.1:8093]cluster")
+    second_execute.params["prepared"].should eq("[127.0.0.1:8093]cluster")
+    first.rows.first["value"].as_s.should eq("one")
+    second.rows.first["value"].as_s.should eq("two")
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
   end
 end

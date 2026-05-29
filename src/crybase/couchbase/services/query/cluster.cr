@@ -7,6 +7,7 @@ module CryBase::CouchBase::Services::Query
     @closed : Bool
     @endpoints : Array(Endpoint)
     @mutex : Mutex
+    @prepared_statements : Hash(String, PreparedStatement)
     @topology_loaded : Bool
 
     def active_endpoint : Endpoint?
@@ -123,10 +124,129 @@ module CryBase::CouchBase::Services::Query
       @active_index = 0
       @closed = false
       @mutex = Mutex.new
+      @prepared_statements = {} of String => PreparedStatement
       @topology_loaded = false
     end
 
-    def query(statement : String, *positional_args, **kwargs) : Result
+    def query(
+      statement : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+      adhoc : Bool = true,
+      raise_on_error : Bool = true,
+    ) : Result
+      unless adhoc
+        return query_prepared(
+          statement,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+          raise_on_error,
+        )
+      end
+
+      with_query_client do |client|
+        client.query(
+          statement,
+          *positional_args,
+          named_args: named_args,
+          readonly: readonly,
+          scan_consistency: scan_consistency,
+          client_context_id: client_context_id,
+          timeout: timeout,
+          options: options,
+          raise_on_error: raise_on_error,
+        )
+      end
+    end
+
+    def prepare(
+      statement : String,
+      name : String? = nil,
+      *,
+      force : Bool = false,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+    ) : PreparedStatement
+      with_query_client do |client|
+        client.prepare(
+          statement,
+          name,
+          force: force,
+          readonly: readonly,
+          scan_consistency: scan_consistency,
+          client_context_id: client_context_id,
+          timeout: timeout,
+          options: options,
+        )
+      end
+    end
+
+    def execute_prepared(
+      prepared : PreparedStatement,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+    ) : Result
+      execute_prepared_with_retry(
+        prepared,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    end
+
+    def execute_prepared(
+      prepared : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+    ) : Result
+      execute_prepared_once(
+        prepared,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    end
+
+    def clear_prepared_cache : Nil
+      @mutex.synchronize { @prepared_statements.clear }
+    end
+
+    private def with_query_client(&)
       load_topology_once
       attempts = 0
       max_attempts = query_attempts
@@ -138,7 +258,7 @@ module CryBase::CouchBase::Services::Query
         client = client_for(endpoint_at(index))
 
         begin
-          return client.query(statement, *positional_args, **kwargs)
+          return yield client
         rescue ex : IO::Error | Socket::Error | OpenSSL::SSL::Error
           last_error = ex
           failover(index)
@@ -155,6 +275,168 @@ module CryBase::CouchBase::Services::Query
       end
 
       raise last_error || IO::Error.new("no Query seed endpoints available")
+    end
+
+    private def query_prepared(
+      statement,
+      positional_args,
+      named_args,
+      readonly,
+      scan_consistency,
+      client_context_id,
+      timeout,
+      options,
+      raise_on_error,
+    ) : Result
+      cache_key = Client.prepared_cache_key(statement, options)
+      prepared = cached_prepared_statement(cache_key) || prepare_cached_statement(
+        cache_key,
+        statement,
+        readonly,
+        scan_consistency,
+        timeout,
+        options,
+      )
+
+      execute_prepared_with_retry(
+        prepared,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+        cache_key,
+      )
+    end
+
+    private def execute_prepared_with_retry(
+      prepared : PreparedStatement,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      raise_on_error : Bool,
+      cache_key : String? = nil,
+    ) : Result
+      result = execute_prepared_once(
+        prepared.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+      return result unless result.prepared_statement_missing?
+
+      cache_key.try { |key| delete_prepared_statement(key) }
+      refreshed = prepare_cached_statement(
+        cache_key || Client.prepared_cache_key(prepared.statement, options),
+        prepared.statement,
+        readonly,
+        scan_consistency,
+        timeout,
+        options,
+        force: true,
+      )
+      execute_prepared_once(
+        refreshed.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    rescue ex : Error
+      raise ex unless ex.prepared_statement_missing?
+
+      cache_key.try { |key| delete_prepared_statement(key) }
+      refreshed = prepare_cached_statement(
+        cache_key || Client.prepared_cache_key(prepared.statement, options),
+        prepared.statement,
+        readonly,
+        scan_consistency,
+        timeout,
+        options,
+        force: true,
+      )
+      execute_prepared_once(
+        refreshed.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    end
+
+    private def execute_prepared_once(
+      prepared : String,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      raise_on_error : Bool,
+    ) : Result
+      with_query_client do |client|
+        client.execute_prepared(
+          prepared,
+          *positional_args,
+          named_args: named_args,
+          readonly: readonly,
+          scan_consistency: scan_consistency,
+          client_context_id: client_context_id,
+          timeout: timeout,
+          options: options,
+          raise_on_error: raise_on_error,
+        )
+      end
+    end
+
+    private def cached_prepared_statement(cache_key : String) : PreparedStatement?
+      @mutex.synchronize { @prepared_statements[cache_key]? }
+    end
+
+    private def prepare_cached_statement(
+      cache_key : String,
+      statement,
+      readonly,
+      scan_consistency,
+      timeout,
+      options,
+      force : Bool = false,
+    ) : PreparedStatement
+      prepared = prepare(
+        statement,
+        force: force,
+        readonly: readonly,
+        scan_consistency: scan_consistency,
+        timeout: timeout,
+        options: options,
+      )
+      @mutex.synchronize { @prepared_statements[cache_key] = prepared }
+      prepared
+    end
+
+    private def delete_prepared_statement(cache_key : String) : Nil
+      @mutex.synchronize { @prepared_statements.delete(cache_key) }
     end
 
     def refresh_topology : Array(Endpoint)

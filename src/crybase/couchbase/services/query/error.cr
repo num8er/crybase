@@ -10,6 +10,10 @@ class CryBase::CouchBase::Services::Query::Error < Exception
     status_code >= 500
   end
 
+  def prepared_statement_missing? : Bool
+    result.prepared_statement_missing?
+  end
+
   private def message_for(status_code : Int32, result : Result) : String
     detail = result.errors.first?.try do |issue|
       issue.code ? "#{issue.code}: #{issue.message}" : issue.message

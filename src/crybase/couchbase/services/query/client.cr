@@ -9,6 +9,7 @@ module CryBase::CouchBase::Services::Query
 
     @closed : Bool
     @mutex : Mutex
+    @prepared_statements : Hash(String, PreparedStatement)
 
     def self.from_string(
       uri : String,
@@ -51,6 +52,7 @@ module CryBase::CouchBase::Services::Query
     )
       @closed = false
       @mutex = Mutex.new
+      @prepared_statements = {} of String => PreparedStatement
     end
 
     def query(
@@ -62,23 +64,124 @@ module CryBase::CouchBase::Services::Query
       client_context_id : String? = nil,
       timeout : Time::Span? = nil,
       options = NamedTuple.new,
+      adhoc : Bool = true,
       raise_on_error : Bool = true,
     ) : Result
-      form = self.class.form(
-        statement,
-        positional_args,
-        named_args,
-        readonly,
-        scan_consistency,
-        client_context_id,
-        timeout,
-        options,
-      )
-
       @mutex.synchronize do
         raise_closed! if @closed
-        execute(form, raise_on_error)
+
+        if adhoc
+          return execute(
+            self.class.form(
+              statement,
+              positional_args,
+              named_args,
+              readonly,
+              scan_consistency,
+              client_context_id,
+              timeout,
+              options,
+            ),
+            raise_on_error,
+          )
+        end
+
+        execute_cached_statement(
+          statement,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+          raise_on_error,
+        )
       end
+    end
+
+    def prepare(
+      statement : String,
+      name : String? = nil,
+      *,
+      force : Bool = false,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+    ) : PreparedStatement
+      @mutex.synchronize do
+        raise_closed! if @closed
+        prepare_locked(
+          statement,
+          name,
+          force,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+        )
+      end
+    end
+
+    def execute_prepared(
+      prepared : PreparedStatement,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+    ) : Result
+      @mutex.synchronize do
+        raise_closed! if @closed
+        execute_prepared_with_retry(
+          prepared,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+          raise_on_error,
+        )
+      end
+    end
+
+    def execute_prepared(
+      prepared : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+    ) : Result
+      @mutex.synchronize do
+        raise_closed! if @closed
+        execute_prepared_locked(
+          prepared,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+          raise_on_error,
+        )
+      end
+    end
+
+    def clear_prepared_cache : Nil
+      @mutex.synchronize { @prepared_statements.clear }
     end
 
     def close : Nil
@@ -101,14 +204,102 @@ module CryBase::CouchBase::Services::Query
     ) : String
       URI::Params.build do |form|
         form.add("statement", statement)
-        form.add("args", positional_args.to_json) unless positional_args.empty?
-        add_named_args(form, named_args)
-        form.add("readonly", readonly.to_s) unless readonly.nil?
-        form.add("scan_consistency", scan_consistency_param(scan_consistency)) if scan_consistency
-        form.add("client_context_id", client_context_id) if client_context_id
-        form.add("timeout", "#{timeout.total_milliseconds.to_i64}ms") if timeout
-        add_options(form, options)
+        add_common_form_params(
+          form,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+        )
       end
+    end
+
+    def self.prepared_form(
+      prepared : String,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+    ) : String
+      URI::Params.build do |form|
+        form.add("prepared", prepared)
+        add_common_form_params(
+          form,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+        )
+      end
+    end
+
+    def self.prepare_statement(
+      statement : String,
+      name : String? = nil,
+      force : Bool = false,
+    ) : String
+      parts = ["PREPARE"]
+      parts << "FORCE" if force
+      if prepared_name = name
+        parts << prepared_name
+        parts << "AS"
+      end
+      parts << statement
+      parts.join(' ')
+    end
+
+    def self.prepared_cache_key(statement : String, options) : String
+      URI::Params.build do |params|
+        params.add("statement", statement)
+        add_options(params, options)
+      end
+    end
+
+    private def execute_cached_statement(
+      statement,
+      positional_args,
+      named_args,
+      readonly,
+      scan_consistency,
+      client_context_id,
+      timeout,
+      options,
+      raise_on_error,
+    ) : Result
+      cache_key = self.class.prepared_cache_key(statement, options)
+      prepared = @prepared_statements[cache_key]? || prepare_locked(
+        statement,
+        nil,
+        false,
+        readonly,
+        scan_consistency,
+        nil,
+        timeout,
+        options,
+        cache_key,
+      )
+
+      execute_prepared_with_retry(
+        prepared,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+        cache_key,
+      )
     end
 
     private def execute(form : String, raise_on_error : Bool) : Result
@@ -122,6 +313,161 @@ module CryBase::CouchBase::Services::Query
       ensure
         client.close rescue nil
       end
+    end
+
+    private def prepare_locked(
+      statement : String,
+      name : String?,
+      force : Bool,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      cache_key : String? = nil,
+    ) : PreparedStatement
+      result = execute(
+        self.class.form(
+          self.class.prepare_statement(statement, name, force),
+          Tuple.new,
+          NamedTuple.new,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+        ),
+        true,
+      )
+      prepared = PreparedStatement.from_result(statement, result)
+      @prepared_statements[cache_key] = prepared if cache_key
+      prepared
+    end
+
+    private def execute_prepared_with_retry(
+      prepared : PreparedStatement,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      raise_on_error : Bool,
+      cache_key : String? = nil,
+    ) : Result
+      result = execute_prepared_retryable(
+        prepared,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+      return result unless result.prepared_statement_missing?
+
+      cache_key.try { |key| @prepared_statements.delete(key) }
+      refreshed = prepare_locked(
+        prepared.statement,
+        nil,
+        true,
+        readonly,
+        scan_consistency,
+        nil,
+        timeout,
+        options,
+        cache_key,
+      )
+      execute_prepared_locked(
+        refreshed.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    rescue ex : Error
+      raise ex unless ex.prepared_statement_missing?
+
+      cache_key.try { |key| @prepared_statements.delete(key) }
+      refreshed = prepare_locked(
+        prepared.statement,
+        nil,
+        true,
+        readonly,
+        scan_consistency,
+        nil,
+        timeout,
+        options,
+        cache_key,
+      )
+      execute_prepared_locked(
+        refreshed.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    end
+
+    private def execute_prepared_retryable(
+      prepared : PreparedStatement,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      raise_on_error : Bool,
+    ) : Result
+      execute_prepared_locked(
+        prepared.name,
+        positional_args,
+        named_args,
+        readonly,
+        scan_consistency,
+        client_context_id,
+        timeout,
+        options,
+        raise_on_error,
+      )
+    end
+
+    private def execute_prepared_locked(
+      prepared : String,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+      raise_on_error : Bool,
+    ) : Result
+      execute(
+        self.class.prepared_form(
+          prepared,
+          positional_args,
+          named_args,
+          readonly,
+          scan_consistency,
+          client_context_id,
+          timeout,
+          options,
+        ),
+        raise_on_error,
+      )
     end
 
     private def open_http_client : HTTP::Client
@@ -169,6 +515,25 @@ module CryBase::CouchBase::Services::Query
       named_args.each do |name, value|
         form.add(parameter_name(name), value.to_json)
       end
+    end
+
+    private def self.add_common_form_params(
+      form : URI::Params::Builder,
+      positional_args,
+      named_args,
+      readonly : Bool?,
+      scan_consistency : ScanConsistency | String | Nil,
+      client_context_id : String?,
+      timeout : Time::Span?,
+      options,
+    ) : Nil
+      form.add("args", positional_args.to_json) unless positional_args.empty?
+      add_named_args(form, named_args)
+      form.add("readonly", readonly.to_s) unless readonly.nil?
+      form.add("scan_consistency", scan_consistency_param(scan_consistency)) if scan_consistency
+      form.add("client_context_id", client_context_id) if client_context_id
+      form.add("timeout", "#{timeout.total_milliseconds.to_i64}ms") if timeout
+      add_options(form, options)
     end
 
     private def self.add_options(form : URI::Params::Builder, options : NamedTuple) : Nil

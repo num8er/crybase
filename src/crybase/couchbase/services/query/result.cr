@@ -58,6 +58,14 @@ struct CryBase::CouchBase::Services::Query::Result
     rows.map { |row| T.from_json(row.to_json) }
   end
 
+  def issue_code?(code : Int32 | Int64) : Bool
+    errors.any? { |issue| issue.code == code.to_i64 }
+  end
+
+  def prepared_statement_missing? : Bool
+    issue_code?(4040)
+  end
+
   private def self.issues(value : JSON::Any?) : Array(Issue)
     return [] of Issue unless value
 

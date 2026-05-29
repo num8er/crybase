@@ -3,7 +3,7 @@ require "../spec_helper"
 private alias Query = CryBase::CouchBase::Query
 private alias Couchbase = CryBase::SpecHelpers::CouchbaseIntegrationHelpers
 
-private def with_query_retry(& : -> Query::Result) : Query::Result
+private def with_query_retry(& : -> T) : T forall T
   last_error = nil
 
   20.times do
@@ -68,5 +68,25 @@ describe "Couchbase Query integration" do
     end
 
     result.rows.first["value"].as_s.should eq("cluster")
+  end
+
+  it "prepares and executes N1QL statements" do
+    prepared = with_query_retry do
+      client.prepare("SELECT $name AS name", readonly: true)
+    end
+
+    result = with_query_retry do
+      client.execute_prepared(prepared, named_args: {name: "prepared"}, readonly: true)
+    end
+
+    result.rows.first["name"].as_s.should eq("prepared")
+  end
+
+  it "uses prepared statements when adhoc is false" do
+    result = with_query_retry do
+      cluster.query("SELECT $1 AS value", "cached", readonly: true, adhoc: false)
+    end
+
+    result.rows.first["value"].as_s.should eq("cached")
   end
 end

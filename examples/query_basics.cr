@@ -1,16 +1,31 @@
-require "./constants"
+require "./query_users"
 
-query = CryBase::CouchBase::Query::Client.from_string(
-  CryBaseExamples.query_connection_string,
-  tls_verify: CryBaseExamples::TLS_VERIFY,
-  tls_hostname: CryBaseExamples::TLS_HOSTNAME,
-)
+kv = CryBaseExamples.open_kv_client
+client = CryBaseExamples.open_query_client
+users = [] of CryBaseExamples::QueryUser
 
-result = query.query(
-  "SELECT $name AS name, $score AS score",
-  named_args: {name: "crybase", score: 42},
-  readonly: true,
-)
+begin
+  users = CryBaseExamples.seed_query_users(kv)
+  keys = CryBaseExamples.query_user_keys(users)
+  result = client.query(
+    <<-N1QL,
+      SELECT META(u).id AS key, u.id, u.type, u.name, u.email, u.active
+      FROM #{CryBaseExamples.n1ql_bucket} AS u
+      USE KEYS $keys
+      WHERE u.type = $type AND u.active = $active
+      ORDER BY u.name
+      N1QL
 
-puts result.rows.first.to_json
-query.close
+
+    named_args: {keys: keys, type: "User", active: true},
+    readonly: true,
+  )
+
+  result.rows.each do |row|
+    puts row.to_json
+  end
+ensure
+  CryBaseExamples.delete_query_users(kv, users)
+  kv.close rescue nil
+  client.close rescue nil
+end

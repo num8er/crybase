@@ -22,7 +22,8 @@ CryBase is still early, but it now has three useful layers:
   sockets for authenticated `get`, `set`, `delete`, `touch`, and counter
   operations, plus fixed-size and seed-failover connection pools.
 - A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
-  service, with JSON result parsing, seed failover, and Query node discovery.
+  service, with JSON result parsing, prepared statements, seed failover, and
+  Query node discovery.
 
 ## Status
 
@@ -41,6 +42,7 @@ Implemented:
 - `KV::Pool` with 10 authenticated connections by default.
 - `KV::Cluster` seed failover across multiple KV hosts.
 - Query service N1QL/SQL++ execution over HTTP/HTTPS.
+- Query prepared statement APIs and `adhoc: false` plan caching.
 - `Query::Cluster` seed failover across multiple Query hosts.
 - `Query::Cluster` Query node discovery from Couchbase cluster topology.
 - Real Couchbase integration specs in GitHub Actions.
@@ -210,31 +212,30 @@ cluster.close
 Use `Query::Client` for one Query endpoint:
 
 ```crystal
-query = CryBase::CouchBase::Query::Client.from_string(
+client = CryBase::CouchBase::Query::Client.from_string(
   "couchbase://Administrator:password@127.0.0.1",
 )
 
-result = query.query(
+result = client.query(
   "SELECT $name AS name, $score AS score",
   named_args: {name: "crybase", score: 42},
   readonly: true,
 )
 
 puts result.rows.first["name"].as_s
-query.close
 ```
 
 Pass positional parameters after the statement:
 
 ```crystal
-result = query.query("SELECT $1 AS value", "hello", readonly: true)
+result = client.query("SELECT $1 AS value", "hello", readonly: true)
 puts result.rows.first["value"].as_s
 ```
 
 Use typed scan consistency values when needed:
 
 ```crystal
-result = query.query(
+result = client.query(
   "SELECT 1 AS one",
   scan_consistency: CryBase::CouchBase::Query::ScanConsistency::RequestPlus,
 )
@@ -253,6 +254,39 @@ cluster = CryBase::CouchBase::Query::Cluster.from_string(
 
 puts cluster.query("SELECT 1 AS one").rows.first["one"].as_i
 cluster.close
+```
+
+Prepare a statement explicitly when you want to manage the prepared plan:
+
+```crystal
+prepared = client.prepare(
+  "SELECT $name AS name, $score AS score",
+  readonly: true,
+)
+
+result = client.execute_prepared(
+  prepared,
+  named_args: {name: "crybase", score: 42},
+  readonly: true,
+)
+
+puts result.rows.first["score"].as_i
+```
+
+Pass `adhoc: false` to let CryBase prepare, cache, and execute a statement by
+prepared name. If Couchbase reports that the prepared statement no longer
+exists, CryBase clears that cache entry and prepares it once again.
+
+```crystal
+result = client.query(
+  "SELECT $1 AS value",
+  "cached",
+  readonly: true,
+  adhoc: false,
+)
+
+puts result.rows.first["value"].as_s
+client.close
 ```
 
 If the Management API uses a non-default port, pass `management_port:`. Use
@@ -291,6 +325,7 @@ cluster.close
 | `CryBase::CouchBase::Services::Query` | Couchbase HTTP Query service namespace. |
 | `CryBase::CouchBase::Services::Query::Client` | Authenticated N1QL/SQL++ Query endpoint client. |
 | `CryBase::CouchBase::Services::Query::Cluster` | Query client over discovered topology with seed fallback. |
+| `CryBase::CouchBase::Services::Query::PreparedStatement` | Prepared Query statement name and metadata. |
 | `CryBase::CouchBase::Services::Query::Result` | Parsed Query response rows, metadata, warnings, and errors. |
 | `CryBase::CouchBase::Services::Query::Topology` | Parsed Query endpoints from Couchbase nodeServices payloads. |
 | `CryBase::CouchBase::Services::Query::TopologyClient` | Authenticated Management API client for Query topology loading. |
@@ -307,6 +342,7 @@ Feature notes:
 - [Query Service](docs/5.FEAT_query-service.md)
 - [Connectivity](docs/6.FEAT_connectivity.md)
 - [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md)
+- [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md)
 
 ## Connection Strings
 
@@ -384,7 +420,12 @@ The `examples/` directory contains:
 - `kv_expiration.cr` - run KV expiry, touch, and get-and-touch operations.
 - `kv_endpoint_from_cluster.cr` - probe the cluster, pick a KV endpoint, and
   run a KV operation.
-- `query_basics.cr` - run a parameterized readonly N1QL statement.
+- `query_basics.cr` - seed deterministic random `type = "User"` documents and
+  query them with N1QL.
+- `query_prepared.cr` - seed deterministic random `type = "User"` documents,
+  prepare a N1QL statement, and run it with explicit and `adhoc: false`
+  prepared execution.
+- `query_users.cr` - shared seeded user data helper for Query examples.
 - `constants.cr` - shared environment parsing and connection string helpers
   used by the runnable examples.
 - `docker-compose.yml` - local Couchbase Community setup for development.

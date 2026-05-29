@@ -252,6 +252,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/PreparedStatement" data-name="crybase::couchbase::services::query::preparedstatement">
+      <a href="../../../../CryBase/CouchBase/Services/Query/PreparedStatement.html">PreparedStatement</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Result" data-name="crybase::couchbase::services::query::result">
       <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
 
@@ -446,6 +451,11 @@
       </li>
 
       <li class="entry-summary">
+        <a href="#clear_prepared_cache%3ANil-instance-method" class="signature"><strong>#clear_prepared_cache</strong> : Nil</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#close%3ANil-instance-method" class="signature"><strong>#close</strong> : Nil</a>
 
       </li>
@@ -461,12 +471,27 @@
       </li>
 
       <li class="entry-summary">
+        <a href="#execute_prepared%28prepared%3APreparedStatement%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method" class="signature"><strong>#execute_prepared</strong>(prepared : PreparedStatement, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, raise_on_error : Bool = <span class="n">true</span>) : Result</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#execute_prepared%28prepared%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method" class="signature"><strong>#execute_prepared</strong>(prepared : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, raise_on_error : Bool = <span class="n">true</span>) : Result</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#management_seeds%3AArray%28Endpoint%29-instance-method" class="signature"><strong>#management_seeds</strong> : Array(Endpoint)</a>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#query%28statement%3AString%2C%2Apositional_args%2C%2A%2Akwargs%29%3AResult-instance-method" class="signature"><strong>#query</strong>(statement : String, *positional_args, **kwargs) : Result</a>
+        <a href="#prepare%28statement%3AString%2Cname%3AString%7CNil%3Dnil%2C%2A%2Cforce%3ABool%3Dfalse%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%29%3APreparedStatement-instance-method" class="signature"><strong>#prepare</strong>(statement : String, name : String | Nil = <span class="n">nil</span>, *, force : Bool = <span class="n">false</span>, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new) : PreparedStatement</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method" class="signature"><strong>#query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : Result</a>
 
       </li>
 
@@ -535,7 +560,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L24" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -551,7 +576,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L104" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L105" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -579,7 +604,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L70" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L71" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -595,7 +620,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L90" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L91" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -611,7 +636,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L56" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L57" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -641,7 +666,23 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L12" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L13" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="clear_prepared_cache:Nil-instance-method">
+      <div class="signature">
+
+        def <strong>clear_prepared_cache</strong> : Nil
+
+        <a class="method-permalink" href="#clear_prepared_cache%3ANil-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L245" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -657,7 +698,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L167" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L449" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -673,7 +714,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L174" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L456" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -689,7 +730,39 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L19" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L20" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="execute_prepared(prepared:PreparedStatement,*positional_args,named_args=NamedTuple.new,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,options=NamedTuple.new,raise_on_error:Bool=true):Result-instance-method">
+      <div class="signature">
+
+        def <strong>execute_prepared</strong>(prepared : <a href="../../../../CryBase/CouchBase/Services/Query/PreparedStatement.html">PreparedStatement</a>, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, raise_on_error : Bool = <span class="n">true</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
+
+        <a class="method-permalink" href="#execute_prepared%28prepared%3APreparedStatement%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L197" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="execute_prepared(prepared:String,*positional_args,named_args=NamedTuple.new,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,options=NamedTuple.new,raise_on_error:Bool=true):Result-instance-method">
+      <div class="signature">
+
+        def <strong>execute_prepared</strong>(prepared : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, raise_on_error : Bool = <span class="n">true</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
+
+        <a class="method-permalink" href="#execute_prepared%28prepared%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L221" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -710,18 +783,34 @@
       </div>
     </div>
 
-    <div class="entry-detail" id="query(statement:String,*positional_args,**kwargs):Result-instance-method">
+    <div class="entry-detail" id="prepare(statement:String,name:String|Nil=nil,*,force:Bool=false,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,options=NamedTuple.new):PreparedStatement-instance-method">
       <div class="signature">
 
-        def <strong>query</strong>(statement : String, *positional_args, **kwargs) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
+        def <strong>prepare</strong>(statement : String, name : String | Nil = <span class="n">nil</span>, *, force : Bool = <span class="n">false</span>, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new) : <a href="../../../../CryBase/CouchBase/Services/Query/PreparedStatement.html">PreparedStatement</a>
 
-        <a class="method-permalink" href="#query%28statement%3AString%2C%2Apositional_args%2C%2A%2Akwargs%29%3AResult-instance-method">#</a>
+        <a class="method-permalink" href="#prepare%28statement%3AString%2Cname%3AString%7CNil%3Dnil%2C%2A%2Cforce%3ABool%3Dfalse%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%29%3APreparedStatement-instance-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L129" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L172" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="query(statement:String,*positional_args,named_args=NamedTuple.new,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,options=NamedTuple.new,adhoc:Bool=true,raise_on_error:Bool=true):Result-instance-method">
+      <div class="signature">
+
+        def <strong>query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
+
+        <a class="method-permalink" href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L131" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -737,7 +826,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L160" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L442" target="_blank">View source</a>]
 
       </div>
     </div>

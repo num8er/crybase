@@ -84,6 +84,135 @@ describe Query::Client do
     server.try(&.close)
   end
 
+  it "prepares statements" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"name":"[127.0.0.1:8093]plan","encoded_plan":"encoded"}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    prepared = client.prepare(
+      "SELECT $name AS name",
+      "plan",
+      options: {query_context: "default:`travel-sample`.inventory"},
+    )
+    request = server.requests.receive
+
+    request.params["statement"].should eq(
+      "PREPARE plan AS SELECT $name AS name"
+    )
+    request.params["query_context"].should eq("default:`travel-sample`.inventory")
+    prepared.statement.should eq("SELECT $name AS name")
+    prepared.name.should eq("[127.0.0.1:8093]plan")
+    prepared.encoded_plan.should eq("encoded")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "executes prepared statements with parameters" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"name":"crybase"}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+    prepared = Query::PreparedStatement.new(
+      "SELECT $name AS name",
+      "[127.0.0.1:8093]plan",
+      nil,
+      JSON.parse(%({"name":"[127.0.0.1:8093]plan"})),
+    )
+
+    result = client.execute_prepared(
+      prepared,
+      named_args: {name: "crybase"},
+      readonly: true,
+    )
+    request = server.requests.receive
+
+    request.params["prepared"].should eq("[127.0.0.1:8093]plan")
+    request.params.has_key?("statement").should be_false
+    request.params["$name"].should eq(%("crybase"))
+    request.params["readonly"].should eq("true")
+    result.rows.first["name"].as_s.should eq("crybase")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "uses a cached prepared statement when adhoc is false" do
+    server = QueryHelpers.start_sequence([
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"name":"[127.0.0.1:8093]cached"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"value":"first"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"value":"second"}]
+      })),
+    ])
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    first = client.query("SELECT $1 AS value", "first", adhoc: false)
+    second = client.query("SELECT $1 AS value", "second", adhoc: false)
+    prepare_request = server.requests.receive
+    first_execute = server.requests.receive
+    second_execute = server.requests.receive
+
+    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    first_execute.params["prepared"].should eq("[127.0.0.1:8093]cached")
+    first_execute.params["args"].should eq(%(["first"]))
+    second_execute.params["prepared"].should eq("[127.0.0.1:8093]cached")
+    second_execute.params["args"].should eq(%(["second"]))
+    first.rows.first["value"].as_s.should eq("first")
+    second.rows.first["value"].as_s.should eq("second")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "reprepares cached statements when the plan is missing" do
+    server = QueryHelpers.start_sequence([
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"name":"[127.0.0.1:8093]old"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"errors",
+        "errors":[{"code":4040,"msg":"No such prepared statement"}],
+        "results":[]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"name":"[127.0.0.1:8093]new"}]
+      })),
+      QueryHelpers::Response.new(%({
+        "status":"success",
+        "results":[{"value":"fresh"}]
+      })),
+    ])
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    result = client.query("SELECT $1 AS value", "fresh", adhoc: false)
+    first_prepare = server.requests.receive
+    failed_execute = server.requests.receive
+    second_prepare = server.requests.receive
+    final_execute = server.requests.receive
+
+    first_prepare.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    failed_execute.params["prepared"].should eq("[127.0.0.1:8093]old")
+    second_prepare.params["statement"].should eq("PREPARE FORCE SELECT $1 AS value")
+    final_execute.params["prepared"].should eq("[127.0.0.1:8093]new")
+    result.rows.first["value"].as_s.should eq("fresh")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
   it "raises Query errors from response payloads" do
     server = QueryHelpers.start(%({
       "status":"errors",

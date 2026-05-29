@@ -8,6 +8,10 @@ module CryBase::SpecHelpers::QueryHelpers
     params : URI::Params,
     authorization : String?
 
+  record Response,
+    body : String,
+    status_code : Int32 = 200
+
   record Server,
     endpoint : CB::Endpoint,
     requests : Channel(Request),
@@ -27,7 +31,18 @@ module CryBase::SpecHelpers::QueryHelpers
     status_code : Int32,
     service : CB::Service,
   ) : Server
+    start_sequence([Response.new(response_body, status_code)], service)
+  end
+
+  def self.start_sequence(
+    responses : Array(Response),
+    service : CB::Service = CB::Service::Query,
+  ) : Server
+    raise ArgumentError.new("at least one Query helper response required") if responses.empty?
+
     requests = Channel(Request).new(10)
+    response_index = 0
+    mutex = Mutex.new
     server = HTTP::Server.new do |context|
       body = context.request.body.try(&.gets_to_end) || ""
       requests.send(Request.new(
@@ -36,9 +51,14 @@ module CryBase::SpecHelpers::QueryHelpers
         context.request.headers["Authorization"]?,
       ))
 
-      context.response.status_code = status_code
+      response = mutex.synchronize do
+        current = responses[response_index]? || responses.last
+        response_index += 1
+        current
+      end
+      context.response.status_code = response.status_code
       context.response.content_type = "application/json"
-      context.response.print response_body
+      context.response.print response.body
     end
     address = server.bind_tcp("127.0.0.1", 0)
     spawn { server.listen }

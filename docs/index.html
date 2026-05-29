@@ -252,6 +252,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/PreparedStatement" data-name="crybase::couchbase::services::query::preparedstatement">
+      <a href="CryBase/CouchBase/Services/Query/PreparedStatement.html">PreparedStatement</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Result" data-name="crybase::couchbase::services::query::result">
       <a href="CryBase/CouchBase/Services/Query/Result.html">Result</a>
 
@@ -346,7 +351,8 @@ endpoints and TCP-probes them.</li>
 sockets for authenticated <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, and counter
 operations, plus fixed-size and seed-failover connection pools.</li>
 <li>A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
-service, with JSON result parsing, seed failover, and Query node discovery.</li>
+service, with JSON result parsing, prepared statements, seed failover, and
+Query node discovery.</li>
 </ul>
 <h2><a id="status" class="anchor" href="#status">
   <svg class="octicon-link" aria-hidden="true">
@@ -368,6 +374,7 @@ Eventing, Views, and Management.</li>
 <li><code>KV::Pool</code> with 10 authenticated connections by default.</li>
 <li><code>KV::Cluster</code> seed failover across multiple KV hosts.</li>
 <li>Query service N1QL/SQL++ execution over HTTP/HTTPS.</li>
+<li>Query prepared statement APIs and <code>adhoc: false</code> plan caching.</li>
 <li><code>Query::Cluster</code> seed failover across multiple Query hosts.</li>
 <li><code>Query::Cluster</code> Query node discovery from Couchbase cluster topology.</li>
 <li>Real Couchbase integration specs in GitHub Actions.</li>
@@ -522,23 +529,22 @@ cluster.close</code></pre>
   </svg>
 </a>Run N1QL Queries</h3>
 <p>Use <code>Query::Client</code> for one Query endpoint:</p>
-<pre><code class="language-crystal">query <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Client</span>.from_string(
+<pre><code class="language-crystal">client <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Client</span>.from_string(
   <span class="s">&quot;couchbase://Administrator:password@127.0.0.1&quot;</span>,
 )
 
-result <span class="o">=</span> query.query(
+result <span class="o">=</span> client.query(
   <span class="s">&quot;SELECT $name AS name, $score AS score&quot;</span>,
   named_args: {name: <span class="s">&quot;crybase&quot;</span>, score: <span class="n">42</span>},
   readonly: <span class="n">true</span>,
 )
 
-puts result.rows.first[<span class="s">&quot;name&quot;</span>].as_s
-query.close</code></pre>
+puts result.rows.first[<span class="s">&quot;name&quot;</span>].as_s</code></pre>
 <p>Pass positional parameters after the statement:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> query.query(<span class="s">&quot;SELECT $1 AS value&quot;</span>, <span class="s">&quot;hello&quot;</span>, readonly: <span class="n">true</span>)
+<pre><code class="language-crystal">result <span class="o">=</span> client.query(<span class="s">&quot;SELECT $1 AS value&quot;</span>, <span class="s">&quot;hello&quot;</span>, readonly: <span class="n">true</span>)
 puts result.rows.first[<span class="s">&quot;value&quot;</span>].as_s</code></pre>
 <p>Use typed scan consistency values when needed:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> query.query(
+<pre><code class="language-crystal">result <span class="o">=</span> client.query(
   <span class="s">&quot;SELECT 1 AS one&quot;</span>,
   scan_consistency: <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">ScanConsistency</span><span class="t">::</span><span class="t">RequestPlus</span>,
 )</code></pre>
@@ -553,6 +559,31 @@ error occurs.</p>
 
 puts cluster.query(<span class="s">&quot;SELECT 1 AS one&quot;</span>).rows.first[<span class="s">&quot;one&quot;</span>].as_i
 cluster.close</code></pre>
+<p>Prepare a statement explicitly when you want to manage the prepared plan:</p>
+<pre><code class="language-crystal">prepared <span class="o">=</span> client.prepare(
+  <span class="s">&quot;SELECT $name AS name, $score AS score&quot;</span>,
+  readonly: <span class="n">true</span>,
+)
+
+result <span class="o">=</span> client.execute_prepared(
+  prepared,
+  named_args: {name: <span class="s">&quot;crybase&quot;</span>, score: <span class="n">42</span>},
+  readonly: <span class="n">true</span>,
+)
+
+puts result.rows.first[<span class="s">&quot;score&quot;</span>].as_i</code></pre>
+<p>Pass <code>adhoc: false</code> to let CryBase prepare, cache, and execute a statement by
+prepared name. If Couchbase reports that the prepared statement no longer
+exists, CryBase clears that cache entry and prepares it once again.</p>
+<pre><code class="language-crystal">result <span class="o">=</span> client.query(
+  <span class="s">&quot;SELECT $1 AS value&quot;</span>,
+  <span class="s">&quot;cached&quot;</span>,
+  readonly: <span class="n">true</span>,
+  adhoc: <span class="n">false</span>,
+)
+
+puts result.rows.first[<span class="s">&quot;value&quot;</span>].as_s
+client.close</code></pre>
 <p>If the Management API uses a non-default port, pass <code>management_port:</code>. Use
 <code>discover_topology: false</code> to keep static seed-only routing.</p>
 <pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
@@ -588,6 +619,7 @@ cluster.close</code></pre>
 | <code><a href="CryBase/CouchBase/Services/Query.html">CryBase::CouchBase::Services::Query</a></code> | Couchbase HTTP Query service namespace. |
 | <code><a href="CryBase/CouchBase/Services/Query/Client.html">CryBase::CouchBase::Services::Query::Client</a></code> | Authenticated N1QL/SQL++ Query endpoint client. |
 | <code><a href="CryBase/CouchBase/Services/Query/Cluster.html">CryBase::CouchBase::Services::Query::Cluster</a></code> | Query client over discovered topology with seed fallback. |
+| <code><a href="CryBase/CouchBase/Services/Query/PreparedStatement.html">CryBase::CouchBase::Services::Query::PreparedStatement</a></code> | Prepared Query statement name and metadata. |
 | <code><a href="CryBase/CouchBase/Services/Query/Result.html">CryBase::CouchBase::Services::Query::Result</a></code> | Parsed Query response rows, metadata, warnings, and errors. |
 | <code><a href="CryBase/CouchBase/Services/Query/Topology.html">CryBase::CouchBase::Services::Query::Topology</a></code> | Parsed Query endpoints from Couchbase nodeServices payloads. |
 | <code><a href="CryBase/CouchBase/Services/Query/TopologyClient.html">CryBase::CouchBase::Services::Query::TopologyClient</a></code> | Authenticated Management API client for Query topology loading. |
@@ -602,6 +634,7 @@ cluster.close</code></pre>
 <li><a href="docs/5.FEAT_query-service.md">Query Service</a></li>
 <li><a href="docs/6.FEAT_connectivity.md">Connectivity</a></li>
 <li><a href="docs/7.FEAT_query-topology-discovery.md">Query Topology Discovery</a></li>
+<li><a href="docs/8.FEAT_query-prepared-statements.md">Query Prepared Statements</a></li>
 </ul>
 <h2><a id="connection-strings" class="anchor" href="#connection-strings">
   <svg class="octicon-link" aria-hidden="true">
@@ -672,7 +705,12 @@ honors an explicit port:</p>
 <li><code>kv_expiration.cr</code> - run KV expiry, touch, and get-and-touch operations.</li>
 <li><code>kv_endpoint_from_cluster.cr</code> - probe the cluster, pick a KV endpoint, and
 run a KV operation.</li>
-<li><code>query_basics.cr</code> - run a parameterized readonly N1QL statement.</li>
+<li><code>query_basics.cr</code> - seed deterministic random <code>type = &quot;User&quot;</code> documents and
+query them with N1QL.</li>
+<li><code>query_prepared.cr</code> - seed deterministic random <code>type = &quot;User&quot;</code> documents,
+prepare a N1QL statement, and run it with explicit and <code>adhoc: false</code>
+prepared execution.</li>
+<li><code>query_users.cr</code> - shared seeded user data helper for Query examples.</li>
 <li><code>constants.cr</code> - shared environment parsing and connection string helpers
 used by the runnable examples.</li>
 <li><code>docker-compose.yml</code> - local Couchbase Community setup for development.</li>
