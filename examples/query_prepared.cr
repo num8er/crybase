@@ -8,7 +8,7 @@ begin
   users = CryBaseExamples.seed_query_users(kv)
   keys = CryBaseExamples.query_user_keys(users)
   statement = <<-N1QL
-    SELECT META(u).id AS key, u.id, u.type, u.name, u.email, u.active
+    SELECT META(u).id AS doc_key, u.id, u.type, u.name, u.email, u.active
     FROM #{CryBaseExamples.n1ql_bucket} AS u
     USE KEYS $keys
     WHERE u.type = $type AND u.active = $active

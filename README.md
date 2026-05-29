@@ -228,8 +228,8 @@ puts result.rows.first["name"].as_s
 Pass positional parameters after the statement:
 
 ```crystal
-result = client.query("SELECT $1 AS value", "hello", readonly: true)
-puts result.rows.first["value"].as_s
+result = client.query("SELECT $1 AS query_value", "hello", readonly: true)
+puts result.rows.first["query_value"].as_s
 ```
 
 Use typed scan consistency values when needed:
@@ -279,13 +279,13 @@ exists, CryBase clears that cache entry and prepares it once again.
 
 ```crystal
 result = client.query(
-  "SELECT $1 AS value",
+  "SELECT $1 AS query_value",
   "cached",
   readonly: true,
   adhoc: false,
 )
 
-puts result.rows.first["value"].as_s
+puts result.rows.first["query_value"].as_s
 client.close
 ```
 

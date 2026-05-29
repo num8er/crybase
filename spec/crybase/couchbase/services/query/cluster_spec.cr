@@ -166,26 +166,26 @@ describe Query::Cluster do
       })),
       QueryHelpers::Response.new(%({
         "status":"success",
-        "results":[{"value":"one"}]
+        "results":[{"query_value":"one"}]
       })),
       QueryHelpers::Response.new(%({
         "status":"success",
-        "results":[{"value":"two"}]
+        "results":[{"query_value":"two"}]
       })),
     ])
     cluster = Query::Cluster.new([server.endpoint], "user", "pass")
 
-    first = cluster.query("SELECT $1 AS value", "one", adhoc: false)
-    second = cluster.query("SELECT $1 AS value", "two", adhoc: false)
+    first = cluster.query("SELECT $1 AS query_value", "one", adhoc: false)
+    second = cluster.query("SELECT $1 AS query_value", "two", adhoc: false)
     prepare_request = server.requests.receive
     first_execute = server.requests.receive
     second_execute = server.requests.receive
 
-    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS query_value")
     first_execute.params["prepared"].should eq("[127.0.0.1:8093]cluster")
     second_execute.params["prepared"].should eq("[127.0.0.1:8093]cluster")
-    first.rows.first["value"].as_s.should eq("one")
-    second.rows.first["value"].as_s.should eq("two")
+    first.rows.first["query_value"].as_s.should eq("one")
+    second.rows.first["query_value"].as_s.should eq("two")
   ensure
     cluster.try(&.close)
     server.try(&.close)

@@ -541,8 +541,8 @@ result <span class="o">=</span> client.query(
 
 puts result.rows.first[<span class="s">&quot;name&quot;</span>].as_s</code></pre>
 <p>Pass positional parameters after the statement:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(<span class="s">&quot;SELECT $1 AS value&quot;</span>, <span class="s">&quot;hello&quot;</span>, readonly: <span class="n">true</span>)
-puts result.rows.first[<span class="s">&quot;value&quot;</span>].as_s</code></pre>
+<pre><code class="language-crystal">result <span class="o">=</span> client.query(<span class="s">&quot;SELECT $1 AS query_value&quot;</span>, <span class="s">&quot;hello&quot;</span>, readonly: <span class="n">true</span>)
+puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s</code></pre>
 <p>Use typed scan consistency values when needed:</p>
 <pre><code class="language-crystal">result <span class="o">=</span> client.query(
   <span class="s">&quot;SELECT 1 AS one&quot;</span>,
@@ -576,13 +576,13 @@ puts result.rows.first[<span class="s">&quot;score&quot;</span>].as_i</code></pr
 prepared name. If Couchbase reports that the prepared statement no longer
 exists, CryBase clears that cache entry and prepares it once again.</p>
 <pre><code class="language-crystal">result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT $1 AS value&quot;</span>,
+  <span class="s">&quot;SELECT $1 AS query_value&quot;</span>,
   <span class="s">&quot;cached&quot;</span>,
   readonly: <span class="n">true</span>,
   adhoc: <span class="n">false</span>,
 )
 
-puts result.rows.first[<span class="s">&quot;value&quot;</span>].as_s
+puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s
 client.close</code></pre>
 <p>If the Management API uses a non-default port, pass <code>management_port:</code>. Use
 <code>discover_topology: false</code> to keep static seed-only routing.</p>

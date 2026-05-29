@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics.cr` for a readonly parameterized Query service call.
 - `examples/query_prepared.cr` for prepared Query execution.
+- Real Couchbase Query integration specs that seed deterministic example
+  `type = "User"` documents over KV and query them through direct and prepared
+  Query execution.
 
 ### Changed
 - README now links to the feature implementation notes.
@@ -60,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a missing prepared statement.
 - Query examples now use `client` variable names and run against seeded random
   user documents.
+- Query docs, examples, and specs now avoid reserved `value` and `key` aliases
+  in runnable N1QL statements.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22

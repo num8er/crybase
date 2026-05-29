@@ -148,28 +148,28 @@ describe Query::Client do
       })),
       QueryHelpers::Response.new(%({
         "status":"success",
-        "results":[{"value":"first"}]
+        "results":[{"query_value":"first"}]
       })),
       QueryHelpers::Response.new(%({
         "status":"success",
-        "results":[{"value":"second"}]
+        "results":[{"query_value":"second"}]
       })),
     ])
     client = Query::Client.new(server.endpoint, "user", "pass")
 
-    first = client.query("SELECT $1 AS value", "first", adhoc: false)
-    second = client.query("SELECT $1 AS value", "second", adhoc: false)
+    first = client.query("SELECT $1 AS query_value", "first", adhoc: false)
+    second = client.query("SELECT $1 AS query_value", "second", adhoc: false)
     prepare_request = server.requests.receive
     first_execute = server.requests.receive
     second_execute = server.requests.receive
 
-    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    prepare_request.params["statement"].should eq("PREPARE SELECT $1 AS query_value")
     first_execute.params["prepared"].should eq("[127.0.0.1:8093]cached")
     first_execute.params["args"].should eq(%(["first"]))
     second_execute.params["prepared"].should eq("[127.0.0.1:8093]cached")
     second_execute.params["args"].should eq(%(["second"]))
-    first.rows.first["value"].as_s.should eq("first")
-    second.rows.first["value"].as_s.should eq("second")
+    first.rows.first["query_value"].as_s.should eq("first")
+    second.rows.first["query_value"].as_s.should eq("second")
   ensure
     client.try(&.close)
     server.try(&.close)
@@ -192,22 +192,22 @@ describe Query::Client do
       })),
       QueryHelpers::Response.new(%({
         "status":"success",
-        "results":[{"value":"fresh"}]
+        "results":[{"query_value":"fresh"}]
       })),
     ])
     client = Query::Client.new(server.endpoint, "user", "pass")
 
-    result = client.query("SELECT $1 AS value", "fresh", adhoc: false)
+    result = client.query("SELECT $1 AS query_value", "fresh", adhoc: false)
     first_prepare = server.requests.receive
     failed_execute = server.requests.receive
     second_prepare = server.requests.receive
     final_execute = server.requests.receive
 
-    first_prepare.params["statement"].should eq("PREPARE SELECT $1 AS value")
+    first_prepare.params["statement"].should eq("PREPARE SELECT $1 AS query_value")
     failed_execute.params["prepared"].should eq("[127.0.0.1:8093]old")
-    second_prepare.params["statement"].should eq("PREPARE FORCE SELECT $1 AS value")
+    second_prepare.params["statement"].should eq("PREPARE FORCE SELECT $1 AS query_value")
     final_execute.params["prepared"].should eq("[127.0.0.1:8093]new")
-    result.rows.first["value"].as_s.should eq("fresh")
+    result.rows.first["query_value"].as_s.should eq("fresh")
   ensure
     client.try(&.close)
     server.try(&.close)
