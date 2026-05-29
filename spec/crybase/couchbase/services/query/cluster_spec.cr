@@ -42,6 +42,28 @@ describe Query::Cluster do
     endpoints.map(&.port).should eq([19093, 29093])
   end
 
+  it "keeps Query seeds on Query ports when built from management URLs" do
+    connection_string = CB::ConnectionString.parse("http://user:pass@n1:8091,n2:9091")
+
+    endpoints = Query::Cluster.seed_endpoints(connection_string)
+    management_endpoints = Query::Cluster.management_endpoints(connection_string)
+
+    endpoints.map(&.port).should eq([8093, 8093])
+    management_endpoints.map(&.port).should eq([8091, 9091])
+  end
+
+  it "builds management endpoints from Couchbase seed hosts" do
+    connection_string = CB::ConnectionString.parse("couchbase://user:pass@n1:19093,n2:29093")
+
+    endpoints = Query::Cluster.management_endpoints(connection_string)
+
+    endpoints.map(&.host).should eq(["n1", "n2"])
+    endpoints.map(&.port).should eq([8091, 8091])
+    endpoints.each do |endpoint|
+      endpoint.service.should eq(CB::Service::Management)
+    end
+  end
+
   it "requires at least one seed endpoint" do
     expect_raises(ArgumentError, /seed endpoint/) do
       Query::Cluster.new([] of CB::Endpoint, "user", "pass")
@@ -98,5 +120,38 @@ describe Query::Cluster do
   ensure
     cluster.try(&.close)
     server.try(&.close)
+  end
+
+  it "discovers Query topology from management seeds before querying" do
+    query_server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"node":"discovered"}]
+    }))
+    topology_server = QueryHelpers.start(%({
+      "nodesExt":[
+        {"hostname":"127.0.0.1","services":{"n1ql":#{query_server.endpoint.port}}}
+      ]
+    }), 200, CB::Service::Management)
+    closed_endpoint = CB::Endpoint.new("127.0.0.1", unused_query_port, CB::Service::Query, false)
+    cluster = Query::Cluster.new(
+      [closed_endpoint],
+      "user",
+      "pass",
+      connect_timeout: 100.milliseconds,
+      management_seeds: [topology_server.endpoint],
+      discover_topology: true,
+    )
+
+    result = cluster.query("SELECT 1")
+    topology_request = topology_server.requests.receive
+
+    topology_request.resource.should eq(Query::TopologyClient::PATH)
+    result.rows.first["node"].as_s.should eq("discovered")
+    cluster.active_endpoint.should eq(query_server.endpoint)
+    cluster.endpoints.should eq([query_server.endpoint])
+  ensure
+    cluster.try(&.close)
+    query_server.try(&.close)
+    topology_server.try(&.close)
   end
 end

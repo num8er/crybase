@@ -5,6 +5,7 @@ private alias ConnectionString = CryBase::CouchBase::ConnectionString
 describe ConnectionString do
   it "defaults to plaintext couchbase scheme" do
     cs = ConnectionString.parse("localhost")
+    cs.scheme.should eq("couchbase")
     cs.hosts.should eq(["localhost"])
     cs.tls?.should be_false
     cs.explicit_port.should be_nil
@@ -15,7 +16,16 @@ describe ConnectionString do
 
   it "parses couchbases:// as TLS" do
     cs = ConnectionString.parse("couchbases://node1.example.com")
+    cs.scheme.should eq("couchbases")
     cs.tls?.should be_true
+  end
+
+  it "preserves http schemes" do
+    cs = ConnectionString.parse("https://node1.example.com:18091")
+
+    cs.scheme.should eq("https")
+    cs.tls?.should be_true
+    cs.explicit_port.should eq(18091)
   end
 
   it "parses comma-separated hosts and explicit port" do

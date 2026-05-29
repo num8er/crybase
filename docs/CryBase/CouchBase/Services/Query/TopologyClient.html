@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../../js/doc.js"></script>
 
   <meta name="repository-name" content="crybase">
-  <title>CryBase::CouchBase::Services::KV::ResponseReader - crybase main-dev</title>
+  <title>CryBase::CouchBase::Services::Query::TopologyClient - crybase main-dev</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../../";
   </script>
@@ -132,7 +132,7 @@
 
         <ul>
 
-  <li class="parent open current" data-id="crybase/CryBase/CouchBase/Services/KV" data-name="crybase::couchbase::services::kv">
+  <li class="parent " data-id="crybase/CryBase/CouchBase/Services/KV" data-name="crybase::couchbase::services::kv">
       <a href="../../../../CryBase/CouchBase/Services/KV.html">KV</a>
 
         <ul>
@@ -202,7 +202,7 @@
 
     </li>
 
-  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/ResponseReader" data-name="crybase::couchbase::services::kv::responsereader">
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ResponseReader" data-name="crybase::couchbase::services::kv::responsereader">
       <a href="../../../../CryBase/CouchBase/Services/KV/ResponseReader.html">ResponseReader</a>
 
     </li>
@@ -222,7 +222,7 @@
 
     </li>
 
-  <li class="parent " data-id="crybase/CryBase/CouchBase/Services/Query" data-name="crybase::couchbase::services::query">
+  <li class="parent open current" data-id="crybase/CryBase/CouchBase/Services/Query" data-name="crybase::couchbase::services::query">
       <a href="../../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
@@ -267,7 +267,7 @@
 
     </li>
 
-  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/TopologyClient" data-name="crybase::couchbase::services::query::topologyclient">
+  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/Query/TopologyClient" data-name="crybase::couchbase::services::query::topologyclient">
       <a href="../../../../CryBase/CouchBase/Services/Query/TopologyClient.html">TopologyClient</a>
 
     </li>
@@ -327,37 +327,13 @@
 <h1 class="type-name">
 
   <span class="kind">
-    module
-  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>ResponseReader
+    class
+  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>Query::<wbr>TopologyClient
 
 </h1>
 
 
-
-
-
-  <h2>
-    <a id="overview" class="anchor" href="#overview">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Overview
-  </h2>
-
-  <p>Mixin that reads exactly one <code><a href="../../../../CryBase/CouchBase/Services/KV/Response.html">Response</a></code> packet from the includer's
-<code>@socket</code>. The includer is expected to own an IO-typed <code>@socket</code>.</p>
-<p>Used together with <code><a href="../../../../CryBase/CouchBase/Services/KV/RequestWriter.html">RequestWriter</a></code> and <code><a href="../../../../CryBase/CouchBase/Services/KV/Bucket.html">Bucket</a></code> to compose
-<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">KV::Client</a></code>. Stateless on its own.</p>
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Peer</span>
-  <span class="k">include</span> <span class="t">KV</span><span class="t">::</span><span class="t">ResponseReader</span>
-
-  <span class="k">def</span> <span class="m">initialize</span>(@socket : <span class="t">IO</span>)
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="c"># `io` already contains a server response packet, positioned at start.</span>
-resp <span class="o">=</span> <span class="t">Peer</span>.new(io).read</code></pre>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../../CryBase/CouchBase/Services/Query/TopologyClient.html">CryBase::CouchBase::Services::Query::TopologyClient</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -371,19 +347,8 @@ resp <span class="o">=</span> <span class="t">Peer</span>.new(io).read</code></p
 
 
 
-  <h2>
-    <a id="direct-including-types" class="anchor" href="#direct-including-types">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Direct including types
-  </h2>
-  <ul class="other-types-list">
 
-      <li class="other-type"><a href="../../../../CryBase/CouchBase/Services/KV/Client.html">CryBase::CouchBase::Services::KV::Client</a></li>
 
-  </ul>
 
 
 
@@ -398,8 +363,8 @@ resp <span class="o">=</span> <span class="t">Peer</span>.new(io).read</code></p
   </h2>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response_reader.cr#L19" target="_blank">
-        crybase/couchbase/services/kv/response_reader.cr
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/topology_client.cr#L1" target="_blank">
+        crybase/couchbase/services/query/topology_client.cr
       </a>
 
     <br/>
@@ -408,6 +373,43 @@ resp <span class="o">=</span> <span class="t">Peer</span>.new(io).read</code></p
 
 
 
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+
+  <dl>
+
+      <dt class="entry-const" id="PATH">
+        <strong>PATH</strong> = <code><span class="s">&quot;/pools/default/nodeServices&quot;</span></code>
+      </dt>
+
+
+  </dl>
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(endpoint : Endpoint, username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, network : String | Nil = <span class="n">nil</span>)</a>
+
+      </li>
+
+  </ul>
 
 
 
@@ -415,18 +417,133 @@ resp <span class="o">=</span> <span class="t">Peer</span>.new(io).read</code></p
 
 
 
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#endpoint%3AEndpoint-instance-method" class="signature"><strong>#endpoint</strong> : Endpoint</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#fetch%3ATopology-instance-method" class="signature"><strong>#fetch</strong> : Topology</a>
+
+      </li>
+
+  </ul>
 
 
 
   <div class="methods-inherited">
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </div>
 
 
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+
+    <div class="entry-detail" id="new(endpoint:Endpoint,username:String,password:String,connect_timeout:Time::Span=Client::DEFAULT_CONNECT_TIMEOUT,read_timeout:Time::Span=Client::DEFAULT_READ_TIMEOUT,write_timeout:Time::Span=Client::DEFAULT_WRITE_TIMEOUT,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil,network:String|Nil=nil)-class-method">
+      <div class="signature">
+
+        def self.<strong>new</strong>(endpoint : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>, username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, network : String | Nil = <span class="n">nil</span>)
+
+        <a class="method-permalink" href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/topology_client.cr#L6" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
 
 
 
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+
+    <div class="entry-detail" id="endpoint:Endpoint-instance-method">
+      <div class="signature">
+
+        def <strong>endpoint</strong> : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>
+
+        <a class="method-permalink" href="#endpoint%3AEndpoint-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/topology_client.cr#L4" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="fetch:Topology-instance-method">
+      <div class="signature">
+
+        def <strong>fetch</strong> : <a href="../../../../CryBase/CouchBase/Services/Query/Topology.html">Topology</a>
+
+        <a class="method-permalink" href="#fetch%3ATopology-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/topology_client.cr#L21" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
 
 

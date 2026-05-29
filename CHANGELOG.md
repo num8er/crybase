@@ -13,13 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md),
   [KV Cluster](docs/4.FEAT_kv-cluster.md), and
   [Query Service](docs/5.FEAT_query-service.md), and
-  [Connectivity](docs/6.FEAT_connectivity.md).
+  [Connectivity](docs/6.FEAT_connectivity.md), and
+  [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
   over the Couchbase HTTP Query service.
 - `CryBase::CouchBase::Query::Cluster` for seed failover across Query service
   endpoints.
+- `CryBase::CouchBase::Query::Topology` for parsing Query endpoints from
+  Couchbase `nodeServices` payloads.
+- `CryBase::CouchBase::Query::TopologyClient` for authenticated Query topology
+  loading from Couchbase Management.
+- `Query::Cluster#refresh_topology` for explicit Query node topology refresh.
 - `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
   used by service-specific clients.
 - `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
@@ -41,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and
   TLS setup.
+- `Query::Cluster.from_string` now discovers Query nodes from Couchbase
+  topology by default and keeps static Query seeds as fallback.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22

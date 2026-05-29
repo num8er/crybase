@@ -26,6 +26,7 @@ module CryBase::CouchBase
     getter bucket : String?
     getter params : URI::Params
     getter ports : Array(Int32?)
+    getter scheme : String
 
     # Port explicitly given in the URI, or `nil` when none was supplied.
     # `Endpoint.from_string` uses it for the selected endpoint. The
@@ -41,6 +42,7 @@ module CryBase::CouchBase
       @bucket : String? = nil,
       @params : URI::Params = URI::Params.new,
       @ports : Array(Int32?) = [] of Int32?,
+      @scheme : String = "couchbase",
     )
       raise ArgumentError.new("at least one host required") if @hosts.empty?
       @ports = Array(Int32?).new(@hosts.size, nil) if @ports.empty?
@@ -78,6 +80,7 @@ module CryBase::CouchBase
         parse_bucket(path),
         query ? URI::Params.parse(query) : URI::Params.new,
         ports,
+        scheme,
       )
     end
 

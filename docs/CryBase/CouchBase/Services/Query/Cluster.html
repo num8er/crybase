@@ -262,6 +262,16 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Topology" data-name="crybase::couchbase::services::query::topology">
+      <a href="../../../../CryBase/CouchBase/Services/Query/Topology.html">Topology</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/TopologyClient" data-name="crybase::couchbase::services::query::topologyclient">
+      <a href="../../../../CryBase/CouchBase/Services/Query/TopologyClient.html">TopologyClient</a>
+
+    </li>
+
 </ul>
 
 
@@ -376,12 +386,12 @@
   <ul class="list-summary">
 
       <li class="entry-summary">
-        <a href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method" class="signature"><strong>.from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : Cluster</a>
+        <a href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29%3ACluster-class-method" class="signature"><strong>.from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, discover_topology : Bool = <span class="n">true</span>, management_port : Int32 | Nil = <span class="n">nil</span>, network : String | Nil = <span class="n">nil</span>) : Cluster</a>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(seeds : Array(Endpoint), username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)</a>
+        <a href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cmanagement_seeds%3AArray%28Endpoint%29%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dfalse%2Cnetwork%3AString%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(seeds : Array(Endpoint), username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, management_seeds : Array(Endpoint) | Nil = <span class="n">nil</span>, discover_topology : Bool = <span class="n">false</span>, network : String | Nil = <span class="n">nil</span>)</a>
 
       </li>
 
@@ -398,6 +408,16 @@
     Class Method Summary
   </h2>
   <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#management_endpoints%28connection_string%3AConnectionString%2Cport_override%3AInt32%7CNil%3Dnil%29%3AArray%28Endpoint%29-class-method" class="signature"><strong>.management_endpoints</strong>(connection_string : ConnectionString, port_override : Int32 | Nil = <span class="n">nil</span>) : Array(Endpoint)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#management_endpoints%28seed_endpoints%3AArray%28Endpoint%29%29%3AArray%28Endpoint%29-class-method" class="signature"><strong>.management_endpoints</strong>(seed_endpoints : Array(Endpoint)) : Array(Endpoint)</a>
+
+      </li>
 
       <li class="entry-summary">
         <a href="#seed_endpoints%28connection_string%3AConnectionString%29%3AArray%28Endpoint%29-class-method" class="signature"><strong>.seed_endpoints</strong>(connection_string : ConnectionString) : Array(Endpoint)</a>
@@ -436,7 +456,22 @@
       </li>
 
       <li class="entry-summary">
+        <a href="#endpoints%3AArray%28Endpoint%29-instance-method" class="signature"><strong>#endpoints</strong> : Array(Endpoint)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#management_seeds%3AArray%28Endpoint%29-instance-method" class="signature"><strong>#management_seeds</strong> : Array(Endpoint)</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#query%28statement%3AString%2C%2Apositional_args%2C%2A%2Akwargs%29%3AResult-instance-method" class="signature"><strong>#query</strong>(statement : String, *positional_args, **kwargs) : Result</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#refresh_topology%3AArray%28Endpoint%29-instance-method" class="signature"><strong>#refresh_topology</strong> : Array(Endpoint)</a>
 
       </li>
 
@@ -489,34 +524,34 @@
     Constructor Detail
   </h2>
 
-    <div class="entry-detail" id="from_string(uri:String,username:String|Nil=nil,password:String|Nil=nil,connect_timeout:Time::Span=Client::DEFAULT_CONNECT_TIMEOUT,read_timeout:Time::Span=Client::DEFAULT_READ_TIMEOUT,write_timeout:Time::Span=Client::DEFAULT_WRITE_TIMEOUT,*,tls_verify:Bool|Nil=nil,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil):Cluster-class-method">
+    <div class="entry-detail" id="from_string(uri:String,username:String|Nil=nil,password:String|Nil=nil,connect_timeout:Time::Span=Client::DEFAULT_CONNECT_TIMEOUT,read_timeout:Time::Span=Client::DEFAULT_READ_TIMEOUT,write_timeout:Time::Span=Client::DEFAULT_WRITE_TIMEOUT,*,tls_verify:Bool|Nil=nil,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil,discover_topology:Bool=true,management_port:Int32|Nil=nil,network:String|Nil=nil):Cluster-class-method">
       <div class="signature">
 
-        def self.<strong>from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Cluster.html">Cluster</a>
+        def self.<strong>from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, discover_topology : Bool = <span class="n">true</span>, management_port : Int32 | Nil = <span class="n">nil</span>, network : String | Nil = <span class="n">nil</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Cluster.html">Cluster</a>
 
-        <a class="method-permalink" href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method">#</a>
+        <a class="method-permalink" href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29%3ACluster-class-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L16" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L23" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="new(seeds:Array(Endpoint),username:String,password:String,connect_timeout:Time::Span=Client::DEFAULT_CONNECT_TIMEOUT,read_timeout:Time::Span=Client::DEFAULT_READ_TIMEOUT,write_timeout:Time::Span=Client::DEFAULT_WRITE_TIMEOUT,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil)-class-method">
+    <div class="entry-detail" id="new(seeds:Array(Endpoint),username:String,password:String,connect_timeout:Time::Span=Client::DEFAULT_CONNECT_TIMEOUT,read_timeout:Time::Span=Client::DEFAULT_READ_TIMEOUT,write_timeout:Time::Span=Client::DEFAULT_WRITE_TIMEOUT,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil,management_seeds:Array(Endpoint)|Nil=nil,discover_topology:Bool=false,network:String|Nil=nil)-class-method">
       <div class="signature">
 
-        def self.<strong>new</strong>(seeds : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>), username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)
+        def self.<strong>new</strong>(seeds : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>), username : String, password : String, connect_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_CONNECT_TIMEOUT</span>, read_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_READ_TIMEOUT</span>, write_timeout : Time::Span = <span class="t">Client</span><span class="t">::</span><span class="t">DEFAULT_WRITE_TIMEOUT</span>, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, management_seeds : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>) | Nil = <span class="n">nil</span>, discover_topology : Bool = <span class="n">false</span>, network : String | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cmanagement_seeds%3AArray%28Endpoint%29%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dfalse%2Cnetwork%3AString%7CNil%3Dnil%29-class-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L51" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L104" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -533,6 +568,38 @@
     Class Method Detail
   </h2>
 
+    <div class="entry-detail" id="management_endpoints(connection_string:ConnectionString,port_override:Int32|Nil=nil):Array(Endpoint)-class-method">
+      <div class="signature">
+
+        def self.<strong>management_endpoints</strong>(connection_string : <a href="../../../../CryBase/CouchBase/ConnectionString.html">ConnectionString</a>, port_override : Int32 | Nil = <span class="n">nil</span>) : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)
+
+        <a class="method-permalink" href="#management_endpoints%28connection_string%3AConnectionString%2Cport_override%3AInt32%7CNil%3Dnil%29%3AArray%28Endpoint%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L70" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="management_endpoints(seed_endpoints:Array(Endpoint)):Array(Endpoint)-class-method">
+      <div class="signature">
+
+        def self.<strong>management_endpoints</strong>(seed_endpoints : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)) : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)
+
+        <a class="method-permalink" href="#management_endpoints%28seed_endpoints%3AArray%28Endpoint%29%29%3AArray%28Endpoint%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L90" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
     <div class="entry-detail" id="seed_endpoints(connection_string:ConnectionString):Array(Endpoint)-class-method">
       <div class="signature">
 
@@ -544,7 +611,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L43" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L56" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -574,7 +641,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L9" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L12" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -590,7 +657,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L96" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L167" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -606,7 +673,39 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L103" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L174" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="endpoints:Array(Endpoint)-instance-method">
+      <div class="signature">
+
+        def <strong>endpoints</strong> : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)
+
+        <a class="method-permalink" href="#endpoints%3AArray%28Endpoint%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L19" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="management_seeds:Array(Endpoint)-instance-method">
+      <div class="signature">
+
+        def <strong>management_seeds</strong> : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)
+
+        <a class="method-permalink" href="#management_seeds%3AArray%28Endpoint%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L4" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -622,7 +721,23 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L70" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L129" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="refresh_topology:Array(Endpoint)-instance-method">
+      <div class="signature">
+
+        def <strong>refresh_topology</strong> : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>)
+
+        <a class="method-permalink" href="#refresh_topology%3AArray%28Endpoint%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L160" target="_blank">View source</a>]
 
       </div>
     </div>

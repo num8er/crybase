@@ -2,7 +2,7 @@
 
 ## Overview
 
-CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and seed-failover `Query::Cluster`. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
+CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and `Query::Cluster`; `Query::Cluster.from_string` can discover Query nodes from Couchbase Management topology and fall back to static seeds. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
 
 ## Repository Structure
 
@@ -37,7 +37,9 @@ crybase/
 │       │       ├── query.cr            # Query service namespace
 │       │       └── query/
 │       │           ├── client.cr       # Authenticated N1QL HTTP client
-│       │           ├── cluster.cr      # Seed-failover Query wrapper
+│       │           ├── cluster.cr      # Topology-aware Query wrapper
+│       │           ├── topology.cr     # Query endpoint parser from nodeServices
+│       │           ├── topology_client.cr  # Management API topology fetcher
 │       │           └── result/error helpers
 ├── spec/
 │   ├── spec_helper.cr          # Test setup
@@ -100,8 +102,8 @@ crystal tool format   # format code
 ## Current Limitations
 
 - Cluster-level `CryBase::CouchBase::Client#connect` validates TCP reachability only; protocol handshakes live in service-specific clients.
-- Cluster config loading and node/vbucket map routing are not implemented; `KV::Cluster` is seed failover only and keeps one active `KV::Pool`.
-- Query support is HTTP endpoint execution plus seed failover only; cluster config loading, prepared statement management, and query-node topology discovery are not implemented yet.
+- KV cluster config loading and node/vbucket map routing are not implemented; `KV::Cluster` is seed failover only and keeps one active `KV::Pool`.
+- Query support has HTTP endpoint execution, seed failover, and Query-node topology discovery; prepared statement management and Query connection pooling are not implemented yet.
 - Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
 - Retry/reconnect, durability, observe, CAS helpers, scopes, and collections are not implemented.
 - Connection string parsing treats HTTP(S) as Management-only URLs.

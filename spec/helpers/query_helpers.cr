@@ -19,6 +19,14 @@ module CryBase::SpecHelpers::QueryHelpers
   end
 
   def self.start(response_body : String, status_code : Int32 = 200) : Server
+    start(response_body, status_code, CB::Service::Query)
+  end
+
+  def self.start(
+    response_body : String,
+    status_code : Int32,
+    service : CB::Service,
+  ) : Server
     requests = Channel(Request).new(10)
     server = HTTP::Server.new do |context|
       body = context.request.body.try(&.gets_to_end) || ""
@@ -36,7 +44,7 @@ module CryBase::SpecHelpers::QueryHelpers
     spawn { server.listen }
 
     Server.new(
-      CB::Endpoint.new("127.0.0.1", address.port, CB::Service::Query, false),
+      CB::Endpoint.new("127.0.0.1", address.port, service, false),
       requests,
       server,
     )

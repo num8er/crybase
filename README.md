@@ -22,7 +22,7 @@ CryBase is still early, but it now has three useful layers:
   sockets for authenticated `get`, `set`, `delete`, `touch`, and counter
   operations, plus fixed-size and seed-failover connection pools.
 - A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
-  service, with JSON result parsing and seed failover.
+  service, with JSON result parsing, seed failover, and Query node discovery.
 
 ## Status
 
@@ -42,11 +42,12 @@ Implemented:
 - `KV::Cluster` seed failover across multiple KV hosts.
 - Query service N1QL/SQL++ execution over HTTP/HTTPS.
 - `Query::Cluster` seed failover across multiple Query hosts.
+- `Query::Cluster` Query node discovery from Couchbase cluster topology.
 - Real Couchbase integration specs in GitHub Actions.
 
 Not implemented yet:
 
-- Cluster config loading and node/vbucket map routing.
+- KV cluster config loading and node/vbucket map routing.
 - Retry, reconnect, durability, observe, CAS helpers, scopes, or collections.
 - Search, Analytics, Index, Eventing, Views, and Management protocols.
 
@@ -239,9 +240,11 @@ result = query.query(
 )
 ```
 
-`Query::Cluster` accepts multiple seed hosts and tries the next endpoint when a
-transport failure or retryable Query service HTTP error occurs. It is seed
-failover only; it does not load Query node topology yet.
+`Query::Cluster.from_string` accepts multiple seed hosts, loads Query node
+topology from Couchbase Management when available, and falls back to the
+original Query seed endpoints when topology discovery is unavailable. It tries
+the next endpoint when a transport failure or retryable Query service HTTP
+error occurs.
 
 ```crystal
 cluster = CryBase::CouchBase::Query::Cluster.from_string(
@@ -249,6 +252,19 @@ cluster = CryBase::CouchBase::Query::Cluster.from_string(
 )
 
 puts cluster.query("SELECT 1 AS one").rows.first["one"].as_i
+cluster.close
+```
+
+If the Management API uses a non-default port, pass `management_port:`. Use
+`discover_topology: false` to keep static seed-only routing.
+
+```crystal
+cluster = CryBase::CouchBase::Query::Cluster.from_string(
+  "couchbase://Administrator:password@node1,node2",
+  management_port: 19091,
+)
+
+cluster.refresh_topology
 cluster.close
 ```
 
@@ -274,8 +290,10 @@ cluster.close
 | `CryBase::CouchBase::Services::KV::Cluster` | Seed-failover KV client backed by one active pool. |
 | `CryBase::CouchBase::Services::Query` | Couchbase HTTP Query service namespace. |
 | `CryBase::CouchBase::Services::Query::Client` | Authenticated N1QL/SQL++ Query endpoint client. |
-| `CryBase::CouchBase::Services::Query::Cluster` | Seed-failover Query client over multiple endpoints. |
+| `CryBase::CouchBase::Services::Query::Cluster` | Query client over discovered topology with seed fallback. |
 | `CryBase::CouchBase::Services::Query::Result` | Parsed Query response rows, metadata, warnings, and errors. |
+| `CryBase::CouchBase::Services::Query::Topology` | Parsed Query endpoints from Couchbase nodeServices payloads. |
+| `CryBase::CouchBase::Services::Query::TopologyClient` | Authenticated Management API client for Query topology loading. |
 | `CryBase::Interfaces` | Abstract interface aliases for connection strings, endpoints, and clients. |
 
 Generated API docs are committed in [`docs/`](docs/index.html).
@@ -288,6 +306,7 @@ Feature notes:
 - [KV Cluster](docs/4.FEAT_kv-cluster.md)
 - [Query Service](docs/5.FEAT_query-service.md)
 - [Connectivity](docs/6.FEAT_connectivity.md)
+- [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md)
 
 ## Connection Strings
 
@@ -315,7 +334,8 @@ couchbases://user:pass@node1:11207/default?tls_verify=false&tls_hostname=cb.loca
 use `user`, `pass`, and `bucket` from the URI when they are not passed as
 arguments. `Query::Client.from_string` and `Query::Cluster.from_string` use
 `user` and `pass` from the URI. Supported query parameters are `tls_verify`
-(`true`, `false`, `1`, `0`) and `tls_hostname`.
+(`true`, `false`, `1`, `0`), `tls_hostname`, and `network` for topology
+alternate address selection.
 
 An explicit `:port` is currently forwarded to the Management endpoint only.
 Other services use their standard Couchbase ports when using
