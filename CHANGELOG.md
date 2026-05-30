@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics.cr` for a readonly parameterized Query service call.
 - `examples/query_prepared.cr` for prepared Query execution.
+- `examples/query_mutations.cr` for raw SQL++ `INSERT`, `UPDATE`, `DELETE`,
+  `UPSERT`, and `SET ... FOR ... END` mutation statements through Query.
+- `examples/ulid.cr` for timestamp-based ULID keys in runnable examples.
 - Real Couchbase Query integration specs that seed deterministic example
   `type = "User"` documents over KV and query them through direct and prepared
   Query execution.

@@ -1,5 +1,6 @@
 require "json"
 require "./constants"
+require "./ulid"
 
 struct CryBaseExamples::QueryUser
   include JSON::Serializable
@@ -63,6 +64,14 @@ module CryBaseExamples
     )
   end
 
+  def self.open_query_cluster : CryBase::CouchBase::Query::Cluster
+    CryBase::CouchBase::Query::Cluster.from_string(
+      query_cluster_connection_string,
+      tls_verify: TLS_VERIFY,
+      tls_hostname: TLS_HOSTNAME,
+    )
+  end
+
   def self.seed_query_users(
     kv : CryBase::CouchBase::KV::Client,
     count : Int32 = 8,
@@ -89,16 +98,12 @@ module CryBaseExamples
     users.map(&.id)
   end
 
-  def self.ulid(random : Random) : String
-    encode_ulid_time(1_790_000_000_000_i64) + encode_ulid_random(random)
-  end
-
   def self.n1ql_bucket : String
     "`#{BUCKET.gsub("`", "``")}`"
   end
 
   private def self.random_query_user(random : Random, index : Int32) : QueryUser
-    id = "User:#{ulid(random)}"
+    id = "User:#{ULID.generate}"
     first_name = QUERY_USER_FIRST_NAMES[random.rand(QUERY_USER_FIRST_NAMES.size)]
     last_name = QUERY_USER_LAST_NAMES[random.rand(QUERY_USER_LAST_NAMES.size)]
     name = "#{first_name} #{last_name}"
@@ -108,24 +113,4 @@ module CryBaseExamples
 
     QueryUser.new(id, name, "#{email_name}@#{domain}", active)
   end
-
-  private def self.encode_ulid_time(timestamp_ms : Int64) : String
-    value = timestamp_ms
-    String.build(10) do |io|
-      10.times do |index|
-        shift = (9 - index) * 5
-        io << ULID_ALPHABET[(value >> shift) & 0x1f]
-      end
-    end
-  end
-
-  private def self.encode_ulid_random(random : Random) : String
-    String.build(16) do |io|
-      16.times do
-        io << ULID_ALPHABET[random.rand(32)]
-      end
-    end
-  end
-
-  ULID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 end

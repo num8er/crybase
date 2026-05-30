@@ -289,6 +289,23 @@ puts result.rows.first["query_value"].as_s
 client.close
 ```
 
+Run raw SQL++ mutation statements through `query` too. Do not pass
+`readonly: true` for mutations; use `RETURNING` when you want changed rows
+back.
+
+```crystal
+result = client.query(
+  <<-SQL,
+    UPDATE `default` AS u
+    USE KEYS $id
+    SET event.done = true FOR event IN u.events WHEN event.name = $event END
+    WHERE u.type = "User"
+    RETURNING META(u).id AS doc_key, u.events
+    SQL
+  named_args: {id: "User:01...", event: "welcome"},
+)
+```
+
 If the Management API uses a non-default port, pass `management_port:`. Use
 `discover_topology: false` to keep static seed-only routing.
 
@@ -420,12 +437,15 @@ The `examples/` directory contains:
 - `kv_expiration.cr` - run KV expiry, touch, and get-and-touch operations.
 - `kv_endpoint_from_cluster.cr` - probe the cluster, pick a KV endpoint, and
   run a KV operation.
-- `query_basics.cr` - seed deterministic random `type = "User"` documents and
-  query them with N1QL.
-- `query_prepared.cr` - seed deterministic random `type = "User"` documents,
-  prepare a N1QL statement, and run it with explicit and `adhoc: false`
-  prepared execution.
+- `query_basics.cr` - seed `type = "User"` documents with ULID keys and query
+  them with N1QL.
+- `query_prepared.cr` - seed `type = "User"` documents with ULID keys, prepare
+  a N1QL statement, and run it with explicit and `adhoc: false` prepared
+  execution.
+- `query_mutations.cr` - run raw SQL++ `INSERT`, `UPDATE`, `DELETE`, `UPSERT`,
+  and `SET ... FOR ... END` mutations through Query.
 - `query_users.cr` - shared seeded user data helper for Query examples.
+- `ulid.cr` - timestamp-based ULID utility for example document keys.
 - `constants.cr` - shared environment parsing and connection string helpers
   used by the runnable examples.
 - `docker-compose.yml` - local Couchbase Community setup for development.

@@ -584,6 +584,19 @@ exists, CryBase clears that cache entry and prepares it once again.</p>
 
 puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s
 client.close</code></pre>
+<p>Run raw SQL++ mutation statements through <code>query</code> too. Do not pass
+<code>readonly: true</code> for mutations; use <code>RETURNING</code> when you want changed rows
+back.</p>
+<pre><code class="language-crystal">result <span class="o">=</span> client.query(
+  <span class="s">&lt;&lt;-SQL</span>,
+<span class="s">    UPDATE `default` AS u
+    USE KEYS $id
+    SET event.done = true FOR event IN u.events WHEN event.name = $event END
+    WHERE u.type = &quot;User&quot;
+    RETURNING META(u).id AS doc_key, u.events
+    SQL</span>
+  named_args: {id: <span class="s">&quot;User:01...&quot;</span>, event: <span class="s">&quot;welcome&quot;</span>},
+)</code></pre>
 <p>If the Management API uses a non-default port, pass <code>management_port:</code>. Use
 <code>discover_topology: false</code> to keep static seed-only routing.</p>
 <pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
@@ -705,12 +718,15 @@ honors an explicit port:</p>
 <li><code>kv_expiration.cr</code> - run KV expiry, touch, and get-and-touch operations.</li>
 <li><code>kv_endpoint_from_cluster.cr</code> - probe the cluster, pick a KV endpoint, and
 run a KV operation.</li>
-<li><code>query_basics.cr</code> - seed deterministic random <code>type = &quot;User&quot;</code> documents and
-query them with N1QL.</li>
-<li><code>query_prepared.cr</code> - seed deterministic random <code>type = &quot;User&quot;</code> documents,
-prepare a N1QL statement, and run it with explicit and <code>adhoc: false</code>
-prepared execution.</li>
+<li><code>query_basics.cr</code> - seed <code>type = &quot;User&quot;</code> documents with ULID keys and query
+them with N1QL.</li>
+<li><code>query_prepared.cr</code> - seed <code>type = &quot;User&quot;</code> documents with ULID keys, prepare
+a N1QL statement, and run it with explicit and <code>adhoc: false</code> prepared
+execution.</li>
+<li><code>query_mutations.cr</code> - run raw SQL++ <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>UPSERT</code>,
+and <code>SET ... FOR ... END</code> mutations through Query.</li>
 <li><code>query_users.cr</code> - shared seeded user data helper for Query examples.</li>
+<li><code>ulid.cr</code> - timestamp-based ULID utility for example document keys.</li>
 <li><code>constants.cr</code> - shared environment parsing and connection string helpers
 used by the runnable examples.</li>
 <li><code>docker-compose.yml</code> - local Couchbase Community setup for development.</li>

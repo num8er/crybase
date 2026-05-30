@@ -17,6 +17,14 @@ Completed:
   - `Query::Client` and `Query::Cluster` now expose `prepare` and `execute_prepared`.
   - `query(..., adhoc: false)` prepares, caches, and executes by prepared name.
   - Cached plans are cleared and prepared again once when Couchbase reports error code `4040`.
+- Raw SQL++ mutation examples
+  - `examples/query_mutations.cr` runs raw `INSERT`, `UPDATE`, `DELETE`, and
+    `UPSERT` statements through `client.query(...)` and `cluster.query(...)`.
+  - The example also shows array/object mutation with `SET ... FOR ... END`.
+  - Example `User` document keys now use `ULID.generate` from
+    `examples/ulid.cr`.
+  - Mutation examples avoid `readonly: true` and use `RETURNING` to print
+    changed rows.
 
 Remaining, in this order:
 
