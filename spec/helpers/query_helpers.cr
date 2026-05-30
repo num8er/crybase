@@ -6,7 +6,9 @@ module CryBase::SpecHelpers::QueryHelpers
   record Request,
     resource : String,
     params : URI::Params,
-    authorization : String?
+    authorization : String?,
+    connection : String?,
+    remote_port : Int32?
 
   record Response,
     body : String,
@@ -49,6 +51,8 @@ module CryBase::SpecHelpers::QueryHelpers
         context.request.resource,
         URI::Params.parse(body),
         context.request.headers["Authorization"]?,
+        context.request.headers["Connection"]?,
+        remote_port(context.request.remote_address),
       ))
 
       response = mutex.synchronize do
@@ -68,5 +72,46 @@ module CryBase::SpecHelpers::QueryHelpers
       requests,
       server,
     )
+  end
+
+  def self.start_stream(
+    first_chunk : String,
+    last_chunk : String,
+    release : Channel(Nil),
+    status_code : Int32 = 200,
+  ) : Server
+    requests = Channel(Request).new(10)
+    server = HTTP::Server.new do |context|
+      body = context.request.body.try(&.gets_to_end) || ""
+      requests.send(Request.new(
+        context.request.resource,
+        URI::Params.parse(body),
+        context.request.headers["Authorization"]?,
+        context.request.headers["Connection"]?,
+        remote_port(context.request.remote_address),
+      ))
+
+      context.response.status_code = status_code
+      context.response.content_type = "application/json"
+      context.response.print first_chunk
+      context.response.flush
+      release.receive
+      context.response.print last_chunk
+    end
+    address = server.bind_tcp("127.0.0.1", 0)
+    spawn { server.listen }
+
+    Server.new(
+      CB::Endpoint.new("127.0.0.1", address.port, CB::Service::Query, false),
+      requests,
+      server,
+    )
+  end
+
+  private def self.remote_port(address : Socket::Address?) : Int32?
+    case address
+    when Socket::IPAddress
+      address.port
+    end
   end
 end

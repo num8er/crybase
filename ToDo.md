@@ -25,27 +25,29 @@ Completed:
     `examples/ulid.cr`.
   - Mutation examples avoid `readonly: true` and use `RETURNING` to print
     changed rows.
+- Connection reuse / pooling
+  - `Query::Client` now reuses one HTTP connection until the client is closed
+    or a transport reconnect is required.
+  - `Query::Cluster` now caches one reusable `Query::Client` per active Query
+    endpoint and closes cached clients on failover, topology replacement, or
+    cluster close.
+- Scope / collection ergonomics
+  - `Query::QueryContext` formats bucket/scope query contexts.
+  - Query statement, prepare, and prepared execution paths now accept
+    `query_context:`, `bucket:`, `scope:`, and `namespace:`.
+- Streaming / typed rows
+  - `Query::Client` and `Query::Cluster` now expose `query_as(Type)`,
+    `query_each`, and `query_each_as(Type)`.
+  - `Query::Result` now exposes `each_row` and `each_row_as(Type)`.
 
 Remaining, in this order:
 
-1. Connection reuse / pooling
-   - Query currently opens an HTTP client per request and sends `Connection: close`.
-   - Add persistent HTTP client reuse or a Query connection pool.
-
-2. Richer typed Query options
+1. Richer typed Query options
    - Generic `options` exists.
    - Add typed helpers for common N1QL options such as `profile`, `metrics`, `scan_wait`, `max_parallelism`, `pipeline_batch`, `pipeline_cap`, and `query_context`.
 
-3. Scope / collection ergonomics
-   - Add bucket/scope-aware Query context helpers.
-   - Today callers can pass `query_context` through generic options, but there is no first-class API.
-
-4. Streaming / typed rows
-   - Results are currently parsed into `JSON::Any` rows.
-   - Add streaming row reader and typed row mapping such as `query_as(Type)`.
-
-5. Retry policy
+2. Retry policy
    - Failover exists for transport errors and retryable Query errors.
    - Add configurable retry policy, backoff, retry budget, and more granular N1QL error classification.
 
-Recommended next implementation path: connection reuse/pooling, then richer typed Query options.
+Recommended next implementation path: richer typed Query options, then retry policy.

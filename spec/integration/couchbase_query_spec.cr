@@ -1,10 +1,19 @@
 require "../spec_helper"
-require "../../examples/query_users"
+require "../../examples/shared/methods"
 
 private alias KV = CryBase::CouchBase::KV
 private alias Query = CryBase::CouchBase::Query
 private alias Couchbase = CryBase::SpecHelpers::CouchbaseIntegrationHelpers
-private alias QueryUser = CryBaseExamples::QueryUser
+private alias User = CryBaseExamples::Structs::User
+
+private struct UserRow
+  include JSON::Serializable
+
+  getter doc_key : String
+  getter id : String
+  getter type : String
+  getter? active : Bool
+end
 
 private def with_query_retry(& : -> T) : T forall T
   last_error = nil
@@ -101,7 +110,7 @@ describe "Couchbase Query integration" do
   end
 
   it "queries seeded example user documents" do
-    users = [] of QueryUser
+    users = [] of User
 
     begin
       users = CryBaseExamples.seed_query_users(kv)
@@ -134,7 +143,7 @@ describe "Couchbase Query integration" do
   end
 
   it "prepares and queries seeded example user documents" do
-    users = [] of QueryUser
+    users = [] of User
 
     begin
       users = CryBaseExamples.seed_query_users(kv)
@@ -165,6 +174,48 @@ describe "Couchbase Query integration" do
       CryBaseExamples.delete_query_users(kv, users)
     end
   end
+
+  it "maps and streams typed rows with query context" do
+    users = [] of User
+
+    begin
+      users = CryBaseExamples.seed_query_users(kv)
+      keys = CryBaseExamples.query_user_keys(users)
+      active_users = users.select(&.active?)
+
+      rows = with_query_retry do
+        client.query_as(
+          UserRow,
+          seeded_context_users_query,
+          named_args: {keys: keys, type: "User", active: true},
+          bucket: config.bucket,
+          scope: "_default",
+          readonly: true,
+        )
+      end
+      streamed = [] of UserRow
+      result = with_query_retry do
+        cluster.query_each_as(
+          UserRow,
+          seeded_context_users_query,
+          named_args: {keys: keys, type: "User", active: true},
+          bucket: config.bucket,
+          scope: "_default",
+          readonly: true,
+        ) do |row|
+          streamed << row
+        end
+      end
+
+      rows.map(&.id).sort!.should eq(active_users.map(&.id).sort!)
+      streamed.map(&.doc_key).sort!.should eq(active_users.map(&.id).sort!)
+      rows.each(&.active?.should be_true)
+      streamed.each(&.active?.should be_true)
+      result.rows.should be_empty
+    ensure
+      CryBaseExamples.delete_query_users(kv, users)
+    end
+  end
 end
 
 private def seeded_users_query : String
@@ -174,5 +225,15 @@ private def seeded_users_query : String
     USE KEYS $keys
     WHERE u.type = $type AND u.active = $active
     ORDER BY u.name
+    N1QL
+end
+
+private def seeded_context_users_query : String
+  <<-N1QL
+    SELECT META(u).id AS doc_key, u.id, u.type, u.active
+    FROM `_default` AS u
+    USE KEYS $keys
+    WHERE u.type = $type AND u.active = $active
+    ORDER BY u.id
     N1QL
 end

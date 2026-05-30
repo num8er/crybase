@@ -237,6 +237,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Cursor" data-name="crybase::couchbase::services::query::cursor">
+      <a href="../../../CryBase/CouchBase/Services/Query/Cursor.html">Cursor</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Error" data-name="crybase::couchbase::services::query::error">
       <a href="../../../CryBase/CouchBase/Services/Query/Error.html">Error</a>
 
@@ -254,6 +259,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/PreparedStatement" data-name="crybase::couchbase::services::query::preparedstatement">
       <a href="../../../CryBase/CouchBase/Services/Query/PreparedStatement.html">PreparedStatement</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/QueryContext" data-name="crybase::couchbase::services::query::querycontext">
+      <a href="../../../CryBase/CouchBase/Services/Query/QueryContext.html">QueryContext</a>
 
     </li>
 
@@ -353,8 +363,9 @@
   <p>Implementation of the Couchbase Query service over its HTTP N1QL API.</p>
 <p>The main public entry points are <code><a href="../../../CryBase/CouchBase/Services/Query/Client.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DDEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DDEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DDEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method">Query::Client.from_string</a></code> for one
 configured Query endpoint and <code><a href="../../../CryBase/CouchBase/Services/Query/Cluster.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29%3ACluster-class-method">Query::Cluster.from_string</a></code> for seed failover
-across multiple Query hosts. Query requests are posted to <code>/query/service</code>
-as <code>application/x-www-form-urlencoded</code> payloads.</p>
+across multiple Query hosts. Use <code>query_cursor</code> when rows should be consumed
+through an explicit streaming cursor. Query requests are posted to
+<code>/query/service</code> as <code>application/x-www-form-urlencoded</code> payloads.</p>
 
 
 
@@ -381,7 +392,7 @@ as <code>application/x-www-form-urlencoded</code> payloads.</p>
   </h2>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query.cr#L11" target="_blank">
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query.cr#L12" target="_blank">
         crybase/couchbase/services/query.cr
       </a>
 

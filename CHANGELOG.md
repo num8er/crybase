@@ -15,7 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Query Service](docs/5.FEAT_query-service.md), and
   [Connectivity](docs/6.FEAT_connectivity.md), and
   [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md), and
-  [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md).
+  [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md), and
+  [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md),
+  [Query Cursor](docs/10.FEAT_query-cursor.md), and
+  [Examples Layout](docs/11.FEAT_examples-layout.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -32,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Query::Client#prepare`, `Query::Client#execute_prepared`,
   `Query::Cluster#prepare`, and `Query::Cluster#execute_prepared`.
 - `query(..., adhoc: false)` for prepared statement caching and execution.
+- `CryBase::CouchBase::Query::QueryContext` for bucket/scope Query contexts.
+- `Query::Client#query_as`, `Query::Client#query_each`,
+  `Query::Client#query_each_as`, and the matching `Query::Cluster` helpers for
+  typed and streamed Query rows.
+- `Query::Client#query_cursor`, `Query::Cluster#query_cursor`, and
+  `Query::Cursor#each_as` for single-use streaming Query cursors.
 - `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
   used by service-specific clients.
 - `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
@@ -44,14 +53,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CryBase::Connectivity.open_socket(host_port, config)` for shared plaintext
   or TLS sockets from host-port strings such as `127.0.0.1:12345`.
 - Query result parsing for rows, metadata, warnings, and errors.
-- `examples/query_basics.cr` for a readonly parameterized Query service call.
-- `examples/query_prepared.cr` for prepared Query execution.
-- `examples/query_mutations.cr` for raw SQL++ `INSERT`, `UPDATE`, `DELETE`,
-  `UPSERT`, and `SET ... FOR ... END` mutation statements through Query.
-- `examples/ulid.cr` for timestamp-based ULID keys in runnable examples.
+- `examples/query_basics/example.cr` for a readonly parameterized Query
+  service call.
+- `examples/query_cursor/example.cr` for streaming typed Query rows through
+  `query_cursor`.
+- `examples/query_prepared/example.cr` for prepared Query execution.
+- `examples/query_mutations/example.cr` for raw SQL++ `INSERT`, `UPDATE`,
+  `DELETE`, `UPSERT`, and `SET ... FOR ... END` mutation statements through
+  Query.
+- `examples/shared/methods.cr` and `examples/shared/methods/*.cr` for shared
+  connection builders and seeded Query example helpers.
+- `examples/shared/structs.cr` and `examples/shared/structs/*.cr` for shared
+  example document and row types under `CryBaseExamples::Structs`.
+- `examples/shared/ulid.cr` for timestamp-based ULID keys in runnable
+  examples.
 - Real Couchbase Query integration specs that seed deterministic example
   `type = "User"` documents over KV and query them through direct and prepared
-  Query execution.
+  Query execution, including a dedicated cursor integration spec.
 
 ### Changed
 - README now links to the feature implementation notes.
@@ -64,8 +82,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   topology by default and keeps static Query seeds as fallback.
 - Query clients now clear and reprepare cached plans once when Couchbase reports
   a missing prepared statement.
+- Query clients now reuse HTTP connections instead of closing every request.
 - Query examples now use `client` variable names and run against seeded random
   user documents.
+- Query examples now demonstrate bucket/scope query context, `query_as`,
+  `query_each_as`, `query_cursor`, and typed `Result` row iteration.
+- Runnable examples now live under `examples/<example_name>/example.cr`, with
+  shared constants, methods, structs, and ULID helpers under `examples/shared`.
+- Runnable examples now use short private aliases for shared structs and
+  client classes to keep example bodies concise.
 - Query docs, examples, and specs now avoid reserved `value` and `key` aliases
   in runnable N1QL statements.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.

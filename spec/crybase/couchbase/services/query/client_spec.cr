@@ -5,6 +5,13 @@ private alias CB = CryBase::CouchBase
 private alias Query = CryBase::CouchBase::Services::Query
 private alias QueryHelpers = CryBase::SpecHelpers::QueryHelpers
 
+private struct QueryClientRow
+  include JSON::Serializable
+
+  getter name : String
+  getter? ok : Bool
+end
+
 describe Query::Client do
   it "accepts connection strings" do
     context = uninitialized OpenSSL::SSL::Context::Client
@@ -79,6 +86,85 @@ describe Query::Client do
     result.client_context_id.should eq("ctx-1")
     result.rows.first["ok"].as_bool.should be_true
     result.rows.first["name"].as_s.should eq("airport")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "reuses its HTTP connection across requests" do
+    server = QueryHelpers.start_sequence([
+      QueryHelpers::Response.new(%({"status":"success","results":[{"one":1}]})),
+      QueryHelpers::Response.new(%({"status":"success","results":[{"two":2}]})),
+    ])
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.query("SELECT 1 AS one")
+    client.query("SELECT 2 AS two")
+    first = server.requests.receive
+    second = server.requests.receive
+
+    first.connection.should_not eq("close")
+    second.connection.should_not eq("close")
+    first.remote_port.should eq(second.remote_port)
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "builds query context from bucket and scope" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.query(
+      "SELECT * FROM users",
+      bucket: "travel-sample",
+      scope: "inventory",
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("default:`travel-sample`.`inventory`")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "maps result rows to typed values" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true,"name":"airport"}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    rows = client.query_as(QueryClientRow, "SELECT true AS ok, 'airport' AS name")
+
+    rows.first.ok?.should be_true
+    rows.first.name.should eq("airport")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "streams typed result rows" do
+    server = QueryHelpers.start(%({
+      "requestID":"request-1",
+      "status":"success",
+      "results":[{"ok":true,"name":"airport"},{"ok":false,"name":"route"}],
+      "metrics":{"resultCount":2}
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+    rows = [] of QueryClientRow
+
+    result = client.query_each_as(QueryClientRow, "SELECT * FROM rows") do |row|
+      rows << row
+    end
+
+    rows.map(&.name).should eq(["airport", "route"])
+    result.rows.should be_empty
+    result.request_id.should eq("request-1")
+    result.metrics.try(&.["resultCount"].as_i).should eq(2)
   ensure
     client.try(&.close)
     server.try(&.close)

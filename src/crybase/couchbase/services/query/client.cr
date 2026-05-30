@@ -8,6 +8,7 @@ module CryBase::CouchBase::Services::Query
     getter endpoint : Endpoint
 
     @closed : Bool
+    @http_client : HTTP::Client?
     @mutex : Mutex
     @prepared_statements : Hash(String, PreparedStatement)
 
@@ -51,6 +52,7 @@ module CryBase::CouchBase::Services::Query
       @tls_context : OpenSSL::SSL::Context::Client? = nil,
     )
       @closed = false
+      @http_client = nil
       @mutex = Mutex.new
       @prepared_statements = {} of String => PreparedStatement
     end
@@ -63,6 +65,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil = nil,
       client_context_id : String? = nil,
       timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
       options = NamedTuple.new,
       adhoc : Bool = true,
       raise_on_error : Bool = true,
@@ -80,6 +86,10 @@ module CryBase::CouchBase::Services::Query
               scan_consistency,
               client_context_id,
               timeout,
+              query_context,
+              bucket,
+              scope,
+              namespace,
               options,
             ),
             raise_on_error,
@@ -94,6 +104,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
           raise_on_error,
         )
@@ -109,6 +123,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil = nil,
       client_context_id : String? = nil,
       timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
       options = NamedTuple.new,
     ) : PreparedStatement
       @mutex.synchronize do
@@ -121,6 +139,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
         )
       end
@@ -134,6 +156,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil = nil,
       client_context_id : String? = nil,
       timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
       options = NamedTuple.new,
       raise_on_error : Bool = true,
     ) : Result
@@ -147,6 +173,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
           raise_on_error,
         )
@@ -161,6 +191,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil = nil,
       client_context_id : String? = nil,
       timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
       options = NamedTuple.new,
       raise_on_error : Bool = true,
     ) : Result
@@ -174,9 +208,157 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
           raise_on_error,
         )
+      end
+    end
+
+    def query_as(
+      type : T.class,
+      statement : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
+      options = NamedTuple.new,
+      adhoc : Bool = true,
+      raise_on_error : Bool = true,
+    ) : Array(T) forall T
+      query(
+        statement,
+        *positional_args,
+        named_args: named_args,
+        readonly: readonly,
+        scan_consistency: scan_consistency,
+        client_context_id: client_context_id,
+        timeout: timeout,
+        query_context: query_context,
+        bucket: bucket,
+        scope: scope,
+        namespace: namespace,
+        options: options,
+        adhoc: adhoc,
+        raise_on_error: raise_on_error,
+      ).rows_as(T)
+    end
+
+    def query_each(
+      statement : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+      & : JSON::Any ->
+    ) : Result
+      @mutex.synchronize do
+        raise_closed! if @closed
+
+        execute_stream(
+          self.class.form(
+            statement,
+            positional_args,
+            named_args,
+            readonly,
+            scan_consistency,
+            client_context_id,
+            timeout,
+            query_context,
+            bucket,
+            scope,
+            namespace,
+            options,
+          ),
+          raise_on_error,
+        ) { |row| yield row }
+      end
+    end
+
+    def query_each_as(
+      type : T.class,
+      statement : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+      & : T ->
+    ) : Result forall T
+      query_each(
+        statement,
+        *positional_args,
+        named_args: named_args,
+        readonly: readonly,
+        scan_consistency: scan_consistency,
+        client_context_id: client_context_id,
+        timeout: timeout,
+        query_context: query_context,
+        bucket: bucket,
+        scope: scope,
+        namespace: namespace,
+        options: options,
+        raise_on_error: raise_on_error,
+      ) do |row|
+        yield T.from_json(row.to_json)
+      end
+    end
+
+    def query_cursor(
+      statement : String,
+      *positional_args,
+      named_args = NamedTuple.new,
+      readonly : Bool? = nil,
+      scan_consistency : ScanConsistency | String | Nil = nil,
+      client_context_id : String? = nil,
+      timeout : Time::Span? = nil,
+      query_context : QueryContext | String | Nil = nil,
+      bucket : String? = nil,
+      scope : String? = nil,
+      namespace : String? = nil,
+      options = NamedTuple.new,
+      raise_on_error : Bool = true,
+    ) : Cursor
+      Cursor.new do |emit|
+        query_each(
+          statement,
+          *positional_args,
+          named_args: named_args,
+          readonly: readonly,
+          scan_consistency: scan_consistency,
+          client_context_id: client_context_id,
+          timeout: timeout,
+          query_context: query_context,
+          bucket: bucket,
+          scope: scope,
+          namespace: namespace,
+          options: options,
+          raise_on_error: raise_on_error,
+        ) { |row| emit.call(row) }
       end
     end
 
@@ -185,7 +367,10 @@ module CryBase::CouchBase::Services::Query
     end
 
     def close : Nil
-      @mutex.synchronize { @closed = true }
+      @mutex.synchronize do
+        @closed = true
+        close_http_client
+      end
     end
 
     def closed? : Bool
@@ -200,6 +385,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
     ) : String
       URI::Params.build do |form|
@@ -212,6 +401,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
         )
       end
@@ -225,6 +418,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
     ) : String
       URI::Params.build do |form|
@@ -237,6 +434,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
         )
       end
@@ -257,10 +458,22 @@ module CryBase::CouchBase::Services::Query
       parts.join(' ')
     end
 
-    def self.prepared_cache_key(statement : String, options) : String
+    def self.prepared_cache_key(
+      statement : String,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
+      options,
+    ) : String
       URI::Params.build do |params|
         params.add("statement", statement)
-        add_options(params, options)
+        if context = query_context_param(query_context, bucket, scope, namespace)
+          params.add("query_context", context)
+          add_options(params, options, skip_query_context: true)
+        else
+          add_options(params, options)
+        end
       end
     end
 
@@ -272,10 +485,14 @@ module CryBase::CouchBase::Services::Query
       scan_consistency,
       client_context_id,
       timeout,
+      query_context,
+      bucket,
+      scope,
+      namespace,
       options,
       raise_on_error,
     ) : Result
-      cache_key = self.class.prepared_cache_key(statement, options)
+      cache_key = self.class.prepared_cache_key(statement, query_context, bucket, scope, namespace, options)
       prepared = @prepared_statements[cache_key]? || prepare_locked(
         statement,
         nil,
@@ -284,6 +501,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         nil,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         cache_key,
       )
@@ -296,6 +517,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         client_context_id,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         raise_on_error,
         cache_key,
@@ -303,15 +528,61 @@ module CryBase::CouchBase::Services::Query
     end
 
     private def execute(form : String, raise_on_error : Bool) : Result
-      client = open_http_client
-      begin
-        response = client.post(PATH, request_headers, form: form)
-        result = Result.from_body(response.body)
-        raise Error.new(response.status_code, result) if raise_on_error && (!response.success? || result.error?)
+      attempts = 0
 
-        result
-      ensure
-        client.close rescue nil
+      loop do
+        attempts += 1
+
+        begin
+          response = http_client.post(PATH, request_headers, form: form)
+          result = Result.from_body(response.body)
+          raise Error.new(response.status_code, result) if raise_on_error && (!response.success? || result.error?)
+
+          return result
+        rescue ex : IO::Error | Socket::Error | OpenSSL::SSL::Error
+          close_http_client
+          raise ex if attempts > 1
+        rescue ex : Exception
+          if reconnect_error?(ex) && attempts == 1
+            close_http_client
+          else
+            raise ex
+          end
+        end
+      end
+    end
+
+    private def execute_stream(form : String, raise_on_error : Bool, &) : Result
+      attempts = 0
+
+      loop do
+        attempts += 1
+
+        begin
+          result = nil
+          status_code = 0
+          success = false
+
+          http_client.post(PATH, request_headers, form: form) do |response|
+            status_code = response.status_code
+            success = response.success?
+            result = Result.from_stream(response.body_io) { |row| yield row }
+          end
+
+          parsed = result || raise IO::Error.new("empty Query response")
+          raise Error.new(status_code, parsed) if raise_on_error && (!success || parsed.error?)
+
+          return parsed
+        rescue ex : IO::Error | Socket::Error | OpenSSL::SSL::Error
+          close_http_client
+          raise ex if attempts > 1
+        rescue ex : Exception
+          if reconnect_error?(ex) && attempts == 1
+            close_http_client
+          else
+            raise ex
+          end
+        end
       end
     end
 
@@ -323,6 +594,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
       cache_key : String? = nil,
     ) : PreparedStatement
@@ -335,6 +610,10 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
         ),
         true,
@@ -352,6 +631,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
       raise_on_error : Bool,
       cache_key : String? = nil,
@@ -364,6 +647,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         client_context_id,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         raise_on_error,
       )
@@ -378,6 +665,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         nil,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         cache_key,
       )
@@ -389,6 +680,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         client_context_id,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         raise_on_error,
       )
@@ -404,6 +699,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         nil,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         cache_key,
       )
@@ -415,6 +714,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         client_context_id,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         raise_on_error,
       )
@@ -428,6 +731,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
       raise_on_error : Bool,
     ) : Result
@@ -439,6 +746,10 @@ module CryBase::CouchBase::Services::Query
         scan_consistency,
         client_context_id,
         timeout,
+        query_context,
+        bucket,
+        scope,
+        namespace,
         options,
         raise_on_error,
       )
@@ -452,6 +763,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
       raise_on_error : Bool,
     ) : Result
@@ -464,10 +779,18 @@ module CryBase::CouchBase::Services::Query
           scan_consistency,
           client_context_id,
           timeout,
+          query_context,
+          bucket,
+          scope,
+          namespace,
           options,
         ),
         raise_on_error,
       )
+    end
+
+    private def http_client : HTTP::Client
+      @http_client ||= open_http_client
     end
 
     private def open_http_client : HTTP::Client
@@ -475,6 +798,16 @@ module CryBase::CouchBase::Services::Query
       client = HTTP::Client.new(io, @endpoint.host, @endpoint.port)
       client.basic_auth(@username, @password)
       client
+    end
+
+    private def close_http_client : Nil
+      @http_client.try(&.close)
+    ensure
+      @http_client = nil
+    end
+
+    private def reconnect_error?(error : Exception) : Bool
+      error.message == "This HTTP::Client cannot be reconnected"
     end
 
     private def open_io : IO
@@ -496,8 +829,7 @@ module CryBase::CouchBase::Services::Query
 
     private def request_headers : HTTP::Headers
       HTTP::Headers{
-        "Accept"     => "application/json",
-        "Connection" => "close",
+        "Accept" => "application/json",
       }
     end
 
@@ -525,6 +857,10 @@ module CryBase::CouchBase::Services::Query
       scan_consistency : ScanConsistency | String | Nil,
       client_context_id : String?,
       timeout : Time::Span?,
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
       options,
     ) : Nil
       form.add("args", positional_args.to_json) unless positional_args.empty?
@@ -533,19 +869,59 @@ module CryBase::CouchBase::Services::Query
       form.add("scan_consistency", scan_consistency_param(scan_consistency)) if scan_consistency
       form.add("client_context_id", client_context_id) if client_context_id
       form.add("timeout", "#{timeout.total_milliseconds.to_i64}ms") if timeout
-      add_options(form, options)
+      if context = query_context_param(query_context, bucket, scope, namespace)
+        form.add("query_context", context)
+        add_options(form, options, skip_query_context: true)
+      else
+        add_options(form, options)
+      end
     end
 
-    private def self.add_options(form : URI::Params::Builder, options : NamedTuple) : Nil
+    private def self.add_options(
+      form : URI::Params::Builder,
+      options : NamedTuple,
+      skip_query_context : Bool = false,
+    ) : Nil
       options.each do |name, value|
+        next if skip_query_context && name.to_s == "query_context"
+
         form.add(name.to_s, value.to_s)
       end
     end
 
-    private def self.add_options(form : URI::Params::Builder, options : Hash) : Nil
+    private def self.add_options(
+      form : URI::Params::Builder,
+      options : Hash,
+      skip_query_context : Bool = false,
+    ) : Nil
       options.each do |name, value|
+        next if skip_query_context && name.to_s == "query_context"
+
         form.add(name.to_s, value.to_s)
       end
+    end
+
+    private def self.query_context_param(
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+      scope : String?,
+      namespace : String?,
+    ) : String?
+      if query_context
+        if bucket || scope || namespace
+          raise ArgumentError.new("query_context cannot be combined with bucket, scope, or namespace")
+        end
+
+        return query_context.to_s
+      end
+
+      return nil unless bucket || scope || namespace
+
+      QueryContext.new(
+        bucket || raise(ArgumentError.new("query context bucket required")),
+        scope || QueryContext::DEFAULT_SCOPE,
+        namespace || QueryContext::DEFAULT_NAMESPACE,
+      ).to_s
     end
 
     private def self.parameter_name(name : String | Symbol) : String

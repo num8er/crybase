@@ -4,6 +4,12 @@ private alias CB = CryBase::CouchBase
 private alias Query = CryBase::CouchBase::Services::Query
 private alias QueryHelpers = CryBase::SpecHelpers::QueryHelpers
 
+private struct QueryClusterRow
+  include JSON::Serializable
+
+  getter name : String
+end
+
 private def unused_query_port : Int32
   server = TCPServer.new("127.0.0.1", 0)
   server.local_address.port
@@ -77,6 +83,9 @@ describe Query::Cluster do
     typeof(cluster.query("SELECT $1", "value")).should eq(Query::Result)
     typeof(cluster.query("SELECT $name", named_args: {name: "value"})).should eq(Query::Result)
     typeof(cluster.query("SELECT 1", adhoc: false)).should eq(Query::Result)
+    typeof(cluster.query_as(QueryClusterRow, "SELECT name")).should eq(Array(QueryClusterRow))
+    typeof(cluster.query_each("SELECT name") { |row| row }).should eq(Query::Result)
+    typeof(cluster.query_each_as(QueryClusterRow, "SELECT name") { |row| row }).should eq(Query::Result)
     typeof(cluster.prepare("SELECT 1")).should eq(Query::PreparedStatement)
     typeof(cluster.execute_prepared("[127.0.0.1:8093]plan")).should eq(Query::Result)
   end
@@ -120,6 +129,42 @@ describe Query::Cluster do
 
     result.rows.first["one"].as_i.should eq(1)
     cluster.active_endpoint.should eq(server.endpoint)
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "reuses active endpoint clients across queries" do
+    server = QueryHelpers.start_sequence([
+      QueryHelpers::Response.new(%({"status":"success","results":[{"one":1}]})),
+      QueryHelpers::Response.new(%({"status":"success","results":[{"two":2}]})),
+    ])
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    cluster.query("SELECT 1 AS one")
+    cluster.query("SELECT 2 AS two")
+    first = server.requests.receive
+    second = server.requests.receive
+
+    first.connection.should_not eq("close")
+    second.connection.should_not eq("close")
+    first.remote_port.should eq(second.remote_port)
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "passes bucket and scope query context to endpoint clients" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    cluster.query("SELECT * FROM users", bucket: "travel-sample", scope: "inventory")
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("default:`travel-sample`.`inventory`")
   ensure
     cluster.try(&.close)
     server.try(&.close)

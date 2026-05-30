@@ -22,8 +22,9 @@ CryBase is still early, but it now has three useful layers:
   sockets for authenticated `get`, `set`, `delete`, `touch`, and counter
   operations, plus fixed-size and seed-failover connection pools.
 - A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
-  service, with JSON result parsing, prepared statements, seed failover, and
-  Query node discovery.
+  service, with reusable HTTP connections, JSON result parsing, prepared
+  statements, typed row helpers, streaming cursors, seed failover, and Query
+  node discovery.
 
 ## Status
 
@@ -41,8 +42,10 @@ Implemented:
 - Couchbase vbucket hashing for KV document routing.
 - `KV::Pool` with 10 authenticated connections by default.
 - `KV::Cluster` seed failover across multiple KV hosts.
-- Query service N1QL/SQL++ execution over HTTP/HTTPS.
+- Query service N1QL/SQL++ execution over reusable HTTP/HTTPS connections.
 - Query prepared statement APIs and `adhoc: false` plan caching.
+- Query typed row helpers, streaming row iteration, streaming cursors, and
+  bucket/scope query context helpers.
 - `Query::Cluster` seed failover across multiple Query hosts.
 - `Query::Cluster` Query node discovery from Couchbase cluster topology.
 - Real Couchbase integration specs in GitHub Actions.
@@ -225,6 +228,34 @@ result = client.query(
 puts result.rows.first["name"].as_s
 ```
 
+Use bucket/scope context helpers when your statement should resolve collection
+names relative to a Couchbase scope:
+
+```crystal
+context = CryBase::CouchBase::Query::QueryContext.new(
+  "travel-sample",
+  "inventory",
+)
+
+result = client.query(
+  "SELECT META(u).id AS doc_key, u.name FROM users AS u",
+  query_context: context,
+  readonly: true,
+)
+```
+
+Use `bucket:` and `scope:` as shorthand when you do not need to keep a context
+object:
+
+```crystal
+result = client.query(
+  "SELECT META(u).id AS doc_key, u.name FROM users AS u",
+  bucket: "travel-sample",
+  scope: "inventory",
+  readonly: true,
+)
+```
+
 Pass positional parameters after the statement:
 
 ```crystal
@@ -255,6 +286,10 @@ cluster = CryBase::CouchBase::Query::Cluster.from_string(
 puts cluster.query("SELECT 1 AS one").rows.first["one"].as_i
 cluster.close
 ```
+
+`Query::Client` reuses its HTTP connection until `close`. `Query::Cluster`
+keeps one reusable endpoint client per discovered Query endpoint and closes
+stale clients when topology changes or failover replaces the active endpoint.
 
 Prepare a statement explicitly when you want to manage the prepared plan:
 
@@ -289,6 +324,53 @@ puts result.rows.first["query_value"].as_s
 client.close
 ```
 
+Map rows into Crystal types with `query_as`, stream rows through a block with
+`query_each_as`, or keep a single-use streaming cursor with `query_cursor`:
+
+```crystal
+struct UserRow
+  include JSON::Serializable
+
+  getter doc_key : String
+  getter name : String
+end
+
+rows = client.query_as(
+  UserRow,
+  "SELECT META(u).id AS doc_key, u.name FROM users AS u",
+  bucket: "travel-sample",
+  scope: "inventory",
+  readonly: true,
+)
+
+client.query_each_as(
+  UserRow,
+  "SELECT META(u).id AS doc_key, u.name FROM users AS u",
+  bucket: "travel-sample",
+  scope: "inventory",
+  readonly: true,
+) do |row|
+  puts row.name
+end
+
+cursor = client.query_cursor(
+  "SELECT META(u).id AS doc_key, u.name FROM users AS u",
+  bucket: "travel-sample",
+  scope: "inventory",
+  readonly: true,
+)
+
+result = cursor.each_as(UserRow) do |row|
+  puts row.name
+end
+
+puts result.metrics
+```
+
+`query_cursor` starts the request when `each` or `each_as` is called. It yields
+rows as the response body is parsed and does not retain them in
+`result.rows`.
+
 Run raw SQL++ mutation statements through `query` too. Do not pass
 `readonly: true` for mutations; use `RETURNING` when you want changed rows
 back.
@@ -296,13 +378,15 @@ back.
 ```crystal
 result = client.query(
   <<-SQL,
-    UPDATE `default` AS u
+    UPDATE users AS u
     USE KEYS $id
     SET event.done = true FOR event IN u.events WHEN event.name = $event END
     WHERE u.type = "User"
     RETURNING META(u).id AS doc_key, u.events
     SQL
   named_args: {id: "User:01...", event: "welcome"},
+  bucket: "travel-sample",
+  scope: "inventory",
 )
 ```
 
@@ -342,6 +426,8 @@ cluster.close
 | `CryBase::CouchBase::Services::Query` | Couchbase HTTP Query service namespace. |
 | `CryBase::CouchBase::Services::Query::Client` | Authenticated N1QL/SQL++ Query endpoint client. |
 | `CryBase::CouchBase::Services::Query::Cluster` | Query client over discovered topology with seed fallback. |
+| `CryBase::CouchBase::Services::Query::Cursor` | Single-use streaming Query row cursor. |
+| `CryBase::CouchBase::Services::Query::QueryContext` | Bucket/scope Query context formatter. |
 | `CryBase::CouchBase::Services::Query::PreparedStatement` | Prepared Query statement name and metadata. |
 | `CryBase::CouchBase::Services::Query::Result` | Parsed Query response rows, metadata, warnings, and errors. |
 | `CryBase::CouchBase::Services::Query::Topology` | Parsed Query endpoints from Couchbase nodeServices payloads. |
@@ -360,6 +446,9 @@ Feature notes:
 - [Connectivity](docs/6.FEAT_connectivity.md)
 - [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md)
 - [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md)
+- [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md)
+- [Query Cursor](docs/10.FEAT_query-cursor.md)
+- [Examples Layout](docs/11.FEAT_examples-layout.md)
 
 ## Connection Strings
 
@@ -429,30 +518,44 @@ CryBase::CouchBase::Endpoint.from_string(
 
 ## Examples
 
-The `examples/` directory contains:
+The `examples/` directory contains one runnable entry point per example:
 
-- `cluster_probe.cr` - probe reachable service endpoints.
-- `kv_basics.cr` - run a basic KV set/get flow against one endpoint.
-- `kv_cluster.cr` - run a basic KV set/get flow through seed failover.
-- `kv_expiration.cr` - run KV expiry, touch, and get-and-touch operations.
-- `kv_endpoint_from_cluster.cr` - probe the cluster, pick a KV endpoint, and
-  run a KV operation.
-- `query_basics.cr` - seed `type = "User"` documents with ULID keys and query
-  them with N1QL.
-- `query_prepared.cr` - seed `type = "User"` documents with ULID keys, prepare
-  a N1QL statement, and run it with explicit and `adhoc: false` prepared
-  execution.
-- `query_mutations.cr` - run raw SQL++ `INSERT`, `UPDATE`, `DELETE`, `UPSERT`,
-  and `SET ... FOR ... END` mutations through Query.
-- `query_users.cr` - shared seeded user data helper for Query examples.
-- `ulid.cr` - timestamp-based ULID utility for example document keys.
-- `constants.cr` - shared environment parsing and connection string helpers
-  used by the runnable examples.
+- `cluster_probe/example.cr` - probe reachable service endpoints.
+- `kv_basics/example.cr` - run a basic KV set/get flow against one endpoint.
+- `kv_cluster/example.cr` - run a basic KV set/get flow through seed failover.
+- `kv_expiration/example.cr` - run KV expiry, touch, and get-and-touch
+  operations.
+- `kv_endpoint_from_cluster/example.cr` - probe the cluster, pick a KV
+  endpoint, and run a KV operation.
+- `query_basics/example.cr` - seed `type = "User"` documents with ULID keys
+  and query them with bucket/scope context, `query_as`, `query_each_as`, and
+  `query_cursor`.
+- `query_cursor/example.cr` - stream seeded `type = "User"` documents through
+  `Query::Cursor#each_as`.
+- `query_prepared/example.cr` - seed `type = "User"` documents with ULID keys,
+  prepare a N1QL statement with query context, and run it with explicit and
+  `adhoc: false` prepared execution.
+- `query_mutations/example.cr` - run raw SQL++ `INSERT`, `UPDATE`, `DELETE`,
+  `UPSERT`, and `SET ... FOR ... END` mutations through Query using query
+  context.
+- `shared/constants.cr` - shared environment parsing.
+- `shared/methods.cr` - entry point for shared example helper methods.
+- `shared/methods/*.cr` - one shared helper method per file.
+- `shared/structs.cr` - entry point for shared example document and row types
+  under `CryBaseExamples::Structs`.
+- `shared/structs/*.cr` - one shared example struct per file.
+- `shared/ulid.cr` - timestamp-based ULID utility for example document keys.
 - `docker-compose.yml` - local Couchbase Community setup for development.
 
-The examples read Couchbase settings through `examples/constants.cr` from
-environment variables. The checked-in `examples/.env` file contains the same
-defaults for local shells that load it:
+Run an example with its directory entry point:
+
+```sh
+crystal run examples/query_basics/example.cr
+```
+
+The examples read Couchbase settings through `examples/shared/constants.cr`
+from environment variables. The checked-in `examples/.env` file contains the
+same defaults for local shells that load it:
 
 ```sh
 export COUCHBASE_HOST=127.0.0.1
@@ -467,9 +570,12 @@ export COUCHBASE_TLS_HOSTNAME=
 export COUCHBASE_QUERY_PORT=
 ```
 
-When adding another runnable example, require `./constants` and use the shared
-connection string helpers instead of reading these variables again in the
-example body.
+When adding another runnable example, put it in
+`examples/<example_name>/example.cr`, require `../shared/methods`, put shared
+types in `examples/shared/structs/<name>.cr` under
+`CryBaseExamples::Structs`, local types in
+`examples/<example_name>/structs/<name>.cr`, and only add
+`examples/<example_name>/helpers.cr` for helpers used by that example.
 
 ## Development
 
