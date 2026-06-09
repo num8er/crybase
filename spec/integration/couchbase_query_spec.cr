@@ -2,6 +2,7 @@ require "../spec_helper"
 require "../../examples/shared/methods"
 
 private alias KV = CryBase::CouchBase::KV
+private alias CB = CryBase::CouchBase
 private alias Query = CryBase::CouchBase::Query
 private alias Couchbase = CryBase::SpecHelpers::CouchbaseIntegrationHelpers
 private alias User = CryBaseExamples::Structs::User
@@ -89,6 +90,22 @@ describe "Couchbase Query integration" do
     result.rows.first["query_value"].as_s.should eq("cluster")
   end
 
+  it "runs Query over TLS when configured" do
+    pending! "set COUCHBASE_TLS=true to run TLS Query integration spec" unless config.tls
+
+    client_result = with_query_retry do
+      client.query("SELECT $1 AS query_value", "tls-client", readonly: true)
+    end
+    cluster_result = with_query_retry do
+      cluster.query("SELECT $1 AS query_value", "tls-cluster", readonly: true)
+    end
+
+    client.endpoint.tls?.should be_true
+    cluster.active_endpoint.try(&.tls?).should be_true
+    client_result.rows.first["query_value"].as_s.should eq("tls-client")
+    cluster_result.rows.first["query_value"].as_s.should eq("tls-cluster")
+  end
+
   it "prepares and executes N1QL statements" do
     prepared = with_query_retry do
       client.prepare("SELECT $name AS name", readonly: true)
@@ -107,6 +124,47 @@ describe "Couchbase Query integration" do
     end
 
     result.rows.first["query_value"].as_s.should eq("cached")
+  end
+
+  it "accepts explicit retry policies on real Query calls" do
+    users = [] of User
+    policy = CB::RetryPolicy.new(
+      max_attempts: 3,
+      delay: 10.milliseconds,
+      jitter: 0.0,
+      max_elapsed: 200.milliseconds,
+      retry_query_errors: true,
+      retry_transport_errors: true,
+    )
+
+    begin
+      users = CryBaseExamples.seed_query_users(kv)
+      keys = CryBaseExamples.query_user_keys(users)
+      active_users = users.select(&.active?)
+      inactive_users = users.reject(&.active?)
+
+      client_result = with_query_retry do
+        client.query(
+          seeded_users_query,
+          named_args: {keys: keys, type: "User", active: true},
+          readonly: true,
+          retry_policy: policy,
+        )
+      end
+      cluster_result = with_query_retry do
+        cluster.query(
+          seeded_users_query,
+          named_args: {keys: keys, type: "User", active: false},
+          readonly: true,
+          retry_policy: policy,
+        )
+      end
+
+      client_result.rows.map(&.["id"].as_s).sort!.should eq(active_users.map(&.id).sort!)
+      cluster_result.rows.map(&.["id"].as_s).sort!.should eq(inactive_users.map(&.id).sort!)
+    ensure
+      CryBaseExamples.delete_query_users(kv, users)
+    end
   end
 
   it "queries seeded example user documents" do

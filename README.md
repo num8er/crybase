@@ -670,7 +670,9 @@ CI runs:
 
 - Unit specs.
 - Formatting.
-- Real Couchbase integration specs against `couchbase:community-7.6.0`.
+- Real Couchbase integration specs against `couchbase:community-7.6.0` and
+  `couchbase:community-8.0.0`.
+- Real Couchbase Query TLS integration specs against both Couchbase versions.
 
 ## Project Conventions
 

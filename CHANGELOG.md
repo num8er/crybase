@@ -76,11 +76,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   examples.
 - Real Couchbase Query integration specs that seed deterministic example
   `type = "User"` documents over KV and query them through direct and prepared
-  Query execution, including a dedicated cursor integration spec.
+  Query execution, explicit retry policies, and a dedicated cursor integration
+  spec.
+- Real Couchbase Query TLS integration coverage in CI for Couchbase 7.6 and 8.0.
 
 ### Changed
 - README now links to the feature implementation notes.
-- CI now exposes the Couchbase Query service port for integration specs.
+- CI now runs Couchbase integration specs against Couchbase 7.6 and 8.0, and
+  exposes the Query service ports for plaintext and TLS integration specs.
 - The pre-commit hook now strips trailing whitespace from generated HTML docs
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and

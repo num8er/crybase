@@ -89,9 +89,15 @@ jobs:
           path: coverage/
 
   integration-couchbase:
-    name: integration-couchbase
+    name: integration-couchbase (${{ matrix.couchbase_image }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        couchbase_image:
+          - couchbase:community-7.6.0
+          - couchbase:community-8.0.0
     env:
       COUCHBASE_HOST: 127.0.0.1
       COUCHBASE_USER: Administrator
@@ -125,7 +131,7 @@ jobs:
             -p 8091:8091 \
             -p 8093:8093 \
             -p 11210:11210 \
-            couchbase:community-7.6.0
+            ${{ matrix.couchbase_image }}
 
       - name: Wait for Couchbase management API
         run: |
@@ -185,6 +191,145 @@ jobs:
       - name: Stop Couchbase
         if: always()
         run: docker rm -f crybase-couchbase
+
+  integration-couchbase-query-tls:
+    name: integration-couchbase-query-tls (${{ matrix.couchbase_image }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        couchbase_image:
+          - couchbase:community-7.6.0
+          - couchbase:community-8.0.0
+    env:
+      COUCHBASE_HOST: 127.0.0.1
+      COUCHBASE_USER: Administrator
+      COUCHBASE_PASS: password
+      COUCHBASE_BUCKET: default
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache shards
+        uses: actions/cache@v5
+        with:
+          path: |
+            lib
+            .shards
+          key: ${{ runner.os }}-shards-${{ hashFiles('shard.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-shards-
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Install shards
+        run: shards install
+
+      - name: Start Couchbase
+        run: |
+          docker run -d \
+            --name crybase-couchbase-query-tls \
+            -p 8091:8091 \
+            -p 18091:18091 \
+            -p 18093:18093 \
+            -p 11207:11207 \
+            ${{ matrix.couchbase_image }}
+
+      - name: Wait for Couchbase management API
+        run: |
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:8091/pools >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-couchbase-query-tls
+          exit 1
+
+      - name: Initialize Couchbase
+        run: |
+          docker exec crybase-couchbase-query-tls couchbase-cli cluster-init \
+            --cluster http://127.0.0.1:8091 \
+            --cluster-username "$COUCHBASE_USER" \
+            --cluster-password "$COUCHBASE_PASS" \
+            --services data,index,query \
+            --cluster-ramsize 512 \
+            --cluster-index-ramsize 256
+
+          docker exec crybase-couchbase-query-tls couchbase-cli bucket-create \
+            --cluster http://127.0.0.1:8091 \
+            --username "$COUCHBASE_USER" \
+            --password "$COUCHBASE_PASS" \
+            --bucket "$COUCHBASE_BUCKET" \
+            --bucket-type couchbase \
+            --bucket-ramsize 256 \
+            --enable-flush 1
+
+      - name: Wait for bucket
+        run: |
+          for i in {1..60}; do
+            if docker exec crybase-couchbase-query-tls couchbase-cli bucket-list \
+              --cluster http://127.0.0.1:8091 \
+              --username "$COUCHBASE_USER" \
+              --password "$COUCHBASE_PASS" | grep -q "^$COUCHBASE_BUCKET$"; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-couchbase-query-tls
+          exit 1
+
+      - name: Wait for Couchbase TLS services
+        run: |
+          for i in {1..60}; do
+            if curl -k -fsS https://127.0.0.1:18091/pools >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+
+          curl -k -fsS https://127.0.0.1:18091/pools >/dev/null
+
+          for i in {1..60}; do
+            if curl -k -fsS \
+              -u "$COUCHBASE_USER:$COUCHBASE_PASS" \
+              -d "statement=SELECT 1 AS one" \
+              https://127.0.0.1:18093/query/service >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-couchbase-query-tls
+          exit 1
+
+      - name: Run Couchbase Query TLS integration specs
+        env:
+          COUCHBASE_INTEGRATION: "1"
+          COUCHBASE_TLS: "true"
+          COUCHBASE_TLS_VERIFY: "false"
+          COUCHBASE_KV_PORT: "11207"
+          COUCHBASE_QUERY_PORT: "18093"
+          COUCHBASE_MANAGEMENT_PORT: "18091"
+        run: |
+          crystal spec \
+            spec/integration/couchbase_query_spec.cr \
+            spec/integration/couchbase_query_cursor_spec.cr \
+            --error-trace \
+            --tap
+
+      - name: Dump Couchbase logs on failure
+        if: failure()
+        run: docker logs crybase-couchbase-query-tls
+
+      - name: Stop Couchbase
+        if: always()
+        run: docker rm -f crybase-couchbase-query-tls
 
   format:
     name: format
