@@ -162,6 +162,8 @@ jobs:
             --bucket "$COUCHBASE_BUCKET" \
             --bucket-type couchbase \
             --bucket-ramsize 256 \
+            --bucket-replica 0 \
+            --storage-backend couchstore \
             --enable-flush 1
 
       - name: Wait for bucket
@@ -267,6 +269,8 @@ jobs:
             --bucket "$COUCHBASE_BUCKET" \
             --bucket-type couchbase \
             --bucket-ramsize 256 \
+            --bucket-replica 0 \
+            --storage-backend couchstore \
             --enable-flush 1
 
       - name: Wait for bucket
