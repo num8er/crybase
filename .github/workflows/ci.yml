@@ -124,6 +124,17 @@ jobs:
       - name: Install shards
         run: shards install
 
+      - name: Pull Couchbase image
+        run: |
+          for i in {1..5}; do
+            if docker pull "${{ matrix.couchbase_image }}"; then
+              exit 0
+            fi
+            sleep $((i * 10))
+          done
+
+          docker pull "${{ matrix.couchbase_image }}"
+
       - name: Start Couchbase
         run: |
           docker run -d \
@@ -230,6 +241,17 @@ jobs:
       - name: Install shards
         run: shards install
 
+      - name: Pull Couchbase image
+        run: |
+          for i in {1..5}; do
+            if docker pull "${{ matrix.couchbase_image }}"; then
+              exit 0
+            fi
+            sleep $((i * 10))
+          done
+
+          docker pull "${{ matrix.couchbase_image }}"
+
       - name: Start Couchbase
         run: |
           docker run -d \
@@ -316,6 +338,202 @@ jobs:
       - name: Stop Couchbase
         if: always()
         run: docker rm -f crybase-couchbase-query-tls
+
+  integration-couchbase-query-tls-nginx:
+    name: integration-couchbase-query-tls-nginx (${{ matrix.couchbase_image }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        couchbase_image:
+          - couchbase:community-7.6.0
+          - couchbase:community-8.0.0
+    env:
+      COUCHBASE_HOST: 127.0.0.1
+      COUCHBASE_USER: Administrator
+      COUCHBASE_PASS: password
+      COUCHBASE_BUCKET: default
+      NGINX_IMAGE: nginx:alpine
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache shards
+        uses: actions/cache@v5
+        with:
+          path: |
+            lib
+            .shards
+          key: ${{ runner.os }}-shards-${{ hashFiles('shard.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-shards-
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Install shards
+        run: shards install
+
+      - name: Pull Couchbase image
+        run: |
+          for i in {1..5}; do
+            if docker pull "${{ matrix.couchbase_image }}"; then
+              exit 0
+            fi
+            sleep $((i * 10))
+          done
+
+          docker pull "${{ matrix.couchbase_image }}"
+
+      - name: Pull nginx image
+        run: |
+          for i in {1..5}; do
+            if docker pull "$NGINX_IMAGE"; then
+              exit 0
+            fi
+            sleep $((i * 10))
+          done
+
+          docker pull "$NGINX_IMAGE"
+
+      - name: Create Docker network
+        run: docker network create crybase-query-tls-nginx
+
+      - name: Start Couchbase
+        run: |
+          docker run -d \
+            --name crybase-couchbase-query-tls-nginx \
+            --network crybase-query-tls-nginx \
+            -p 8091:8091 \
+            ${{ matrix.couchbase_image }}
+
+      - name: Wait for Couchbase management API
+        run: |
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:8091/pools >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-couchbase-query-tls-nginx
+          exit 1
+
+      - name: Initialize Couchbase
+        run: |
+          docker exec crybase-couchbase-query-tls-nginx couchbase-cli cluster-init \
+            --cluster http://127.0.0.1:8091 \
+            --cluster-username "$COUCHBASE_USER" \
+            --cluster-password "$COUCHBASE_PASS" \
+            --services data,index,query \
+            --cluster-ramsize 512 \
+            --cluster-index-ramsize 256
+
+          docker exec crybase-couchbase-query-tls-nginx couchbase-cli bucket-create \
+            --cluster http://127.0.0.1:8091 \
+            --username "$COUCHBASE_USER" \
+            --password "$COUCHBASE_PASS" \
+            --bucket "$COUCHBASE_BUCKET" \
+            --bucket-type couchbase \
+            --bucket-ramsize 256 \
+            --bucket-replica 0 \
+            --storage-backend couchstore \
+            --enable-flush 1
+
+      - name: Wait for bucket
+        run: |
+          for i in {1..60}; do
+            if docker exec crybase-couchbase-query-tls-nginx couchbase-cli bucket-list \
+              --cluster http://127.0.0.1:8091 \
+              --username "$COUCHBASE_USER" \
+              --password "$COUCHBASE_PASS" | grep -q "^$COUCHBASE_BUCKET$"; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-couchbase-query-tls-nginx
+          exit 1
+
+      - name: Start nginx Query TLS proxy
+        run: |
+          mkdir -p .ci/query-tls-nginx
+          openssl req \
+            -x509 \
+            -nodes \
+            -newkey rsa:2048 \
+            -days 1 \
+            -subj "/CN=127.0.0.1" \
+            -addext "subjectAltName = IP:127.0.0.1,DNS:localhost" \
+            -keyout .ci/query-tls-nginx/tls.key \
+            -out .ci/query-tls-nginx/tls.crt
+
+          cat > .ci/query-tls-nginx/nginx.conf <<'NGINX'
+          events {}
+
+          http {
+            server {
+              listen 443 ssl;
+              server_name localhost;
+
+              ssl_certificate /etc/nginx/certs/tls.crt;
+              ssl_certificate_key /etc/nginx/certs/tls.key;
+
+              location / {
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_set_header Host $host;
+                proxy_pass http://crybase-couchbase-query-tls-nginx:8093;
+              }
+            }
+          }
+          NGINX
+
+          docker run -d \
+            --name crybase-query-tls-nginx \
+            --network crybase-query-tls-nginx \
+            -p 18093:443 \
+            -v "$PWD/.ci/query-tls-nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+            -v "$PWD/.ci/query-tls-nginx:/etc/nginx/certs:ro" \
+            "$NGINX_IMAGE"
+
+      - name: Wait for nginx Query TLS proxy
+        run: |
+          for i in {1..60}; do
+            if curl -k -fsS \
+              -u "$COUCHBASE_USER:$COUCHBASE_PASS" \
+              -d "statement=SELECT 1 AS one" \
+              https://127.0.0.1:18093/query/service >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs crybase-query-tls-nginx
+          docker logs crybase-couchbase-query-tls-nginx
+          exit 1
+
+      - name: Run Couchbase Query TLS integration specs through nginx
+        env:
+          COUCHBASE_INTEGRATION: "1"
+          COUCHBASE_TLS: "true"
+          COUCHBASE_TLS_VERIFY: "false"
+          COUCHBASE_QUERY_PORT: "18093"
+        run: crystal spec spec/integration/couchbase_query_tls_spec.cr --error-trace --tap
+
+      - name: Dump Couchbase and nginx logs on failure
+        if: failure()
+        run: |
+          docker logs crybase-query-tls-nginx || true
+          docker logs crybase-couchbase-query-tls-nginx || true
+
+      - name: Stop Couchbase and nginx
+        if: always()
+        run: |
+          docker rm -f crybase-query-tls-nginx crybase-couchbase-query-tls-nginx
+          docker network rm crybase-query-tls-nginx || true
 
   format:
     name: format

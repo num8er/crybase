@@ -80,12 +80,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   spec.
 - Real Couchbase Query TLS integration coverage in CI for Couchbase Enterprise
   7.6 and 8.0, including data seeded and queried through the Query service.
+- Real Couchbase Community Query TLS integration coverage through an nginx TLS
+  reverse proxy in CI.
 
 ### Changed
 - README now links to the feature implementation notes.
 - CI now runs Couchbase integration specs against Couchbase Community 7.6 and
   8.0, plus Query TLS integration specs against Couchbase Enterprise 7.6 and
-  8.0.
+  8.0 and Couchbase Community behind nginx TLS.
 - The pre-commit hook now strips trailing whitespace from generated HTML docs
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and

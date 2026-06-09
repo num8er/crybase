@@ -674,6 +674,8 @@ CI runs:
   `couchbase:community-8.0.0`.
 - Real Couchbase Query TLS integration specs against
   `couchbase:enterprise-7.6.0` and `couchbase:enterprise-8.0.0`.
+- Real Couchbase Community Query TLS integration specs through an nginx TLS
+  reverse proxy.
 
 ## Project Conventions
 
