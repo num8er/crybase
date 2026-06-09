@@ -17,5 +17,6 @@ module CryBase
 end
 
 require "./crybase/version"
+require "./crybase/connectivity"
 require "./crybase/interfaces"
 require "./crybase/couchbase"

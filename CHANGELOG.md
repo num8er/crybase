@@ -11,12 +11,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature implementation notes under `docs/`: [KV Client](docs/1.FEAT_kv-client.md),
   [KV Client Pool](docs/2.FEAT_kv-client-pool.md),
   [Connection String To Endpoint Conversion](docs/3.FEAT_connection-string-to-endpoint-conversion.md),
-  and [KV Cluster](docs/4.FEAT_kv-cluster.md).
+  [KV Cluster](docs/4.FEAT_kv-cluster.md), and
+  [Query Service](docs/5.FEAT_query-service.md), and
+  [Connectivity](docs/6.FEAT_connectivity.md), and
+  [Query Topology Discovery](docs/7.FEAT_query-topology-discovery.md), and
+  [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md), and
+  [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md),
+  [Query Cursor](docs/10.FEAT_query-cursor.md), and
+  [Examples Layout](docs/11.FEAT_examples-layout.md), and
+  [Query Retry Policy Option](docs/12.FEAT_query-retry-policy-option.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
+- `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
+  over the Couchbase HTTP Query service.
+- `CryBase::CouchBase::Query::Cluster` for seed failover across Query service
+  endpoints.
+- `CryBase::CouchBase::Query::Topology` for parsing Query endpoints from
+  Couchbase `nodeServices` payloads.
+- `CryBase::CouchBase::Query::TopologyClient` for authenticated Query topology
+  loading from Couchbase Management.
+- `Query::Cluster#refresh_topology` for explicit Query node topology refresh.
+- `CryBase::CouchBase::Query::PreparedStatement` for prepared Query plan names
+  and metadata.
+- `Query::Client#prepare`, `Query::Client#execute_prepared`,
+  `Query::Cluster#prepare`, and `Query::Cluster#execute_prepared`.
+- `query(..., adhoc: false)` for prepared statement caching and execution.
+- `CryBase::CouchBase::Query::QueryContext` for bucket/scope Query contexts.
+- `Query::Client#query_as`, `Query::Client#query_each`,
+  `Query::Client#query_each_as`, and the matching `Query::Cluster` helpers for
+  typed and streamed Query rows.
+- `Query::Client#query_cursor`, `Query::Cluster#query_cursor`, and
+  `Query::Cursor#each_as` for single-use streaming Query cursors.
+- `CryBase::CouchBase::Policies::RetryPolicy`, the
+  `CryBase::CouchBase::RetryPolicy` alias, and per-query `retry_policy:`
+  arguments on `Query::Client#query` and `Query::Cluster#query`, defaulting to
+  `CryBase::CouchBase::RetryPolicy.no_retry`.
+- `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
+  used by service-specific clients.
+- `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
+- `CryBase::Connectivity::SocketConfig` for shared timeout and TLS socket
+  options.
+- `CryBase::Connectivity::TCPSocket.open(host_port)` for host-port strings
+  such as `127.0.0.1:12345`.
+- `CryBase::Connectivity::TLSSocket.open(host_port, config)` for TLS sockets
+  from host-port strings such as `127.0.0.1:12345`.
+- `CryBase::Connectivity.open_socket(host_port, config)` for shared plaintext
+  or TLS sockets from host-port strings such as `127.0.0.1:12345`.
+- Query result parsing for rows, metadata, warnings, and errors.
+- `examples/query_basics/example.cr` for a readonly parameterized Query
+  service call.
+- `examples/query_cursor/example.cr` for streaming typed Query rows through
+  `query_cursor`.
+- `examples/query_prepared/example.cr` for prepared Query execution.
+- `examples/query_retry_policy/example.cr` for passing explicit
+  `CryBase::CouchBase::RetryPolicy` values to Query calls.
+- `examples/query_mutations/example.cr` for raw SQL++ `INSERT`, `UPDATE`,
+  `DELETE`, `UPSERT`, and `SET ... FOR ... END` mutation statements through
+  Query.
+- `examples/shared/methods.cr` and `examples/shared/methods/*.cr` for shared
+  connection builders and seeded Query example helpers.
+- `examples/shared/structs.cr` and `examples/shared/structs/*.cr` for shared
+  example document and row types under `CryBaseExamples::Structs`.
+- `examples/shared/ulid.cr` for timestamp-based ULID keys in runnable
+  examples.
+- Real Couchbase Query integration specs that seed deterministic example
+  `type = "User"` documents over KV and query them through direct and prepared
+  Query execution, explicit retry policies, and a dedicated cursor integration
+  spec.
+- Real Couchbase Query TLS integration coverage in CI for Couchbase Enterprise
+  7.6 and 8.0, including data seeded and queried through the Query service.
+- Real Couchbase Community Query TLS integration coverage through an nginx TLS
+  reverse proxy in CI.
 
 ### Changed
 - README now links to the feature implementation notes.
+- CI now runs Couchbase integration specs against Couchbase Community 7.6 and
+  8.0, plus Query TLS integration specs against Couchbase Enterprise 7.6 and
+  8.0 and Couchbase Community behind nginx TLS.
+- The pre-commit hook now strips trailing whitespace from generated HTML docs
+  after `crystal docs`.
+- KV and Query clients now reuse the shared connectivity layer for socket and
+  TLS setup.
+- `Query::Cluster.from_string` now discovers Query nodes from Couchbase
+  topology by default and keeps static Query seeds as fallback.
+- Query clients now clear and reprepare cached plans once when Couchbase reports
+  a missing prepared statement.
+- Query clients now reuse HTTP connections instead of closing every request.
+- Query examples now use `client` variable names and run against seeded random
+  user documents.
+- Query examples now demonstrate bucket/scope query context, `query_as`,
+  `query_each_as`, `query_cursor`, and typed `Result` row iteration.
+- Runnable examples now live under `examples/<example_name>/example.cr`, with
+  shared constants, methods, structs, and ULID helpers under `examples/shared`.
+- Runnable examples now use short private aliases for shared structs and
+  client classes to keep example bodies concise.
+- Query docs, examples, and specs now avoid reserved `value` and `key` aliases
+  in runnable N1QL statements.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22

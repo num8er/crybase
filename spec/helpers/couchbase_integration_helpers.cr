@@ -20,6 +20,7 @@ module CryBase::SpecHelpers::CouchbaseIntegrationHelpers
       bucket: ENV["COUCHBASE_BUCKET"]? || "default",
       management_port: env_int("COUCHBASE_MANAGEMENT_PORT", 8091),
       kv_port: env_int("COUCHBASE_KV_PORT", CB::Service::KV.default_port(tls)),
+      query_port: env_int("COUCHBASE_QUERY_PORT", CB::Service::Query.default_port(tls)),
       tls: tls,
       tls_verify: env_bool("COUCHBASE_TLS_VERIFY", true),
       tls_hostname: tls_hostname,
@@ -40,6 +41,17 @@ module CryBase::SpecHelpers::CouchbaseIntegrationHelpers
     scheme = config.tls ? "couchbases" : "couchbase"
     seeds = config.seeds.includes?(":") ? config.seeds : "#{config.seeds}:#{config.kv_port}"
     "#{scheme}://#{URI.encode_www_form(config.user)}:#{URI.encode_www_form(config.pass)}@#{seeds}/#{URI.encode_www_form(config.bucket)}"
+  end
+
+  def self.query_connection_string(config : Config) : String
+    scheme = config.tls ? "couchbases" : "couchbase"
+    "#{scheme}://#{URI.encode_www_form(config.user)}:#{URI.encode_www_form(config.pass)}@#{config.host}:#{config.query_port}"
+  end
+
+  def self.query_cluster_connection_string(config : Config) : String
+    scheme = config.tls ? "couchbases" : "couchbase"
+    seeds = config.seeds.includes?(":") ? config.seeds : "#{config.seeds}:#{config.query_port}"
+    "#{scheme}://#{URI.encode_www_form(config.user)}:#{URI.encode_www_form(config.pass)}@#{seeds}"
   end
 
   def self.management_document_uri(config : Config, key : String) : URI

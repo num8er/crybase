@@ -265,29 +265,18 @@ module CryBase::CouchBase::Services::KV
       tls_hostname : String?,
       tls_context : OpenSSL::SSL::Context::Client?,
     ) : IO
-      tcp = TCPSocket.new(endpoint.host, endpoint.port, connect_timeout: connect_timeout)
-      tcp.sync = false
-      return tcp unless endpoint.tls?
-
-      begin
-        OpenSSL::SSL::Socket::Client.new(
-          tcp,
-          tls_context || default_tls_context(tls_verify),
-          sync_close: true,
-          hostname: tls_hostname || endpoint.host,
-        )
-      rescue ex
-        tcp.close rescue nil
-        raise ex
-      end
-    end
-
-    private def default_tls_context(tls_verify : Bool) : OpenSSL::SSL::Context::Client
-      return OpenSSL::SSL::Context::Client.new if tls_verify
-
-      context = OpenSSL::SSL::Context::Client.new
-      context.verify_mode = OpenSSL::SSL::VerifyMode::NONE
-      context
+      config = CryBase::Connectivity::SocketConfig.new(
+        tls: endpoint.tls?,
+        connect_timeout: connect_timeout,
+        tls_verify: tls_verify,
+        tls_hostname: tls_hostname,
+        tls_context: tls_context,
+      )
+      CryBase::Connectivity.open_socket(
+        endpoint.host,
+        endpoint.port,
+        config,
+      )
     end
 
     private def hello : Nil

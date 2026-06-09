@@ -1,12 +1,9 @@
-# KV expiration operations — set a document with TTL, extend it with
-# TOUCH, and fetch while atomically resetting expiry with GET_AND_TOUCH.
-#
-# Reads Couchbase settings from `examples/constants.cr`.
-#
-#   crystal run examples/kv_expiration.cr
-require "./constants"
+require "../shared/methods"
 
-kv = CryBase::CouchBase::Services::KV::Client.from_string(CryBaseExamples.kv_connection_string)
+private alias Examples = CryBaseExamples
+private alias KVClient = CryBase::CouchBase::KV::Client
+
+kv = KVClient.from_string(Examples.kv_connection_string)
 
 key = "crybase:expiration"
 

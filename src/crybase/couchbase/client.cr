@@ -112,10 +112,15 @@ module CryBase::CouchBase
     end
 
     private def probe(endpoint : Endpoint) : Bool
-      socket = TCPSocket.new(endpoint.host, endpoint.port, connect_timeout: @connect_timeout)
+      config = CryBase::Connectivity::SocketConfig.new(connect_timeout: @connect_timeout)
+      socket = CryBase::Connectivity.open_socket(
+        endpoint.host,
+        endpoint.port,
+        config,
+      )
       socket.close
       true
-    rescue IO::Error | Socket::Error
+    rescue IO::Error | ::Socket::Error
       false
     end
   end

@@ -5,6 +5,7 @@
 #
 # Currently implemented:
 # * `Services::KV` — memcached binary protocol against the KV service
+# * `Services::Query` — N1QL/SQL++ over the HTTP Query service
 #
 # ```
 # require "crybase"
@@ -42,3 +43,4 @@ module CryBase::CouchBase::Services
 end
 
 require "./services/kv"
+require "./services/query"

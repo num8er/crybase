@@ -20,9 +20,12 @@ end
 require "./couchbase/service"
 require "./couchbase/endpoint"
 require "./couchbase/connection_string"
+require "./couchbase/policies"
 require "./couchbase/services"
 require "./couchbase/client"
 
 module CryBase::CouchBase
+  alias RetryPolicy = Policies::RetryPolicy
   alias KV = Services::KV
+  alias Query = Services::Query
 end
