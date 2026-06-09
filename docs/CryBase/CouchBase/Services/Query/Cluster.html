@@ -117,8 +117,28 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/CouchBase/Policies" data-name="crybase::couchbase::policies">
+      <a href="../../../../CryBase/CouchBase/Policies.html">Policies</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Policies/RetryPolicy" data-name="crybase::couchbase::policies::retrypolicy">
+      <a href="../../../../CryBase/CouchBase/Policies/RetryPolicy.html">RetryPolicy</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Query" data-name="crybase::couchbase::query">
       <a href="../../../../CryBase/CouchBase/Query.html">Query</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/RetryPolicy" data-name="crybase::couchbase::retrypolicy">
+      <a href="../../../../CryBase/CouchBase/RetryPolicy.html">RetryPolicy</a>
 
     </li>
 
@@ -501,7 +521,9 @@
       </li>
 
       <li class="entry-summary">
-        <a href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Cquery_context%3AQueryContext%7CString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cscope%3AString%7CNil%3Dnil%2Cnamespace%3AString%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method" class="signature"><strong>#query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, query_context : QueryContext | String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, scope : String | Nil = <span class="n">nil</span>, namespace : String | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : Result</a>
+        <a href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Cquery_context%3AQueryContext%7CString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cscope%3AString%7CNil%3Dnil%2Cnamespace%3AString%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cretry_policy%3ACryBase%3A%3ACouchBase%3A%3ARetryPolicy%3DCryBase%3A%3ACouchBase%3A%3ARetryPolicy.no_retry%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method" class="signature"><strong>#query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : ScanConsistency | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, query_context : QueryContext | String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, scope : String | Nil = <span class="n">nil</span>, namespace : String | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, retry_policy : CryBase::CouchBase::RetryPolicy = <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">RetryPolicy</span>.no_retry, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : Result</a>
+
+          <div class="summary"><p>Executes a N1QL/SQL++ statement through the active Query endpoint.</p></div>
 
       </li>
 
@@ -712,7 +734,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L423" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L441" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -728,7 +750,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L679" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L704" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -744,7 +766,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L687" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L712" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -776,7 +798,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L219" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L235" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -792,7 +814,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L251" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L268" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -824,23 +846,37 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L186" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L202" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="query(statement:String,*positional_args,named_args=NamedTuple.new,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,query_context:QueryContext|String|Nil=nil,bucket:String|Nil=nil,scope:String|Nil=nil,namespace:String|Nil=nil,options=NamedTuple.new,adhoc:Bool=true,raise_on_error:Bool=true):Result-instance-method">
+    <div class="entry-detail" id="query(statement:String,*positional_args,named_args=NamedTuple.new,readonly:Bool|Nil=nil,scan_consistency:ScanConsistency|String|Nil=nil,client_context_id:String|Nil=nil,timeout:Time::Span|Nil=nil,query_context:QueryContext|String|Nil=nil,bucket:String|Nil=nil,scope:String|Nil=nil,namespace:String|Nil=nil,options=NamedTuple.new,retry_policy:CryBase::CouchBase::RetryPolicy=CryBase::CouchBase::RetryPolicy.no_retry,adhoc:Bool=true,raise_on_error:Bool=true):Result-instance-method">
       <div class="signature">
 
-        def <strong>query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, query_context : <a href="../../../../CryBase/CouchBase/Services/Query/QueryContext.html">QueryContext</a> | String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, scope : String | Nil = <span class="n">nil</span>, namespace : String | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
+        def <strong>query</strong>(statement : String, *positional_args, named_args = <span class="t">NamedTuple</span>.new, readonly : Bool | Nil = <span class="n">nil</span>, scan_consistency : <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a> | String | Nil = <span class="n">nil</span>, client_context_id : String | Nil = <span class="n">nil</span>, timeout : Time::Span | Nil = <span class="n">nil</span>, query_context : <a href="../../../../CryBase/CouchBase/Services/Query/QueryContext.html">QueryContext</a> | String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, scope : String | Nil = <span class="n">nil</span>, namespace : String | Nil = <span class="n">nil</span>, options = <span class="t">NamedTuple</span>.new, retry_policy : <a href="../../../../CryBase/CouchBase/RetryPolicy.html">CryBase::CouchBase::RetryPolicy</a> = <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">RetryPolicy</span>.no_retry, adhoc : Bool = <span class="n">true</span>, raise_on_error : Bool = <span class="n">true</span>) : <a href="../../../../CryBase/CouchBase/Services/Query/Result.html">Result</a>
 
-        <a class="method-permalink" href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Cquery_context%3AQueryContext%7CString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cscope%3AString%7CNil%3Dnil%2Cnamespace%3AString%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method">#</a>
+        <a class="method-permalink" href="#query%28statement%3AString%2C%2Apositional_args%2Cnamed_args%3DNamedTuple.new%2Creadonly%3ABool%7CNil%3Dnil%2Cscan_consistency%3AScanConsistency%7CString%7CNil%3Dnil%2Cclient_context_id%3AString%7CNil%3Dnil%2Ctimeout%3ATime%3A%3ASpan%7CNil%3Dnil%2Cquery_context%3AQueryContext%7CString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Cscope%3AString%7CNil%3Dnil%2Cnamespace%3AString%7CNil%3Dnil%2Coptions%3DNamedTuple.new%2Cretry_policy%3ACryBase%3A%3ACouchBase%3A%3ARetryPolicy%3DCryBase%3A%3ACouchBase%3A%3ARetryPolicy.no_retry%2Cadhoc%3ABool%3Dtrue%2Craise_on_error%3ABool%3Dtrue%29%3AResult-instance-method">#</a>
       </div>
+
+        <div class="doc">
+
+          <p>Executes a N1QL/SQL++ statement through the active Query endpoint.</p>
+<p><code>readonly: true</code> sends the Couchbase Query <code>readonly=true</code> request option.
+Use it for <code>SELECT</code> and other non-mutating statements; leave it unset for
+<code>INSERT</code>, <code>UPDATE</code>, <code>UPSERT</code>, <code>DELETE</code>, and other mutations.</p>
+<p><code>adhoc: true</code> is the default and sends the statement directly.
+<code>adhoc: false</code> prepares the statement, caches the prepared plan for the
+same statement/options, and executes by prepared name. Missing prepared
+plans are cleared and prepared once again.</p>
+<p><code>retry_policy:</code> is a per-query policy value. It defaults to
+<code>CryBase::CouchBase::RetryPolicy.no_retry</code>; retry execution is not implemented yet.</p>
+        </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L133" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L146" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -856,7 +892,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L283" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L301" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -872,7 +908,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L389" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L407" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -888,7 +924,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L318" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L336" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -904,7 +940,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L353" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L371" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -920,7 +956,7 @@
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L672" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L697" target="_blank">View source</a>]
 
       </div>
     </div>

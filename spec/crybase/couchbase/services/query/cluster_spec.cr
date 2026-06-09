@@ -83,6 +83,7 @@ describe Query::Cluster do
     typeof(cluster.query("SELECT $1", "value")).should eq(Query::Result)
     typeof(cluster.query("SELECT $name", named_args: {name: "value"})).should eq(Query::Result)
     typeof(cluster.query("SELECT 1", adhoc: false)).should eq(Query::Result)
+    typeof(cluster.query("SELECT 1", retry_policy: CB::RetryPolicy.no_retry)).should eq(Query::Result)
     typeof(cluster.query_as(QueryClusterRow, "SELECT name")).should eq(Array(QueryClusterRow))
     typeof(cluster.query_each("SELECT name") { |row| row }).should eq(Query::Result)
     typeof(cluster.query_each_as(QueryClusterRow, "SELECT name") { |row| row }).should eq(Query::Result)

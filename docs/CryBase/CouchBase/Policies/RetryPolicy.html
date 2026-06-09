@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../js/doc.js"></script>
 
   <meta name="repository-name" content="crybase">
-  <title>CryBase::CouchBase::Services::Query - crybase main-dev</title>
+  <title>CryBase::CouchBase::Policies::RetryPolicy - crybase main-dev</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../";
   </script>
@@ -117,12 +117,12 @@
 
     </li>
 
-  <li class="parent " data-id="crybase/CryBase/CouchBase/Policies" data-name="crybase::couchbase::policies">
+  <li class="parent open current" data-id="crybase/CryBase/CouchBase/Policies" data-name="crybase::couchbase::policies">
       <a href="../../../CryBase/CouchBase/Policies.html">Policies</a>
 
         <ul>
 
-  <li class=" " data-id="crybase/CryBase/CouchBase/Policies/RetryPolicy" data-name="crybase::couchbase::policies::retrypolicy">
+  <li class=" current" data-id="crybase/CryBase/CouchBase/Policies/RetryPolicy" data-name="crybase::couchbase::policies::retrypolicy">
       <a href="../../../CryBase/CouchBase/Policies/RetryPolicy.html">RetryPolicy</a>
 
     </li>
@@ -147,7 +147,7 @@
 
     </li>
 
-  <li class="parent open current" data-id="crybase/CryBase/CouchBase/Services" data-name="crybase::couchbase::services">
+  <li class="parent " data-id="crybase/CryBase/CouchBase/Services" data-name="crybase::couchbase::services">
       <a href="../../../CryBase/CouchBase/Services.html">Services</a>
 
         <ul>
@@ -242,7 +242,7 @@
 
     </li>
 
-  <li class="parent open current" data-id="crybase/CryBase/CouchBase/Services/Query" data-name="crybase::couchbase::services::query">
+  <li class="parent " data-id="crybase/CryBase/CouchBase/Services/Query" data-name="crybase::couchbase::services::query">
       <a href="../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
@@ -362,30 +362,16 @@
 <h1 class="type-name">
 
   <span class="kind">
-    module
-  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>Query
+    struct
+  </span> CryBase::<wbr>CouchBase::<wbr>Policies::<wbr>RetryPolicy
 
 </h1>
 
 
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../CryBase/CouchBase/Policies/RetryPolicy.html">CryBase::CouchBase::Policies::RetryPolicy</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
-  <h2>
-    <a id="overview" class="anchor" href="#overview">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Overview
-  </h2>
-
-  <p>Implementation of the Couchbase Query service over its HTTP N1QL API.</p>
-<p>The main public entry points are <code><a href="../../../CryBase/CouchBase/Services/Query/Client.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DDEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DDEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DDEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3AClient-class-method">Query::Client.from_string</a></code> for one
-configured Query endpoint and <code><a href="../../../CryBase/CouchBase/Services/Query/Cluster.html#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cconnect_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_CONNECT_TIMEOUT%2Cread_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_READ_TIMEOUT%2Cwrite_timeout%3ATime%3A%3ASpan%3DClient%3A%3ADEFAULT_WRITE_TIMEOUT%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cdiscover_topology%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Cnetwork%3AString%7CNil%3Dnil%29%3ACluster-class-method">Query::Cluster.from_string</a></code> for seed failover
-across multiple Query hosts. Use <code>query_cursor</code> when rows should be consumed
-through an explicit streaming cursor. Query requests are posted to
-<code>/query/service</code> as <code>application/x-www-form-urlencoded</code> payloads.</p>
 
 
 
@@ -412,22 +398,8 @@ through an explicit streaming cursor. Query requests are posted to
   </h2>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query.cr#L12" target="_blank">
-        crybase/couchbase/services/query.cr
-      </a>
-
-    <br/>
-
-
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/client.cr#L1" target="_blank">
-        crybase/couchbase/services/query/client.cr
-      </a>
-
-    <br/>
-
-
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/query/cluster.cr#L1" target="_blank">
-        crybase/couchbase/services/query/cluster.cr
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L1" target="_blank">
+        crybase/couchbase/policies/retry_policy.cr
       </a>
 
     <br/>
@@ -438,23 +410,295 @@ through an explicit streaming cursor. Query requests are posted to
 
 
 
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#new%28max_attempts%3AInt32%3D1%2Cdelay%3ATime%3A%3ASpan%3D0.seconds%2Cjitter%3AFloat64%3D0.0%2Cmax_elapsed%3ATime%3A%3ASpan%7CNil%3Dnil%2C%2A%2Cretry_query_errors%3ABool%3Dtrue%2Cretry_transport_errors%3ABool%3Dtrue%29-class-method" class="signature"><strong>.new</strong>(max_attempts : Int32 = <span class="n">1</span>, delay : Time::Span = <span class="n">0</span>.seconds, jitter : Float64 = <span class="n">0.0</span>, max_elapsed : Time::Span | Nil = <span class="n">nil</span>, *, retry_query_errors : Bool = <span class="n">true</span>, retry_transport_errors : Bool = <span class="n">true</span>)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#no_retry%3ARetryPolicy-class-method" class="signature"><strong>.no_retry</strong> : RetryPolicy</a>
+
+      </li>
+
+  </ul>
 
 
 
 
 
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#delay%3ATime%3A%3ASpan-instance-method" class="signature"><strong>#delay</strong> : Time::Span</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#jitter%3AFloat64-instance-method" class="signature"><strong>#jitter</strong> : Float64</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#max_attempts%3AInt32-instance-method" class="signature"><strong>#max_attempts</strong> : Int32</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#max_elapsed%3ATime%3A%3ASpan%7CNil-instance-method" class="signature"><strong>#max_elapsed</strong> : Time::Span | Nil</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#no_retry%3F%3ABool-instance-method" class="signature"><strong>#no_retry?</strong> : Bool</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#retry_query_errors%3F%3ABool-instance-method" class="signature"><strong>#retry_query_errors?</strong> : Bool</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#retry_transport_errors%3F%3ABool-instance-method" class="signature"><strong>#retry_transport_errors?</strong> : Bool</a>
+
+      </li>
+
+  </ul>
 
 
 
   <div class="methods-inherited">
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </div>
 
 
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+
+    <div class="entry-detail" id="new(max_attempts:Int32=1,delay:Time::Span=0.seconds,jitter:Float64=0.0,max_elapsed:Time::Span|Nil=nil,*,retry_query_errors:Bool=true,retry_transport_errors:Bool=true)-class-method">
+      <div class="signature">
+
+        def self.<strong>new</strong>(max_attempts : Int32 = <span class="n">1</span>, delay : Time::Span = <span class="n">0</span>.seconds, jitter : Float64 = <span class="n">0.0</span>, max_elapsed : Time::Span | Nil = <span class="n">nil</span>, *, retry_query_errors : Bool = <span class="n">true</span>, retry_transport_errors : Bool = <span class="n">true</span>)
+
+        <a class="method-permalink" href="#new%28max_attempts%3AInt32%3D1%2Cdelay%3ATime%3A%3ASpan%3D0.seconds%2Cjitter%3AFloat64%3D0.0%2Cmax_elapsed%3ATime%3A%3ASpan%7CNil%3Dnil%2C%2A%2Cretry_query_errors%3ABool%3Dtrue%2Cretry_transport_errors%3ABool%3Dtrue%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L13" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="no_retry:RetryPolicy-class-method">
+      <div class="signature">
+
+        def self.<strong>no_retry</strong> : <a href="../../../CryBase/CouchBase/Policies/RetryPolicy.html">RetryPolicy</a>
+
+        <a class="method-permalink" href="#no_retry%3ARetryPolicy-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L9" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
 
 
 
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+
+    <div class="entry-detail" id="delay:Time::Span-instance-method">
+      <div class="signature">
+
+        def <strong>delay</strong> : Time::Span
+
+        <a class="method-permalink" href="#delay%3ATime%3A%3ASpan-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L3" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="jitter:Float64-instance-method">
+      <div class="signature">
+
+        def <strong>jitter</strong> : Float64
+
+        <a class="method-permalink" href="#jitter%3AFloat64-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L4" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="max_attempts:Int32-instance-method">
+      <div class="signature">
+
+        def <strong>max_attempts</strong> : Int32
+
+        <a class="method-permalink" href="#max_attempts%3AInt32-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L2" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="max_elapsed:Time::Span|Nil-instance-method">
+      <div class="signature">
+
+        def <strong>max_elapsed</strong> : Time::Span | Nil
+
+        <a class="method-permalink" href="#max_elapsed%3ATime%3A%3ASpan%7CNil-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L5" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="no_retry?:Bool-instance-method">
+      <div class="signature">
+
+        def <strong>no_retry?</strong> : Bool
+
+        <a class="method-permalink" href="#no_retry%3F%3ABool-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L30" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="retry_query_errors?:Bool-instance-method">
+      <div class="signature">
+
+        def <strong>retry_query_errors?</strong> : Bool
+
+        <a class="method-permalink" href="#retry_query_errors%3F%3ABool-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L6" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="retry_transport_errors?:Bool-instance-method">
+      <div class="signature">
+
+        def <strong>retry_transport_errors?</strong> : Bool
+
+        <a class="method-permalink" href="#retry_transport_errors%3F%3ABool-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/policies/retry_policy.cr#L7" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
 
 

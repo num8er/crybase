@@ -2,7 +2,7 @@
 
 ## Overview
 
-CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and `Query::Cluster`; it supports prepared statements, `adhoc: false` plan caching, Query-node discovery from Couchbase Management topology, and static seed fallback. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
+CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and `Query::Cluster`; it supports prepared statements, `adhoc: false` plan caching, Query-node discovery from Couchbase Management topology, static seed fallback, and per-query `CryBase::CouchBase::RetryPolicy` values that default to `no_retry`. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
 
 ## Repository Structure
 
@@ -24,6 +24,9 @@ crybase/
 │       │   ├── service.cr      # Service enum (KV, Query, etc.)
 │       │   ├── endpoint.cr     # Endpoint struct
 │       │   ├── connection_string.cr  # Connection string parser
+│       │   ├── policies.cr     # Shared Couchbase policy namespace
+│       │   ├── policies/
+│       │   │   └── retry_policy.cr # Per-query retry policy value
 │       │   ├── services.cr     # Service-specific protocol namespace
 │       │   └── services/
 │       │       ├── kv.cr       # KV protocol namespace
@@ -106,5 +109,5 @@ crystal tool format   # format code
 - KV cluster config loading and node/vbucket map routing are not implemented; `KV::Cluster` is seed failover only and keeps one active `KV::Pool`.
 - Query support has HTTP endpoint execution, prepared statements, seed failover, and Query-node topology discovery; Query connection pooling is not implemented yet.
 - Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
-- Retry/reconnect, durability, observe, CAS helpers, scopes, and collections are not implemented.
+- Automatic retry/reconnect execution, durability, observe, CAS helpers, scopes, and collections are not implemented.
 - Connection string parsing treats HTTP(S) as Management-only URLs.

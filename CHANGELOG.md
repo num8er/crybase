@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Query Prepared Statements](docs/8.FEAT_query-prepared-statements.md), and
   [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md),
   [Query Cursor](docs/10.FEAT_query-cursor.md), and
-  [Examples Layout](docs/11.FEAT_examples-layout.md).
+  [Examples Layout](docs/11.FEAT_examples-layout.md), and
+  [Query Retry Policy Option](docs/12.FEAT_query-retry-policy-option.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -41,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typed and streamed Query rows.
 - `Query::Client#query_cursor`, `Query::Cluster#query_cursor`, and
   `Query::Cursor#each_as` for single-use streaming Query cursors.
+- `CryBase::CouchBase::Policies::RetryPolicy`, the
+  `CryBase::CouchBase::RetryPolicy` alias, and per-query `retry_policy:`
+  arguments on `Query::Client#query` and `Query::Cluster#query`, defaulting to
+  `CryBase::CouchBase::RetryPolicy.no_retry`.
 - `CryBase::Connectivity` for shared plaintext TCP and TLS socket construction
   used by service-specific clients.
 - `CryBase::Connectivity::HostPort.parse` for strict host-port string parsing.
@@ -58,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `examples/query_cursor/example.cr` for streaming typed Query rows through
   `query_cursor`.
 - `examples/query_prepared/example.cr` for prepared Query execution.
+- `examples/query_retry_policy/example.cr` for passing explicit
+  `CryBase::CouchBase::RetryPolicy` values to Query calls.
 - `examples/query_mutations/example.cr` for raw SQL++ `INSERT`, `UPDATE`,
   `DELETE`, `UPSERT`, and `SET ... FOR ... END` mutation statements through
   Query.

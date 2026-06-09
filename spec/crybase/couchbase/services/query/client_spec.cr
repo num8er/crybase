@@ -91,6 +91,25 @@ describe Query::Client do
     server.try(&.close)
   end
 
+  it "accepts a per-query retry policy without sending it as a Query option" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+    policy = CB::RetryPolicy.new(max_attempts: 3, delay: 10.milliseconds, jitter: 0.1)
+
+    result = client.query("SELECT true AS ok", retry_policy: policy)
+    request = server.requests.receive
+
+    request.params["statement"].should eq("SELECT true AS ok")
+    request.params.has_key?("retry_policy").should be_false
+    result.rows.first["ok"].as_bool.should be_true
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
   it "reuses its HTTP connection across requests" do
     server = QueryHelpers.start_sequence([
       QueryHelpers::Response.new(%({"status":"success","results":[{"one":1}]})),

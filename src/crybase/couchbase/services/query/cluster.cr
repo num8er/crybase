@@ -130,6 +130,19 @@ module CryBase::CouchBase::Services::Query
       @topology_loaded = false
     end
 
+    # Executes a N1QL/SQL++ statement through the active Query endpoint.
+    #
+    # `readonly: true` sends the Couchbase Query `readonly=true` request option.
+    # Use it for `SELECT` and other non-mutating statements; leave it unset for
+    # `INSERT`, `UPDATE`, `UPSERT`, `DELETE`, and other mutations.
+    #
+    # `adhoc: true` is the default and sends the statement directly.
+    # `adhoc: false` prepares the statement, caches the prepared plan for the
+    # same statement/options, and executes by prepared name. Missing prepared
+    # plans are cleared and prepared once again.
+    #
+    # `retry_policy:` is a per-query policy value. It defaults to
+    # `CryBase::CouchBase::RetryPolicy.no_retry`; retry execution is not implemented yet.
     def query(
       statement : String,
       *positional_args,
@@ -143,6 +156,7 @@ module CryBase::CouchBase::Services::Query
       scope : String? = nil,
       namespace : String? = nil,
       options = NamedTuple.new,
+      retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
       adhoc : Bool = true,
       raise_on_error : Bool = true,
     ) : Result
@@ -160,6 +174,7 @@ module CryBase::CouchBase::Services::Query
           scope,
           namespace,
           options,
+          retry_policy,
           raise_on_error,
         )
       end
@@ -178,6 +193,7 @@ module CryBase::CouchBase::Services::Query
           scope: scope,
           namespace: namespace,
           options: options,
+          retry_policy: retry_policy,
           raise_on_error: raise_on_error,
         )
       end
@@ -244,6 +260,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        CryBase::CouchBase::RetryPolicy.no_retry,
         raise_on_error,
       )
     end
@@ -276,6 +293,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        CryBase::CouchBase::RetryPolicy.no_retry,
         raise_on_error,
       )
     end
@@ -468,6 +486,7 @@ module CryBase::CouchBase::Services::Query
       scope,
       namespace,
       options,
+      retry_policy,
       raise_on_error,
     ) : Result
       cache_key = Client.prepared_cache_key(statement, query_context, bucket, scope, namespace, options)
@@ -497,6 +516,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        retry_policy,
         raise_on_error,
         cache_key,
       )
@@ -515,6 +535,7 @@ module CryBase::CouchBase::Services::Query
       scope : String?,
       namespace : String?,
       options,
+      retry_policy : CryBase::CouchBase::RetryPolicy,
       raise_on_error : Bool,
       cache_key : String? = nil,
     ) : Result
@@ -531,6 +552,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        retry_policy,
         raise_on_error,
       )
       return result unless result.prepared_statement_missing?
@@ -562,6 +584,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        retry_policy,
         raise_on_error,
       )
     rescue ex : Error
@@ -594,6 +617,7 @@ module CryBase::CouchBase::Services::Query
         scope,
         namespace,
         options,
+        retry_policy,
         raise_on_error,
       )
     end
@@ -611,6 +635,7 @@ module CryBase::CouchBase::Services::Query
       scope : String?,
       namespace : String?,
       options,
+      _retry_policy : CryBase::CouchBase::RetryPolicy,
       raise_on_error : Bool,
     ) : Result
       with_query_client do |client|

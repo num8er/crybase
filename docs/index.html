@@ -117,8 +117,28 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/CouchBase/Policies" data-name="crybase::couchbase::policies">
+      <a href="CryBase/CouchBase/Policies.html">Policies</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Policies/RetryPolicy" data-name="crybase::couchbase::policies::retrypolicy">
+      <a href="CryBase/CouchBase/Policies/RetryPolicy.html">RetryPolicy</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Query" data-name="crybase::couchbase::query">
       <a href="CryBase/CouchBase/Query.html">Query</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/RetryPolicy" data-name="crybase::couchbase::retrypolicy">
+      <a href="CryBase/CouchBase/RetryPolicy.html">RetryPolicy</a>
 
     </li>
 
@@ -388,6 +408,8 @@ Eventing, Views, and Management.</li>
 <li>Query prepared statement APIs and <code>adhoc: false</code> plan caching.</li>
 <li>Query typed row helpers, streaming row iteration, streaming cursors, and
 bucket/scope query context helpers.</li>
+<li>Per-query Query retry policy values with
+<code>CryBase::CouchBase::RetryPolicy.no_retry</code> as the default.</li>
 <li><code>Query::Cluster</code> seed failover across multiple Query hosts.</li>
 <li><code>Query::Cluster</code> Query node discovery from Couchbase cluster topology.</li>
 <li>Real Couchbase integration specs in GitHub Actions.</li>
@@ -395,7 +417,8 @@ bucket/scope query context helpers.</li>
 <p>Not implemented yet:</p>
 <ul>
 <li>KV cluster config loading and node/vbucket map routing.</li>
-<li>Retry, reconnect, durability, observe, CAS helpers, scopes, or collections.</li>
+<li>Automatic retry/reconnect execution, durability, observe, CAS helpers,
+scopes, or collections.</li>
 <li>Search, Analytics, Index, Eventing, Views, and Management protocols.</li>
 </ul>
 <h2><a id="installation" class="anchor" href="#installation">
@@ -553,6 +576,10 @@ result <span class="o">=</span> client.query(
 )
 
 puts result.rows.first[<span class="s">&quot;name&quot;</span>].as_s</code></pre>
+<p><code>readonly: true</code> marks a Query request as read-only and sends the Couchbase
+Query <code>readonly=true</code> option. Use it for <code>SELECT</code> and other non-mutating
+statements. Leave it unset for <code>INSERT</code>, <code>UPDATE</code>, <code>UPSERT</code>, <code>DELETE</code>, and
+other mutations.</p>
 <p>Use bucket/scope context helpers when your statement should resolve collection
 names relative to a Couchbase scope:</p>
 <pre><code class="language-crystal">context <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">QueryContext</span>.new(
@@ -581,6 +608,22 @@ puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s</cod
   <span class="s">&quot;SELECT 1 AS one&quot;</span>,
   scan_consistency: <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">ScanConsistency</span><span class="t">::</span><span class="t">RequestPlus</span>,
 )</code></pre>
+<p>Pass a per-query retry policy when a call should carry explicit retry intent.
+<code>CryBase::CouchBase::RetryPolicy.no_retry</code> is the default. Passing a policy
+currently does not add automatic retry execution; it keeps the policy separate
+from the N1QL form options for the future retry path.</p>
+<pre><code class="language-crystal">policy <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">RetryPolicy</span>.new(
+  max_attempts: <span class="n">3</span>,
+  delay: <span class="n">50</span>.milliseconds,
+  jitter: <span class="n">0.2</span>,
+  max_elapsed: <span class="n">500</span>.milliseconds,
+)
+
+result <span class="o">=</span> client.query(
+  <span class="s">&quot;SELECT 1 AS one&quot;</span>,
+  readonly: <span class="n">true</span>,
+  retry_policy: policy,
+)</code></pre>
 <p><code>Query::Cluster.from_string</code> accepts multiple seed hosts, loads Query node
 topology from Couchbase Management when available, and falls back to the
 original Query seed endpoints when topology discovery is unavailable. It tries
@@ -608,7 +651,9 @@ result <span class="o">=</span> client.execute_prepared(
 )
 
 puts result.rows.first[<span class="s">&quot;score&quot;</span>].as_i</code></pre>
-<p>Pass <code>adhoc: false</code> to let CryBase prepare, cache, and execute a statement by
+<p><code>adhoc: true</code> is the default and sends the statement directly as a one-off
+Query request. Pass <code>adhoc: false</code> when the same statement shape will be reused:
+CryBase prepares the statement, caches the prepared plan, and executes by
 prepared name. If Couchbase reports that the prepared statement no longer
 exists, CryBase clears that cache entry and prepares it once again.</p>
 <pre><code class="language-crystal">result <span class="o">=</span> client.query(
@@ -702,6 +747,8 @@ cluster.close</code></pre>
 | <code><a href="CryBase/CouchBase/Endpoint.html">CryBase::CouchBase::Endpoint</a></code> | Value type for one Couchbase service endpoint, with <code>from_string</code> parsing. |
 | <code><a href="CryBase/CouchBase/Service.html">CryBase::CouchBase::Service</a></code> | Service enum with plaintext and TLS default ports. |
 | <code><a href="CryBase/CouchBase/Client.html">CryBase::CouchBase::Client</a></code> | Cluster endpoint enumerator and TCP probe client. |
+| <code><a href="CryBase/CouchBase/Policies/RetryPolicy.html">CryBase::CouchBase::Policies::RetryPolicy</a></code> | Canonical per-query retry policy value. |
+| <code><a href="CryBase/CouchBase/RetryPolicy.html">CryBase::CouchBase::RetryPolicy</a></code> | Short alias for <code>Policies::RetryPolicy</code>. |
 | <code><a href="CryBase/CouchBase/Services.html">CryBase::CouchBase::Services</a></code> | Namespace for service-specific protocol clients. |
 | <code><a href="CryBase/CouchBase/KV.html">CryBase::CouchBase::KV</a></code> | Alias for <code><a href="CryBase/CouchBase/Services/KV.html">CryBase::CouchBase::Services::KV</a></code>. |
 | <code><a href="CryBase/CouchBase/Query.html">CryBase::CouchBase::Query</a></code> | Alias for <code><a href="CryBase/CouchBase/Services/Query.html">CryBase::CouchBase::Services::Query</a></code>. |
@@ -733,6 +780,7 @@ cluster.close</code></pre>
 <li><a href="docs/9.FEAT_query-reuse-context-and-typed-rows.md">Query Reuse Context And Typed Rows</a></li>
 <li><a href="docs/10.FEAT_query-cursor.md">Query Cursor</a></li>
 <li><a href="docs/11.FEAT_examples-layout.md">Examples Layout</a></li>
+<li><a href="docs/12.FEAT_query-retry-policy-option.md">Query Retry Policy Option</a></li>
 </ul>
 <h2><a id="connection-strings" class="anchor" href="#connection-strings">
   <svg class="octicon-link" aria-hidden="true">
@@ -812,6 +860,8 @@ and query them with bucket/scope context, <code>query_as</code>, <code>query_eac
 <li><code>query_prepared/example.cr</code> - seed <code>type = &quot;User&quot;</code> documents with ULID keys,
 prepare a N1QL statement with query context, and run it with explicit and
 <code>adhoc: false</code> prepared execution.</li>
+<li><code>query_retry_policy/example.cr</code> - pass an explicit
+<code><a href="CryBase/CouchBase/RetryPolicy.html">CryBase::CouchBase::RetryPolicy</a></code> to client and cluster Query calls.</li>
 <li><code>query_mutations/example.cr</code> - run raw SQL++ <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>,
 <code>UPSERT</code>, and <code>SET ... FOR ... END</code> mutations through Query using query
 context.</li>

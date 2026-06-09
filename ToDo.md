@@ -2,7 +2,7 @@
 
 When starting the next session, continue Query service work from these gaps.
 
-Current Query support already has `Query::Client`, `Query::Cluster`, positional and named args, readonly, scan consistency, client context id, timeout, generic options, TLS, JSON result parsing, warnings/errors, seed failover, Query topology discovery, explicit prepared statements, `adhoc: false`, plan caches, and one reprepare attempt for missing prepared statements.
+Current Query support already has `Query::Client`, `Query::Cluster`, positional and named args, readonly, scan consistency, client context id, timeout, generic options, TLS, JSON result parsing, warnings/errors, seed failover, Query topology discovery, explicit prepared statements, `adhoc: false`, plan caches, one reprepare attempt for missing prepared statements, and per-query `retry_policy:` values defaulting to `CryBase::CouchBase::RetryPolicy.no_retry`.
 
 Progress:
 
@@ -39,6 +39,12 @@ Completed:
   - `Query::Client` and `Query::Cluster` now expose `query_as(Type)`,
     `query_each`, and `query_each_as(Type)`.
   - `Query::Result` now exposes `each_row` and `each_row_as(Type)`.
+- Retry policy API option
+  - `CryBase::CouchBase::Policies::RetryPolicy` exists as a typed retry policy value.
+  - `CryBase::CouchBase::RetryPolicy` is the short alias.
+  - `Query::Client#query` and `Query::Cluster#query` accept `retry_policy:`.
+  - The default policy is `CryBase::CouchBase::RetryPolicy.no_retry`.
+  - Automatic retry execution is not implemented yet.
 
 Remaining, in this order:
 
@@ -46,8 +52,9 @@ Remaining, in this order:
    - Generic `options` exists.
    - Add typed helpers for common N1QL options such as `profile`, `metrics`, `scan_wait`, `max_parallelism`, `pipeline_batch`, `pipeline_cap`, and `query_context`.
 
-2. Retry policy
+2. Retry policy execution
    - Failover exists for transport errors and retryable Query errors.
-   - Add configurable retry policy, backoff, retry budget, and more granular N1QL error classification.
+   - A typed `RetryPolicy` value and per-query `retry_policy:` argument exist.
+   - Add the actual retry loop, backoff sleeps, retry budget enforcement, and more granular N1QL error classification.
 
-Recommended next implementation path: richer typed Query options, then retry policy.
+Recommended next implementation path: richer typed Query options, then retry policy execution.

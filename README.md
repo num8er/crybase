@@ -46,6 +46,8 @@ Implemented:
 - Query prepared statement APIs and `adhoc: false` plan caching.
 - Query typed row helpers, streaming row iteration, streaming cursors, and
   bucket/scope query context helpers.
+- Per-query Query retry policy values with
+  `CryBase::CouchBase::RetryPolicy.no_retry` as the default.
 - `Query::Cluster` seed failover across multiple Query hosts.
 - `Query::Cluster` Query node discovery from Couchbase cluster topology.
 - Real Couchbase integration specs in GitHub Actions.
@@ -53,7 +55,8 @@ Implemented:
 Not implemented yet:
 
 - KV cluster config loading and node/vbucket map routing.
-- Retry, reconnect, durability, observe, CAS helpers, scopes, or collections.
+- Automatic retry/reconnect execution, durability, observe, CAS helpers,
+  scopes, or collections.
 - Search, Analytics, Index, Eventing, Views, and Management protocols.
 
 ## Installation
@@ -228,6 +231,11 @@ result = client.query(
 puts result.rows.first["name"].as_s
 ```
 
+`readonly: true` marks a Query request as read-only and sends the Couchbase
+Query `readonly=true` option. Use it for `SELECT` and other non-mutating
+statements. Leave it unset for `INSERT`, `UPDATE`, `UPSERT`, `DELETE`, and
+other mutations.
+
 Use bucket/scope context helpers when your statement should resolve collection
 names relative to a Couchbase scope:
 
@@ -272,6 +280,26 @@ result = client.query(
 )
 ```
 
+Pass a per-query retry policy when a call should carry explicit retry intent.
+`CryBase::CouchBase::RetryPolicy.no_retry` is the default. Passing a policy
+currently does not add automatic retry execution; it keeps the policy separate
+from the N1QL form options for the future retry path.
+
+```crystal
+policy = CryBase::CouchBase::RetryPolicy.new(
+  max_attempts: 3,
+  delay: 50.milliseconds,
+  jitter: 0.2,
+  max_elapsed: 500.milliseconds,
+)
+
+result = client.query(
+  "SELECT 1 AS one",
+  readonly: true,
+  retry_policy: policy,
+)
+```
+
 `Query::Cluster.from_string` accepts multiple seed hosts, loads Query node
 topology from Couchbase Management when available, and falls back to the
 original Query seed endpoints when topology discovery is unavailable. It tries
@@ -308,7 +336,9 @@ result = client.execute_prepared(
 puts result.rows.first["score"].as_i
 ```
 
-Pass `adhoc: false` to let CryBase prepare, cache, and execute a statement by
+`adhoc: true` is the default and sends the statement directly as a one-off
+Query request. Pass `adhoc: false` when the same statement shape will be reused:
+CryBase prepares the statement, caches the prepared plan, and executes by
 prepared name. If Couchbase reports that the prepared statement no longer
 exists, CryBase clears that cache entry and prepares it once again.
 
@@ -416,6 +446,8 @@ cluster.close
 | `CryBase::CouchBase::Endpoint` | Value type for one Couchbase service endpoint, with `from_string` parsing. |
 | `CryBase::CouchBase::Service` | Service enum with plaintext and TLS default ports. |
 | `CryBase::CouchBase::Client` | Cluster endpoint enumerator and TCP probe client. |
+| `CryBase::CouchBase::Policies::RetryPolicy` | Canonical per-query retry policy value. |
+| `CryBase::CouchBase::RetryPolicy` | Short alias for `Policies::RetryPolicy`. |
 | `CryBase::CouchBase::Services` | Namespace for service-specific protocol clients. |
 | `CryBase::CouchBase::KV` | Alias for `CryBase::CouchBase::Services::KV`. |
 | `CryBase::CouchBase::Query` | Alias for `CryBase::CouchBase::Services::Query`. |
@@ -449,6 +481,7 @@ Feature notes:
 - [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md)
 - [Query Cursor](docs/10.FEAT_query-cursor.md)
 - [Examples Layout](docs/11.FEAT_examples-layout.md)
+- [Query Retry Policy Option](docs/12.FEAT_query-retry-policy-option.md)
 
 ## Connection Strings
 
@@ -535,6 +568,8 @@ The `examples/` directory contains one runnable entry point per example:
 - `query_prepared/example.cr` - seed `type = "User"` documents with ULID keys,
   prepare a N1QL statement with query context, and run it with explicit and
   `adhoc: false` prepared execution.
+- `query_retry_policy/example.cr` - pass an explicit
+  `CryBase::CouchBase::RetryPolicy` to client and cluster Query calls.
 - `query_mutations/example.cr` - run raw SQL++ `INSERT`, `UPDATE`, `DELETE`,
   `UPSERT`, and `SET ... FOR ... END` mutations through Query using query
   context.

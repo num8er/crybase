@@ -57,6 +57,19 @@ module CryBase::CouchBase::Services::Query
       @prepared_statements = {} of String => PreparedStatement
     end
 
+    # Executes a N1QL/SQL++ statement against this Query endpoint.
+    #
+    # `readonly: true` sends the Couchbase Query `readonly=true` request option.
+    # Use it for `SELECT` and other non-mutating statements; leave it unset for
+    # `INSERT`, `UPDATE`, `UPSERT`, `DELETE`, and other mutations.
+    #
+    # `adhoc: true` is the default and sends the statement directly.
+    # `adhoc: false` prepares the statement, caches the prepared plan for the
+    # same statement/options, and executes by prepared name. Missing prepared
+    # plans are cleared and prepared once again.
+    #
+    # `retry_policy:` is a per-query policy value. It defaults to
+    # `CryBase::CouchBase::RetryPolicy.no_retry`; retry execution is not implemented yet.
     def query(
       statement : String,
       *positional_args,
@@ -70,6 +83,7 @@ module CryBase::CouchBase::Services::Query
       scope : String? = nil,
       namespace : String? = nil,
       options = NamedTuple.new,
+      retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
       adhoc : Bool = true,
       raise_on_error : Bool = true,
     ) : Result
@@ -93,6 +107,7 @@ module CryBase::CouchBase::Services::Query
               options,
             ),
             raise_on_error,
+            retry_policy,
           )
         end
 
@@ -109,6 +124,7 @@ module CryBase::CouchBase::Services::Query
           scope,
           namespace,
           options,
+          retry_policy,
           raise_on_error,
         )
       end
@@ -490,6 +506,7 @@ module CryBase::CouchBase::Services::Query
       scope,
       namespace,
       options,
+      retry_policy,
       raise_on_error,
     ) : Result
       cache_key = self.class.prepared_cache_key(statement, query_context, bucket, scope, namespace, options)
@@ -523,11 +540,16 @@ module CryBase::CouchBase::Services::Query
         namespace,
         options,
         raise_on_error,
+        retry_policy,
         cache_key,
       )
     end
 
-    private def execute(form : String, raise_on_error : Bool) : Result
+    private def execute(
+      form : String,
+      raise_on_error : Bool,
+      _retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
+    ) : Result
       attempts = 0
 
       loop do
@@ -637,6 +659,7 @@ module CryBase::CouchBase::Services::Query
       namespace : String?,
       options,
       raise_on_error : Bool,
+      retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
       cache_key : String? = nil,
     ) : Result
       result = execute_prepared_retryable(
@@ -653,6 +676,7 @@ module CryBase::CouchBase::Services::Query
         namespace,
         options,
         raise_on_error,
+        retry_policy,
       )
       return result unless result.prepared_statement_missing?
 
@@ -686,6 +710,7 @@ module CryBase::CouchBase::Services::Query
         namespace,
         options,
         raise_on_error,
+        retry_policy,
       )
     rescue ex : Error
       raise ex unless ex.prepared_statement_missing?
@@ -720,6 +745,7 @@ module CryBase::CouchBase::Services::Query
         namespace,
         options,
         raise_on_error,
+        retry_policy,
       )
     end
 
@@ -737,6 +763,7 @@ module CryBase::CouchBase::Services::Query
       namespace : String?,
       options,
       raise_on_error : Bool,
+      retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
     ) : Result
       execute_prepared_locked(
         prepared.name,
@@ -752,6 +779,7 @@ module CryBase::CouchBase::Services::Query
         namespace,
         options,
         raise_on_error,
+        retry_policy,
       )
     end
 
@@ -769,6 +797,7 @@ module CryBase::CouchBase::Services::Query
       namespace : String?,
       options,
       raise_on_error : Bool,
+      retry_policy : CryBase::CouchBase::RetryPolicy = CryBase::CouchBase::RetryPolicy.no_retry,
     ) : Result
       execute(
         self.class.prepared_form(
@@ -786,6 +815,7 @@ module CryBase::CouchBase::Services::Query
           options,
         ),
         raise_on_error,
+        retry_policy,
       )
     end
 
