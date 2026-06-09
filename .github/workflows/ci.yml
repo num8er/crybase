@@ -202,8 +202,8 @@ jobs:
       fail-fast: false
       matrix:
         couchbase_image:
-          - couchbase:community-7.6.0
-          - couchbase:community-8.0.0
+          - couchbase:enterprise-7.6.0
+          - couchbase:enterprise-8.0.0
     env:
       COUCHBASE_HOST: 127.0.0.1
       COUCHBASE_USER: Administrator
