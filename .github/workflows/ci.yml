@@ -235,9 +235,7 @@ jobs:
           docker run -d \
             --name crybase-couchbase-query-tls \
             -p 8091:8091 \
-            -p 18091:18091 \
             -p 18093:18093 \
-            -p 11207:11207 \
             ${{ matrix.couchbase_image }}
 
       - name: Wait for Couchbase management API
@@ -291,15 +289,6 @@ jobs:
       - name: Wait for Couchbase TLS services
         run: |
           for i in {1..60}; do
-            if curl -k -fsS https://127.0.0.1:18091/pools >/dev/null; then
-              break
-            fi
-            sleep 2
-          done
-
-          curl -k -fsS https://127.0.0.1:18091/pools >/dev/null
-
-          for i in {1..60}; do
             if curl -k -fsS \
               -u "$COUCHBASE_USER:$COUCHBASE_PASS" \
               -d "statement=SELECT 1 AS one" \
@@ -317,15 +306,8 @@ jobs:
           COUCHBASE_INTEGRATION: "1"
           COUCHBASE_TLS: "true"
           COUCHBASE_TLS_VERIFY: "false"
-          COUCHBASE_KV_PORT: "11207"
           COUCHBASE_QUERY_PORT: "18093"
-          COUCHBASE_MANAGEMENT_PORT: "18091"
-        run: |
-          crystal spec \
-            spec/integration/couchbase_query_spec.cr \
-            spec/integration/couchbase_query_cursor_spec.cr \
-            --error-trace \
-            --tap
+        run: crystal spec spec/integration/couchbase_query_tls_spec.cr --error-trace --tap
 
       - name: Dump Couchbase logs on failure
         if: failure()

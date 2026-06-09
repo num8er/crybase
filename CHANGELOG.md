@@ -78,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `type = "User"` documents over KV and query them through direct and prepared
   Query execution, explicit retry policies, and a dedicated cursor integration
   spec.
-- Real Couchbase Query TLS integration coverage in CI for Couchbase 7.6 and 8.0.
+- Real Couchbase Query TLS integration coverage in CI for Couchbase 7.6 and
+  8.0, including data seeded and queried through the Query service.
 
 ### Changed
 - README now links to the feature implementation notes.
