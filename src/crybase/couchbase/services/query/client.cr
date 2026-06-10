@@ -5,10 +5,15 @@ module CryBase::CouchBase::Services::Query
     DEFAULT_WRITE_TIMEOUT   = 5.seconds
     PATH                    = "/query/service"
 
+    getter default_bucket : String?
+    getter default_scope : String?
     getter endpoint : Endpoint
 
     @closed : Bool
-    @http_client : HTTP::Client?
+    @default_bucket : String?
+    @default_namespace : String?
+    @default_scope : String?
+    @http_client : CryBase::Connectivity::HTTPClient::Client?
     @mutex : Mutex
     @prepared_statements : Hash(String, PreparedStatement)
 
@@ -20,13 +25,14 @@ module CryBase::CouchBase::Services::Query
       read_timeout : Time::Span = DEFAULT_READ_TIMEOUT,
       write_timeout : Time::Span = DEFAULT_WRITE_TIMEOUT,
       *,
+      bucket : String? = nil,
       tls_verify : Bool? = nil,
       tls_hostname : String? = nil,
       tls_context : OpenSSL::SSL::Context::Client? = nil,
     ) : Client
       connection_string = ConnectionString.parse(uri)
 
-      new(
+      client = new(
         Endpoint.from_string(uri, Service::Query),
         required(username || connection_string.username, "username"),
         required(password || connection_string.password, "password"),
@@ -37,6 +43,10 @@ module CryBase::CouchBase::Services::Query
         tls_hostname: tls_hostname || connection_string.param("tls_hostname"),
         tls_context: tls_context,
       )
+      if default_bucket = bucket || connection_string.bucket
+        client.bucket = default_bucket
+      end
+      client
     end
 
     def initialize(
@@ -52,9 +62,40 @@ module CryBase::CouchBase::Services::Query
       @tls_context : OpenSSL::SSL::Context::Client? = nil,
     )
       @closed = false
+      @default_bucket = nil
+      @default_namespace = nil
+      @default_scope = nil
       @http_client = nil
       @mutex = Mutex.new
       @prepared_statements = {} of String => PreparedStatement
+    end
+
+    def bucket(
+      name : String,
+      *,
+      namespace : String = QueryContext::DEFAULT_NAMESPACE,
+    ) : BucketContext(Client)
+      BucketContext.new(self, bucket: name, namespace: namespace)
+    end
+
+    def bucket=(name : String) : String
+      raise ArgumentError.new("query context bucket required") if name.empty?
+
+      @default_bucket = name
+      @default_namespace = QueryContext::DEFAULT_NAMESPACE
+      name
+    end
+
+    def scope(name : String = QueryContext::DEFAULT_SCOPE) : Client
+      self.scope = name
+      self
+    end
+
+    def scope=(name : String) : String
+      raise ArgumentError.new("query context scope required") if name.empty?
+
+      @default_scope = name
+      name
     end
 
     # Executes a N1QL/SQL++ statement against this Query endpoint.
@@ -89,6 +130,9 @@ module CryBase::CouchBase::Services::Query
     ) : Result
       @mutex.synchronize do
         raise_closed! if @closed
+        context_bucket = context_bucket(query_context, bucket)
+        context_scope = context_scope(query_context, scope)
+        context_namespace = context_namespace(query_context, namespace)
 
         if adhoc
           return execute(
@@ -101,9 +145,9 @@ module CryBase::CouchBase::Services::Query
               client_context_id,
               timeout,
               query_context,
-              bucket,
-              scope,
-              namespace,
+              context_bucket,
+              context_scope,
+              context_namespace,
               options,
             ),
             raise_on_error,
@@ -120,9 +164,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id,
           timeout,
           query_context,
-          bucket,
-          scope,
-          namespace,
+          context_bucket,
+          context_scope,
+          context_namespace,
           options,
           retry_policy,
           raise_on_error,
@@ -147,6 +191,9 @@ module CryBase::CouchBase::Services::Query
     ) : PreparedStatement
       @mutex.synchronize do
         raise_closed! if @closed
+        context_bucket = context_bucket(query_context, bucket)
+        context_scope = context_scope(query_context, scope)
+        context_namespace = context_namespace(query_context, namespace)
         prepare_locked(
           statement,
           name,
@@ -156,9 +203,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id,
           timeout,
           query_context,
-          bucket,
-          scope,
-          namespace,
+          context_bucket,
+          context_scope,
+          context_namespace,
           options,
         )
       end
@@ -181,6 +228,9 @@ module CryBase::CouchBase::Services::Query
     ) : Result
       @mutex.synchronize do
         raise_closed! if @closed
+        context_bucket = context_bucket(query_context, bucket)
+        context_scope = context_scope(query_context, scope)
+        context_namespace = context_namespace(query_context, namespace)
         execute_prepared_with_retry(
           prepared,
           positional_args,
@@ -190,9 +240,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id,
           timeout,
           query_context,
-          bucket,
-          scope,
-          namespace,
+          context_bucket,
+          context_scope,
+          context_namespace,
           options,
           raise_on_error,
         )
@@ -216,6 +266,9 @@ module CryBase::CouchBase::Services::Query
     ) : Result
       @mutex.synchronize do
         raise_closed! if @closed
+        context_bucket = context_bucket(query_context, bucket)
+        context_scope = context_scope(query_context, scope)
+        context_namespace = context_namespace(query_context, namespace)
         execute_prepared_locked(
           prepared,
           positional_args,
@@ -225,9 +278,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id,
           timeout,
           query_context,
-          bucket,
-          scope,
-          namespace,
+          context_bucket,
+          context_scope,
+          context_namespace,
           options,
           raise_on_error,
         )
@@ -287,6 +340,9 @@ module CryBase::CouchBase::Services::Query
     ) : Result
       @mutex.synchronize do
         raise_closed! if @closed
+        context_bucket = context_bucket(query_context, bucket)
+        context_scope = context_scope(query_context, scope)
+        context_namespace = context_namespace(query_context, namespace)
 
         execute_stream(
           self.class.form(
@@ -298,9 +354,9 @@ module CryBase::CouchBase::Services::Query
             client_context_id,
             timeout,
             query_context,
-            bucket,
-            scope,
-            namespace,
+            context_bucket,
+            context_scope,
+            context_namespace,
             options,
           ),
           raise_on_error,
@@ -819,15 +875,18 @@ module CryBase::CouchBase::Services::Query
       )
     end
 
-    private def http_client : HTTP::Client
+    private def http_client : CryBase::Connectivity::HTTPClient::Client
       @http_client ||= open_http_client
     end
 
-    private def open_http_client : HTTP::Client
-      io = open_io
-      client = HTTP::Client.new(io, @endpoint.host, @endpoint.port)
-      client.basic_auth(@username, @password)
-      client
+    private def open_http_client : CryBase::Connectivity::HTTPClient::Client
+      CryBase::Connectivity::HTTPClient.open(
+        @endpoint.host,
+        @endpoint.port,
+        http_config,
+        username: @username,
+        password: @password,
+      )
     end
 
     private def close_http_client : Nil
@@ -837,11 +896,11 @@ module CryBase::CouchBase::Services::Query
     end
 
     private def reconnect_error?(error : Exception) : Bool
-      error.message == "This HTTP::Client cannot be reconnected"
+      CryBase::Connectivity::HTTPClient.reconnect_error?(error)
     end
 
-    private def open_io : IO
-      config = CryBase::Connectivity::SocketConfig.new(
+    private def http_config : CryBase::Connectivity::SocketConfig
+      CryBase::Connectivity::SocketConfig.new(
         tls: @endpoint.tls?,
         connect_timeout: @connect_timeout,
         read_timeout: @read_timeout,
@@ -849,11 +908,6 @@ module CryBase::CouchBase::Services::Query
         tls_verify: @tls_verify,
         tls_hostname: @tls_hostname,
         tls_context: @tls_context,
-      )
-      CryBase::Connectivity.open_socket(
-        @endpoint.host,
-        @endpoint.port,
-        config,
       )
     end
 
@@ -865,6 +919,27 @@ module CryBase::CouchBase::Services::Query
 
     private def raise_closed! : NoReturn
       raise IO::Error.new("Query client is closed")
+    end
+
+    private def context_bucket(
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+    ) : String?
+      query_context ? bucket : bucket || @default_bucket
+    end
+
+    private def context_scope(
+      query_context : QueryContext | String | Nil,
+      scope : String?,
+    ) : String?
+      query_context ? scope : scope || @default_scope
+    end
+
+    private def context_namespace(
+      query_context : QueryContext | String | Nil,
+      namespace : String?,
+    ) : String?
+      query_context ? namespace : namespace || @default_namespace
     end
 
     private def self.add_named_args(form : URI::Params::Builder, named_args : NamedTuple) : Nil
@@ -948,9 +1023,9 @@ module CryBase::CouchBase::Services::Query
       return nil unless bucket || scope || namespace
 
       QueryContext.new(
-        bucket || raise(ArgumentError.new("query context bucket required")),
-        scope || QueryContext::DEFAULT_SCOPE,
-        namespace || QueryContext::DEFAULT_NAMESPACE,
+        bucket: bucket || raise(ArgumentError.new("query context bucket required")),
+        scope: scope || QueryContext::DEFAULT_SCOPE,
+        namespace: namespace || QueryContext::DEFAULT_NAMESPACE,
       ).to_s
     end
 

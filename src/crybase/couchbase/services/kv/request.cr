@@ -13,7 +13,8 @@ module CryBase::CouchBase::Services::KV
   # The fields:
   #
   # * *opcode*  — the command code (`Opcode::Get`, `::Set`, etc.)
-  # * *key*     — the document/operation key (UTF-8 string)
+  # * *key*     — the document/operation key, as UTF-8 text or already encoded
+  #               binary key bytes
   # * *extras*  — opcode-specific bytes that precede the body
   # * *value*   — the document/operation body
   # * *cas*     — compare-and-swap token, or `0` for "any"
@@ -22,7 +23,7 @@ module CryBase::CouchBase::Services::KV
   # * *vbucket* — key partition id used by document operations
   record Request,
     opcode : Opcode,
-    key : String = "",
+    key : String | Bytes = "",
     extras : Bytes = Bytes.empty,
     value : Bytes = Bytes.empty,
     cas : UInt64 = 0_u64,

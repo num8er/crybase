@@ -21,6 +21,8 @@ module CryBase::CouchBase::Services::KV
 
     getter seeds : Array(Endpoint)
     getter bucket : String
+    getter scope : String
+    getter collection : String
     getter size : Int32
 
     @pool : Pool?
@@ -96,9 +98,61 @@ module CryBase::CouchBase::Services::KV
 
       @pool = nil
       @active_index = nil
+      @scope = Constants::DEFAULT_SCOPE
+      @collection = Constants::DEFAULT_COLLECTION
       @mutex = Mutex.new
       @closed = false
       connect_from(0)
+    end
+
+    def bucket=(name : String) : String
+      raise ArgumentError.new("kv bucket required") if name.empty?
+
+      pool = @mutex.synchronize do
+        raise_closed! if @closed
+        @bucket = name
+        @pool
+      end
+      pool.try(&.bucket=(name))
+      name
+    end
+
+    def scope=(name : String) : String
+      raise ArgumentError.new("kv scope required") if name.empty?
+
+      pool = @mutex.synchronize do
+        raise_closed! if @closed
+        @scope = name
+        @pool
+      end
+      pool.try(&.scope=(name))
+      name
+    end
+
+    def collection=(name : String) : String
+      raise ArgumentError.new("kv collection required") if name.empty?
+
+      pool = @mutex.synchronize do
+        raise_closed! if @closed
+        @collection = name
+        @pool
+      end
+      pool.try(&.collection=(name))
+      name
+    end
+
+    def scope(name : String) : ScopeContext(Cluster)
+      ScopeContext.new(self, scope: name)
+    end
+
+    def collection(name : String) : CollectionContext(Cluster)
+      CollectionContext.new(self, scope: @scope, collection: name)
+    end
+
+    def collection_id(scope : String, collection : String) : UInt32
+      checkout do |client|
+        client.collection_id(scope, collection)
+      end
     end
 
     def checkout(& : Client -> T) : T forall T
@@ -191,6 +245,8 @@ module CryBase::CouchBase::Services::KV
             tls_hostname: @tls_hostname,
             tls_context: @tls_context,
           )
+          pool.scope = @scope
+          pool.collection = @collection
           @pool = pool
           @active_index = index
           return pool

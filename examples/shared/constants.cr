@@ -5,7 +5,9 @@ module CryBaseExamples
   SEEDS        = ENV["COUCHBASE_SEEDS"]? || ENV["COUCHBASE_HOST"]? || "localhost"
   USER         = ENV["COUCHBASE_USER"]? || "Administrator"
   PASS         = ENV["COUCHBASE_PASS"]? || "password"
-  BUCKET       = ENV["COUCHBASE_BUCKET"]? || "default"
+  BUCKET       = ENV["COUCHBASE_BUCKET"]? || "commerce"
+  SCOPE        = ENV["COUCHBASE_SCOPE"]? || CryBase::CouchBase::KV::Constants::DEFAULT_SCOPE
+  COLLECTION   = ENV["COUCHBASE_COLLECTION"]? || CryBase::CouchBase::KV::Constants::DEFAULT_COLLECTION
   TLS          = env_bool("COUCHBASE_TLS", false)
   TLS_VERIFY   = env_bool("COUCHBASE_TLS_VERIFY", true)
   TLS_HOSTNAME = env_optional("COUCHBASE_TLS_HOSTNAME")
@@ -13,9 +15,8 @@ module CryBaseExamples
   QUERY_PORT   = env_optional("COUCHBASE_QUERY_PORT")
   SCHEME       = TLS ? "couchbases" : "couchbase"
 
-  QUERY_NAMESPACE  = CryBase::CouchBase::Query::QueryContext::DEFAULT_NAMESPACE
-  QUERY_SCOPE      = CryBase::CouchBase::Query::QueryContext::DEFAULT_SCOPE
-  QUERY_COLLECTION = QUERY_SCOPE
+  QUERY_SCOPE      = ENV["COUCHBASE_QUERY_SCOPE"]? || SCOPE
+  QUERY_COLLECTION = ENV["COUCHBASE_QUERY_COLLECTION"]? || COLLECTION
 
   QUERY_USER_FIRST_NAMES = [
     "Ada",

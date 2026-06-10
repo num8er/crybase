@@ -72,6 +72,21 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/Connectivity/HTTPClient" data-name="crybase::connectivity::httpclient">
+      <a href="../../../../CryBase/Connectivity/HTTPClient.html">HTTPClient</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/Connectivity/HTTPClient/Client" data-name="crybase::connectivity::httpclient::client">
+      <a href="../../../../CryBase/Connectivity/HTTPClient/Client.html">Client</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/Connectivity/SocketConfig" data-name="crybase::connectivity::socketconfig">
       <a href="../../../../CryBase/Connectivity/SocketConfig.html">SocketConfig</a>
 
@@ -177,6 +192,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/CollectionContext" data-name="crybase::couchbase::services::kv::collectioncontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
 
@@ -227,6 +247,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ScopeContext" data-name="crybase::couchbase::services::kv::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Serializable" data-name="crybase::couchbase::services::kv::serializable">
       <a href="../../../../CryBase/CouchBase/Services/KV/Serializable.html">Serializable</a>
 
@@ -246,6 +271,11 @@
       <a href="../../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/BucketContext" data-name="crybase::couchbase::services::query::bucketcontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/BucketContext.html">BucketContext</a>
+
+    </li>
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Client" data-name="crybase::couchbase::services::query::client">
       <a href="../../../../CryBase/CouchBase/Services/Query/Client.html">Client</a>
@@ -294,6 +324,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScanConsistency" data-name="crybase::couchbase::services::query::scanconsistency">
       <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScopeContext" data-name="crybase::couchbase::services::query::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/ScopeContext.html">ScopeContext</a>
 
     </li>
 
@@ -389,7 +424,7 @@ node over plaintext or TLS according to the endpoint. Composed from
 <code>endpoint.tls?</code>, sends <code>HELLO</code> (advertising
 <code><a href="../../../../CryBase/CouchBase/Services/KV/Constants.html#FEATURE_SELECT_BUCKET">Constants::FEATURE_SELECT_BUCKET</a></code>),
 <code>SASL_AUTH</code> (PLAIN), and <code>SELECT_BUCKET</code> for <em>bucket</em>. Then exposes
-<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#get</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%29%3ANil-instance-method">#delete</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#touch%28key%3AString%2Cexpiry%3AUInt32%29%3AUInt64-instance-method">#touch</a></code> / counter operations against that
+<code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#get</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#set</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#delete%28key%3AString%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ANil-instance-method">#delete</a></code> / <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#touch%28key%3AString%2Cexpiry%3AUInt32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#touch</a></code> / counter operations against that
 bucket.</p>
 <pre><code class="language-crystal">endpoint <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.new(
   <span class="s">&quot;node1&quot;</span>, <span class="n">11210</span>, <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">KV</span>, <span class="n">false</span>
@@ -512,6 +547,11 @@ kv.close</code></pre>
       </li>
 
       <li class="entry-summary">
+        <a href="#bucket%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#bucket=</strong>(name : String) : String</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#close%3ANil-instance-method" class="signature"><strong>#close</strong> : Nil</a>
 
           <div class="summary"><p>Closes the underlying socket.</p></div>
@@ -519,14 +559,34 @@ kv.close</code></pre>
       </li>
 
       <li class="entry-summary">
-        <a href="#decrement%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method" class="signature"><strong>#decrement</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64</a>
+        <a href="#collection%28name%3AString%29%3ACollectionContext%28Client%29-instance-method" class="signature"><strong>#collection</strong>(name : String) : CollectionContext(Client)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection%3AString-instance-method" class="signature"><strong>#collection</strong> : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#collection=</strong>(name : String) : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection_id%28scope%3AString%2Ccollection%3AString%29%3AUInt32-instance-method" class="signature"><strong>#collection_id</strong>(scope : String, collection : String) : UInt32</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#decrement%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method" class="signature"><strong>#decrement</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64</a>
 
           <div class="summary"><p>Atomically decrements the unsigned integer document at <em>key</em> by <em>delta</em>.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#delete%28key%3AString%29%3ANil-instance-method" class="signature"><strong>#delete</strong>(key : String) : Nil</a>
+        <a href="#delete%28key%3AString%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ANil-instance-method" class="signature"><strong>#delete</strong>(key : String, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : Nil</a>
 
           <div class="summary"><p>Deletes the document at <em>key</em>.</p></div>
 
@@ -540,49 +600,64 @@ kv.close</code></pre>
       </li>
 
       <li class="entry-summary">
-        <a href="#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method" class="signature"><strong>#get</strong>(key : String, expiry : UInt32 | Nil = <span class="n">nil</span>) : Bytes</a>
+        <a href="#get%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method" class="signature"><strong>#get</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : T forall T</a>
+
+          <div class="summary"><p>Compatibility alias for <code>get_as(key, type, expiry)</code>.</p></div>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method" class="signature"><strong>#get</strong>(key : String, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : Bytes</a>
 
           <div class="summary"><p>Fetches the document at <em>key</em>.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#get%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method" class="signature"><strong>#get</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>) : T forall T</a>
-
-          <div class="summary"><p>Compatibility alias for <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#get_as(key, type, expiry)</a></code>.</p></div>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method" class="signature"><strong>#get_as</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>) : T forall T</a>
+        <a href="#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method" class="signature"><strong>#get_as</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : T forall T</a>
 
           <div class="summary"><p>Fetches the document at <em>key</em> and decodes it as <em>type</em>.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#increment%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method" class="signature"><strong>#increment</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64</a>
+        <a href="#increment%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method" class="signature"><strong>#increment</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64</a>
 
           <div class="summary"><p>Atomically increments the unsigned integer document at <em>key</em> by <em>delta</em>.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method" class="signature"><strong>#set</strong>(key : String, value : String | Bytes, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64</a>
+        <a href="#scope%28name%3AString%29%3AScopeContext%28Client%29-instance-method" class="signature"><strong>#scope</strong>(name : String) : ScopeContext(Client)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#scope%3AString-instance-method" class="signature"><strong>#scope</strong> : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#scope%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#scope=</strong>(name : String) : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method" class="signature"><strong>#set</strong>(key : String, value : String | Bytes, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64</a>
 
           <div class="summary"><p>Stores <em>value</em> at <em>key</em> with optional <em>expiry</em> (seconds, or unix timestamp if greater than 30 days).</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#set%28key%3AString%2Cvalue%3AT%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64forallT-instance-method" class="signature"><strong>#set</strong>(key : String, value : T, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64 forall T</a>
+        <a href="#set%28key%3AString%2Cvalue%3AT%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64forallT-instance-method" class="signature"><strong>#set</strong>(key : String, value : T, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64 forall T</a>
 
           <div class="summary"><p>Stores <em>value</em> at <em>key</em>, encoding <code>JSON::Serializable</code> values as JSON and all other non-raw values with <code>to_s</code>.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#touch%28key%3AString%2Cexpiry%3AUInt32%29%3AUInt64-instance-method" class="signature"><strong>#touch</strong>(key : String, expiry : UInt32) : UInt64</a>
+        <a href="#touch%28key%3AString%2Cexpiry%3AUInt32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method" class="signature"><strong>#touch</strong>(key : String, expiry : UInt32, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64</a>
 
           <div class="summary"><p>Updates the document expiration without changing its value.</p></div>
 
@@ -692,7 +767,7 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L57" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L62" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -726,7 +801,7 @@ step fails.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L97" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L102" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -768,6 +843,22 @@ step fails.</p>
       </div>
     </div>
 
+    <div class="entry-detail" id="bucket=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>bucket=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#bucket%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L129" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
     <div class="entry-detail" id="close:Nil-instance-method">
       <div class="signature">
 
@@ -785,17 +876,81 @@ already closed.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L255" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L361" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="decrement(key:String,delta:UInt64=1_u64,initial:UInt64=0_u64,expiry:UInt32=0_u32):UInt64-instance-method">
+    <div class="entry-detail" id="collection(name:String):CollectionContext(Client)-instance-method">
       <div class="signature">
 
-        def <strong>decrement</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64
+        def <strong>collection</strong>(name : String) : <a href="../../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>(<a href="../../../../CryBase/CouchBase/Services/KV/Client.html">Client</a>)
 
-        <a class="method-permalink" href="#decrement%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#</a>
+        <a class="method-permalink" href="#collection%28name%3AString%29%3ACollectionContext%28Client%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L156" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection:String-instance-method">
+      <div class="signature">
+
+        def <strong>collection</strong> : String
+
+        <a class="method-permalink" href="#collection%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L45" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>collection=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#collection%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L145" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection_id(scope:String,collection:String):UInt32-instance-method">
+      <div class="signature">
+
+        def <strong>collection_id</strong>(scope : String, collection : String) : UInt32
+
+        <a class="method-permalink" href="#collection_id%28scope%3AString%2Ccollection%3AString%29%3AUInt32-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L342" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="decrement(key:String,delta:UInt64=1_u64,initial:UInt64=0_u64,expiry:UInt32=0_u32,*,collection_id:UInt32|Nil=nil):UInt64-instance-method">
+      <div class="signature">
+
+        def <strong>decrement</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64
+
+        <a class="method-permalink" href="#decrement%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -807,17 +962,17 @@ already closed.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L244" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L331" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="delete(key:String):Nil-instance-method">
+    <div class="entry-detail" id="delete(key:String,*,collection_id:UInt32|Nil=nil):Nil-instance-method">
       <div class="signature">
 
-        def <strong>delete</strong>(key : String) : Nil
+        def <strong>delete</strong>(key : String, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : Nil
 
-        <a class="method-permalink" href="#delete%28key%3AString%29%3ANil-instance-method">#</a>
+        <a class="method-permalink" href="#delete%28key%3AString%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ANil-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -829,7 +984,7 @@ already closed.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L212" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L288" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -855,12 +1010,33 @@ already closed.</p>
       </div>
     </div>
 
-    <div class="entry-detail" id="get(key:String,expiry:UInt32|Nil=nil):Bytes-instance-method">
+    <div class="entry-detail" id="get(key:String,type:T.class,expiry:UInt32|Nil=nil,*,collection_id:UInt32|Nil=nil):TforallT-instance-method">
       <div class="signature">
 
-        def <strong>get</strong>(key : String, expiry : UInt32 | Nil = <span class="n">nil</span>) : Bytes
+        def <strong>get</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : T forall T
 
-        <a class="method-permalink" href="#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#</a>
+        <a class="method-permalink" href="#get%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#</a>
+      </div>
+
+        <div class="doc">
+
+          <p>Compatibility alias for <code>get_as(key, type, expiry)</code>.</p>
+        </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L217" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="get(key:String,expiry:UInt32|Nil=nil,*,collection_id:UInt32|Nil=nil):Bytes-instance-method">
+      <div class="signature">
+
+        def <strong>get</strong>(key : String, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : Bytes
+
+        <a class="method-permalink" href="#get%28key%3AString%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ABytes-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -875,44 +1051,23 @@ if absent.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L128" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L168" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="get(key:String,type:T.class,expiry:UInt32|Nil=nil):TforallT-instance-method">
+    <div class="entry-detail" id="get_as(key:String,type:T.class,expiry:UInt32|Nil=nil,*,collection_id:UInt32|Nil=nil):TforallT-instance-method">
       <div class="signature">
 
-        def <strong>get</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>) : T forall T
+        def <strong>get_as</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : T forall T
 
-        <a class="method-permalink" href="#get%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#</a>
-      </div>
-
-        <div class="doc">
-
-          <p>Compatibility alias for <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#get_as(key, type, expiry)</a></code>.</p>
-        </div>
-
-      <br/>
-      <div>
-
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L165" target="_blank">View source</a>]
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="get_as(key:String,type:T.class,expiry:UInt32|Nil=nil):TforallT-instance-method">
-      <div class="signature">
-
-        def <strong>get_as</strong>(key : String, type : <span class="t">T</span>.<span class="k">class</span>, expiry : UInt32 | Nil = <span class="n">nil</span>) : T forall T
-
-        <a class="method-permalink" href="#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#</a>
+        <a class="method-permalink" href="#get_as%28key%3AString%2Ctype%3AT.class%2Cexpiry%3AUInt32%7CNil%3Dnil%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3ATforallT-instance-method">#</a>
       </div>
 
         <div class="doc">
 
           <p>Fetches the document at <em>key</em> and decodes it as <em>type</em>.</p>
-<p>Use this for values written with <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#set</a></code> from a type that includes
+<p>Use this for values written with <code><a href="../../../../CryBase/CouchBase/Services/KV/Client.html#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#set</a></code> from a type that includes
 <code>JSON::Serializable</code>. <code>String</code> and <code>Bytes</code> are decoded without JSON.
 When <em>expiry</em> is provided, Couchbase fetches the document and updates
 its expiration atomically.</p>
@@ -929,17 +1084,17 @@ profile <span class="o">=</span> kv.get_as(<span class="s">&quot;user:42&quot;</
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L160" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L206" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="increment(key:String,delta:UInt64=1_u64,initial:UInt64=0_u64,expiry:UInt32=0_u32):UInt64-instance-method">
+    <div class="entry-detail" id="increment(key:String,delta:UInt64=1_u64,initial:UInt64=0_u64,expiry:UInt32=0_u32,*,collection_id:UInt32|Nil=nil):UInt64-instance-method">
       <div class="signature">
 
-        def <strong>increment</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64
+        def <strong>increment</strong>(key : String, delta : UInt64 = <span class="n">1_u64</span>, initial : UInt64 = <span class="n">0_u64</span>, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64
 
-        <a class="method-permalink" href="#increment%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#</a>
+        <a class="method-permalink" href="#increment%28key%3AString%2Cdelta%3AUInt64%3D1_u64%2Cinitial%3AUInt64%3D0_u64%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -952,17 +1107,65 @@ and applies <em>expiry</em>.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L233" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L318" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="set(key:String,value:String|Bytes,expiry:UInt32=0_u32):UInt64-instance-method">
+    <div class="entry-detail" id="scope(name:String):ScopeContext(Client)-instance-method">
       <div class="signature">
 
-        def <strong>set</strong>(key : String, value : String | Bytes, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64
+        def <strong>scope</strong>(name : String) : <a href="../../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>(<a href="../../../../CryBase/CouchBase/Services/KV/Client.html">Client</a>)
 
-        <a class="method-permalink" href="#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64-instance-method">#</a>
+        <a class="method-permalink" href="#scope%28name%3AString%29%3AScopeContext%28Client%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L152" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="scope:String-instance-method">
+      <div class="signature">
+
+        def <strong>scope</strong> : String
+
+        <a class="method-permalink" href="#scope%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L44" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="scope=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>scope=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#scope%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L138" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="set(key:String,value:String|Bytes,expiry:UInt32=0_u32,*,collection_id:UInt32|Nil=nil):UInt64-instance-method">
+      <div class="signature">
+
+        def <strong>set</strong>(key : String, value : String | Bytes, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64
+
+        <a class="method-permalink" href="#set%28key%3AString%2Cvalue%3AString%7CBytes%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -976,17 +1179,17 @@ cas <span class="o">=</span> kv.set(<span class="s">&quot;hello&quot;</span>, <s
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L176" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L234" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="set(key:String,value:T,expiry:UInt32=0_u32):UInt64forallT-instance-method">
+    <div class="entry-detail" id="set(key:String,value:T,expiry:UInt32=0_u32,*,collection_id:UInt32|Nil=nil):UInt64forallT-instance-method">
       <div class="signature">
 
-        def <strong>set</strong>(key : String, value : T, expiry : UInt32 = <span class="n">0_u32</span>) : UInt64 forall T
+        def <strong>set</strong>(key : String, value : T, expiry : UInt32 = <span class="n">0_u32</span>, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64 forall T
 
-        <a class="method-permalink" href="#set%28key%3AString%2Cvalue%3AT%2Cexpiry%3AUInt32%3D0_u32%29%3AUInt64forallT-instance-method">#</a>
+        <a class="method-permalink" href="#set%28key%3AString%2Cvalue%3AT%2Cexpiry%3AUInt32%3D0_u32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64forallT-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -1009,17 +1212,17 @@ cas <span class="o">=</span> kv.set(<span class="s">&quot;user:42&quot;</span>, 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L203" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L273" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="touch(key:String,expiry:UInt32):UInt64-instance-method">
+    <div class="entry-detail" id="touch(key:String,expiry:UInt32,*,collection_id:UInt32|Nil=nil):UInt64-instance-method">
       <div class="signature">
 
-        def <strong>touch</strong>(key : String, expiry : UInt32) : UInt64
+        def <strong>touch</strong>(key : String, expiry : UInt32, *, collection_id : UInt32 | Nil = <span class="n">nil</span>) : UInt64
 
-        <a class="method-permalink" href="#touch%28key%3AString%2Cexpiry%3AUInt32%29%3AUInt64-instance-method">#</a>
+        <a class="method-permalink" href="#touch%28key%3AString%2Cexpiry%3AUInt32%2C%2A%2Ccollection_id%3AUInt32%7CNil%3Dnil%29%3AUInt64-instance-method">#</a>
       </div>
 
         <div class="doc">
@@ -1031,7 +1234,7 @@ Returns the new CAS token.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L219" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/client.cr#L299" target="_blank">View source</a>]
 
       </div>
     </div>

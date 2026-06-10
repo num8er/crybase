@@ -19,11 +19,21 @@ describe KV::Pool do
   it "exposes delegated client operations" do
     pool = uninitialized KV::Pool
 
+    typeof(pool.bucket = "bucket").should eq(String)
+    typeof(pool.scope).should eq(String)
+    typeof(pool.scope = "ecommerce_shop").should eq(String)
+    typeof(pool.collection).should eq(String)
+    typeof(pool.collection = "users").should eq(String)
+    typeof(pool.scope("ecommerce_shop")).should eq(KV::ScopeContext(KV::Pool))
+    typeof(pool.scope("ecommerce_shop").collection("users")).should eq(KV::CollectionContext(KV::Pool))
+    typeof(pool.collection("users")).should eq(KV::CollectionContext(KV::Pool))
     typeof(pool.get("key")).should eq(Bytes)
+    typeof(pool.get("key", collection_id: 1_u32)).should eq(Bytes)
     typeof(pool.get("key", expiry: 1_u32)).should eq(Bytes)
     typeof(pool.get_as("key", String)).should eq(String)
     typeof(pool.get("key", String)).should eq(String)
     typeof(pool.set("key", "value")).should eq(UInt64)
+    typeof(pool.set("key", "value", collection_id: 1_u32)).should eq(UInt64)
     typeof(pool.set("key", "value", expiry: 1_u32)).should eq(UInt64)
     typeof(pool.delete("key")).should eq(Nil)
     typeof(pool.touch("key", 1_u32)).should eq(UInt64)

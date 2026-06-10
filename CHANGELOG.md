@@ -19,7 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Query Reuse Context And Typed Rows](docs/9.FEAT_query-reuse-context-and-typed-rows.md),
   [Query Cursor](docs/10.FEAT_query-cursor.md), and
   [Examples Layout](docs/11.FEAT_examples-layout.md), and
-  [Query Retry Policy Option](docs/12.FEAT_query-retry-policy-option.md).
+  [Query Retry Policy Option](docs/12.FEAT_query-retry-policy-option.md), and
+  [Query Context Named Arguments](docs/13.FEAT_query-context-named-arguments.md), and
+  [Query Chain Context Helpers](docs/14.FEAT_query-chain-context-helpers.md), and
+  [Connectivity HTTP Client](docs/15.FEAT_connectivity-http-client.md), and
+  [Query Default Context](docs/16.FEAT_query-default-context.md), and
+  [KV Scoped Collections](docs/17.FEAT_kv-scoped-collections.md), and
+  [KV Default Context](docs/18.FEAT_kv-default-context.md), and
+  [Query Connection Defaults](docs/19.FEAT_query-connection-defaults.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -37,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Query::Cluster#prepare`, and `Query::Cluster#execute_prepared`.
 - `query(..., adhoc: false)` for prepared statement caching and execution.
 - `CryBase::CouchBase::Query::QueryContext` for bucket/scope Query contexts.
+- `Query::Client#bucket`, `Query::Cluster#bucket`, `Query::BucketContext`, and
+  `Query::ScopeContext` for chainable bucket/scope Query context helpers.
+- `Query::Client#bucket=`, `Query::Client#scope=`,
+  `Query::Cluster#bucket=`, `Query::Cluster#scope=`, and Query connection
+  string bucket paths for connection-level Query context defaults.
 - `Query::Client#query_as`, `Query::Client#query_each`,
   `Query::Client#query_each_as`, and the matching `Query::Cluster` helpers for
   typed and streamed Query rows.
@@ -55,8 +67,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   such as `127.0.0.1:12345`.
 - `CryBase::Connectivity::TLSSocket.open(host_port, config)` for TLS sockets
   from host-port strings such as `127.0.0.1:12345`.
+- `CryBase::Connectivity::HTTPClient.open` for authenticated reusable HTTP
+  client construction over Connectivity sockets.
 - `CryBase::Connectivity.open_socket(host_port, config)` for shared plaintext
   or TLS sockets from host-port strings such as `127.0.0.1:12345`.
+- `KV::Client#scope`, `KV::Pool#scope`, `KV::Cluster#scope`,
+  `KV::ScopeContext`, and `KV::CollectionContext` for scoped collection KV
+  operations.
+- `KV::Client#bucket=`, `KV::Pool#bucket=`, `KV::Cluster#bucket=`,
+  `scope=`, `collection=`, and `collection(name)` for connection-level KV
+  bucket/scope/collection defaults and current-scope collection contexts.
+- Collection-aware KV key encoding and collection manifest lookup for scoped
+  collection operations.
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics/example.cr` for a readonly parameterized Query
   service call.
@@ -82,8 +104,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   7.6 and 8.0, including data seeded and queried through the Query service.
 - Real Couchbase Community Query TLS integration coverage through an nginx TLS
   reverse proxy in CI.
+- Real Couchbase KV integration coverage for default scoped collection
+  operations.
 
 ### Changed
+- `Query::QueryContext.new` now uses named `bucket:`, optional `scope:`, and
+  optional `namespace:` arguments; `namespace:` defaults to `"default"`.
 - README now links to the feature implementation notes.
 - CI now runs Couchbase integration specs against Couchbase Community 7.6 and
   8.0, plus Query TLS integration specs against Couchbase Enterprise 7.6 and
@@ -92,6 +118,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and
   TLS setup.
+- Query service and topology HTTP clients now use
+  `CryBase::Connectivity::HTTPClient` for HTTP construction.
 - `Query::Cluster.from_string` now discovers Query nodes from Couchbase
   topology by default and keeps static Query seeds as fallback.
 - Query clients now clear and reprepare cached plans once when Couchbase reports

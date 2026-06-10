@@ -30,8 +30,8 @@ describe QueryCursor::Cursor do
     client = QueryCursor::Client.new(server.endpoint, "user", "pass")
     cursor = client.query_cursor(
       "SELECT * FROM rows",
-      bucket: "travel-sample",
-      scope: "inventory",
+      bucket: "commerce",
+      scope: "ecommerce_shop",
       readonly: true,
     )
     rows = Channel(QueryCursorRow).new(2)
@@ -75,7 +75,7 @@ describe QueryCursor::Cursor do
     result.metrics.try(&.["resultCount"].as_i).should eq(2)
     cursor.result.should eq(result)
     cursor.closed?.should be_true
-    request.params["query_context"].should eq("default:`travel-sample`.`inventory`")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
     request.params["readonly"].should eq("true")
   ensure
     release.try(&.send(nil))

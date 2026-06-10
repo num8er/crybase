@@ -32,15 +32,18 @@ class CryBase::CouchBase::Services::Query::TopologyClient
     end
   end
 
-  private def open_http_client : HTTP::Client
-    io = open_io
-    client = HTTP::Client.new(io, @endpoint.host, @endpoint.port)
-    client.basic_auth(@username, @password)
-    client
+  private def open_http_client : CryBase::Connectivity::HTTPClient::Client
+    CryBase::Connectivity::HTTPClient.open(
+      @endpoint.host,
+      @endpoint.port,
+      http_config,
+      username: @username,
+      password: @password,
+    )
   end
 
-  private def open_io : IO
-    config = CryBase::Connectivity::SocketConfig.new(
+  private def http_config : CryBase::Connectivity::SocketConfig
+    CryBase::Connectivity::SocketConfig.new(
       tls: @endpoint.tls?,
       connect_timeout: @connect_timeout,
       read_timeout: @read_timeout,
@@ -48,11 +51,6 @@ class CryBase::CouchBase::Services::Query::TopologyClient
       tls_verify: @tls_verify,
       tls_hostname: @tls_hostname,
       tls_context: @tls_context,
-    )
-    CryBase::Connectivity.open_socket(
-      @endpoint.host,
-      @endpoint.port,
-      config,
     )
   end
 

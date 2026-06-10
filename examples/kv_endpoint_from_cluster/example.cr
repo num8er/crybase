@@ -16,6 +16,8 @@ endpoint = kv_endpoints.first
 puts "Using KV endpoint: #{endpoint}"
 
 kv = KVClient.from_string(Examples.kv_connection_string(endpoint))
+kv.scope = Examples::SCOPE
+kv.collection = Examples::COLLECTION
 
 kv.set("crybase:demo", Profile.new("ada", 42))
 puts "stored crybase:demo"

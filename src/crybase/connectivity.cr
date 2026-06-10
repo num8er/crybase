@@ -9,6 +9,7 @@ require "./connectivity/socket_config"
 require "./connectivity/host_port"
 require "./connectivity/tcp_socket"
 require "./connectivity/tls_socket"
+require "./connectivity/http_client"
 
 module CryBase::Connectivity
   def self.open_socket(

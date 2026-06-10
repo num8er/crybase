@@ -72,6 +72,21 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/Connectivity/HTTPClient" data-name="crybase::connectivity::httpclient">
+      <a href="../../../../CryBase/Connectivity/HTTPClient.html">HTTPClient</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/Connectivity/HTTPClient/Client" data-name="crybase::connectivity::httpclient::client">
+      <a href="../../../../CryBase/Connectivity/HTTPClient/Client.html">Client</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/Connectivity/SocketConfig" data-name="crybase::connectivity::socketconfig">
       <a href="../../../../CryBase/Connectivity/SocketConfig.html">SocketConfig</a>
 
@@ -177,6 +192,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/CollectionContext" data-name="crybase::couchbase::services::kv::collectioncontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
 
@@ -227,6 +247,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ScopeContext" data-name="crybase::couchbase::services::kv::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Serializable" data-name="crybase::couchbase::services::kv::serializable">
       <a href="../../../../CryBase/CouchBase/Services/KV/Serializable.html">Serializable</a>
 
@@ -246,6 +271,11 @@
       <a href="../../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/BucketContext" data-name="crybase::couchbase::services::query::bucketcontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/BucketContext.html">BucketContext</a>
+
+    </li>
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Client" data-name="crybase::couchbase::services::query::client">
       <a href="../../../../CryBase/CouchBase/Services/Query/Client.html">Client</a>
@@ -294,6 +324,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScanConsistency" data-name="crybase::couchbase::services::query::scanconsistency">
       <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScopeContext" data-name="crybase::couchbase::services::query::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/ScopeContext.html">ScopeContext</a>
 
     </li>
 
@@ -486,6 +521,11 @@
       </li>
 
       <li class="entry-summary">
+        <a href="#bucket%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#bucket=</strong>(name : String) : String</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#checkout%28%26%3AClient-%3ET%29%3ATforallT-instance-method" class="signature"><strong>#checkout</strong>(& : Client -> T) : T forall T</a>
 
       </li>
@@ -497,6 +537,26 @@
 
       <li class="entry-summary">
         <a href="#closed%3F%3ABool-instance-method" class="signature"><strong>#closed?</strong> : Bool</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection%28name%3AString%29%3ACollectionContext%28Pool%29-instance-method" class="signature"><strong>#collection</strong>(name : String) : CollectionContext(Pool)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection%3AString-instance-method" class="signature"><strong>#collection</strong> : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#collection=</strong>(name : String) : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#collection_id%28scope%3AString%2Ccollection%3AString%29%3AUInt32-instance-method" class="signature"><strong>#collection_id</strong>(scope : String, collection : String) : UInt32</a>
 
       </li>
 
@@ -527,6 +587,21 @@
 
       <li class="entry-summary">
         <a href="#increment%28%2Aargs%2C%2A%2Akwargs%29-instance-method" class="signature"><strong>#increment</strong>(*args, **kwargs)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#scope%28name%3AString%29%3AScopeContext%28Pool%29-instance-method" class="signature"><strong>#scope</strong>(name : String) : ScopeContext(Pool)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#scope%3AString-instance-method" class="signature"><strong>#scope</strong> : String</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#scope%3D%28name%3AString%29%3AString-instance-method" class="signature"><strong>#scope=</strong>(name : String) : String</a>
 
       </li>
 
@@ -626,7 +701,7 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L54" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L56" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -663,6 +738,22 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       </div>
     </div>
 
+    <div class="entry-detail" id="bucket=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>bucket=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#bucket%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L80" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
     <div class="entry-detail" id="checkout(&amp;:Client-&gt;T):TforallT-instance-method">
       <div class="signature">
 
@@ -674,7 +765,7 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L103" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L157" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -690,7 +781,7 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L123" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L178" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -706,7 +797,71 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L135" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L190" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection(name:String):CollectionContext(Pool)-instance-method">
+      <div class="signature">
+
+        def <strong>collection</strong>(name : String) : <a href="../../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>(<a href="../../../../CryBase/CouchBase/Services/KV/Pool.html">Pool</a>)
+
+        <a class="method-permalink" href="#collection%28name%3AString%29%3ACollectionContext%28Pool%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L120" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection:String-instance-method">
+      <div class="signature">
+
+        def <strong>collection</strong> : String
+
+        <a class="method-permalink" href="#collection%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L48" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>collection=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#collection%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L104" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="collection_id(scope:String,collection:String):UInt32-instance-method">
+      <div class="signature">
+
+        def <strong>collection_id</strong>(scope : String, collection : String) : UInt32
+
+        <a class="method-permalink" href="#collection_id%28scope%3AString%2Ccollection%3AString%29%3AUInt32-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L124" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -807,6 +962,54 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       </div>
     </div>
 
+    <div class="entry-detail" id="scope(name:String):ScopeContext(Pool)-instance-method">
+      <div class="signature">
+
+        def <strong>scope</strong>(name : String) : <a href="../../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>(<a href="../../../../CryBase/CouchBase/Services/KV/Pool.html">Pool</a>)
+
+        <a class="method-permalink" href="#scope%28name%3AString%29%3AScopeContext%28Pool%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L116" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="scope:String-instance-method">
+      <div class="signature">
+
+        def <strong>scope</strong> : String
+
+        <a class="method-permalink" href="#scope%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L47" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="scope=(name:String):String-instance-method">
+      <div class="signature">
+
+        def <strong>scope=</strong>(name : String) : String
+
+        <a class="method-permalink" href="#scope%3D%28name%3AString%29%3AString-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L92" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
     <div class="entry-detail" id="set(*args,**kwargs)-instance-method">
       <div class="signature">
 
@@ -834,7 +1037,7 @@ currently supported by this helper: <code>tls_verify</code> and <code>tls_hostna
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L47" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/pool.cr#L49" target="_blank">View source</a>]
 
       </div>
     </div>

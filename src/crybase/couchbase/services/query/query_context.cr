@@ -7,6 +7,7 @@ struct CryBase::CouchBase::Services::Query::QueryContext
   getter scope : String
 
   def initialize(
+    *,
     @bucket : String,
     @scope : String = DEFAULT_SCOPE,
     @namespace : String = DEFAULT_NAMESPACE,

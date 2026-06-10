@@ -31,6 +31,12 @@ describe KV::Request do
     req.vbucket.should eq(475_u16)
   end
 
+  it "accepts binary key bytes" do
+    req = KV::Request.new(KV::Opcode::Get, key: Bytes[0x81, 0x01, 0x6b])
+
+    req.key.should eq(Bytes[0x81, 0x01, 0x6b])
+  end
+
   it "serializes itself through RequestBuffer" do
     req = KV::Request.new(KV::Opcode::Get, key: "hello", opaque: 7_u32)
 

@@ -1,11 +1,16 @@
 module CryBase::CouchBase::Services::Query
   class Cluster
+    getter default_bucket : String?
+    getter default_scope : String?
     getter seeds : Array(Endpoint)
     getter management_seeds : Array(Endpoint)
 
     @active_index : Int32?
     @clients : Hash(Endpoint, Client)
     @closed : Bool
+    @default_bucket : String?
+    @default_namespace : String?
+    @default_scope : String?
     @endpoints : Array(Endpoint)
     @mutex : Mutex
     @prepared_statements : Hash(String, PreparedStatement)
@@ -30,6 +35,7 @@ module CryBase::CouchBase::Services::Query
       read_timeout : Time::Span = Client::DEFAULT_READ_TIMEOUT,
       write_timeout : Time::Span = Client::DEFAULT_WRITE_TIMEOUT,
       *,
+      bucket : String? = nil,
       tls_verify : Bool? = nil,
       tls_hostname : String? = nil,
       tls_context : OpenSSL::SSL::Context::Client? = nil,
@@ -39,7 +45,7 @@ module CryBase::CouchBase::Services::Query
     ) : Cluster
       connection_string = ConnectionString.parse(uri)
 
-      new(
+      cluster = new(
         seed_endpoints(connection_string),
         required(username || connection_string.username, "username"),
         required(password || connection_string.password, "password"),
@@ -53,6 +59,10 @@ module CryBase::CouchBase::Services::Query
         discover_topology: discover_topology,
         network: network || connection_string.param("network"),
       )
+      if default_bucket = bucket || connection_string.bucket
+        cluster.bucket = default_bucket
+      end
+      cluster
     end
 
     def self.seed_endpoints(connection_string : ConnectionString) : Array(Endpoint)
@@ -125,9 +135,40 @@ module CryBase::CouchBase::Services::Query
       @active_index = 0
       @clients = {} of Endpoint => Client
       @closed = false
+      @default_bucket = nil
+      @default_namespace = nil
+      @default_scope = nil
       @mutex = Mutex.new
       @prepared_statements = {} of String => PreparedStatement
       @topology_loaded = false
+    end
+
+    def bucket(
+      name : String,
+      *,
+      namespace : String = QueryContext::DEFAULT_NAMESPACE,
+    ) : BucketContext(Cluster)
+      BucketContext.new(self, bucket: name, namespace: namespace)
+    end
+
+    def bucket=(name : String) : String
+      raise ArgumentError.new("query context bucket required") if name.empty?
+
+      @default_bucket = name
+      @default_namespace = QueryContext::DEFAULT_NAMESPACE
+      name
+    end
+
+    def scope(name : String = QueryContext::DEFAULT_SCOPE) : Cluster
+      self.scope = name
+      self
+    end
+
+    def scope=(name : String) : String
+      raise ArgumentError.new("query context scope required") if name.empty?
+
+      @default_scope = name
+      name
     end
 
     # Executes a N1QL/SQL++ statement through the active Query endpoint.
@@ -160,6 +201,10 @@ module CryBase::CouchBase::Services::Query
       adhoc : Bool = true,
       raise_on_error : Bool = true,
     ) : Result
+      context_bucket = context_bucket(query_context, bucket)
+      context_scope = context_scope(query_context, scope)
+      context_namespace = context_namespace(query_context, namespace)
+
       unless adhoc
         return query_prepared(
           statement,
@@ -170,9 +215,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id,
           timeout,
           query_context,
-          bucket,
-          scope,
-          namespace,
+          context_bucket,
+          context_scope,
+          context_namespace,
           options,
           retry_policy,
           raise_on_error,
@@ -189,9 +234,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id: client_context_id,
           timeout: timeout,
           query_context: query_context,
-          bucket: bucket,
-          scope: scope,
-          namespace: namespace,
+          bucket: context_bucket,
+          scope: context_scope,
+          namespace: context_namespace,
           options: options,
           retry_policy: retry_policy,
           raise_on_error: raise_on_error,
@@ -214,6 +259,10 @@ module CryBase::CouchBase::Services::Query
       namespace : String? = nil,
       options = NamedTuple.new,
     ) : PreparedStatement
+      context_bucket = context_bucket(query_context, bucket)
+      context_scope = context_scope(query_context, scope)
+      context_namespace = context_namespace(query_context, namespace)
+
       with_query_client do |client|
         client.prepare(
           statement,
@@ -224,9 +273,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id: client_context_id,
           timeout: timeout,
           query_context: query_context,
-          bucket: bucket,
-          scope: scope,
-          namespace: namespace,
+          bucket: context_bucket,
+          scope: context_scope,
+          namespace: context_namespace,
           options: options,
         )
       end
@@ -247,6 +296,10 @@ module CryBase::CouchBase::Services::Query
       options = NamedTuple.new,
       raise_on_error : Bool = true,
     ) : Result
+      context_bucket = context_bucket(query_context, bucket)
+      context_scope = context_scope(query_context, scope)
+      context_namespace = context_namespace(query_context, namespace)
+
       execute_prepared_with_retry(
         prepared,
         positional_args,
@@ -256,9 +309,9 @@ module CryBase::CouchBase::Services::Query
         client_context_id,
         timeout,
         query_context,
-        bucket,
-        scope,
-        namespace,
+        context_bucket,
+        context_scope,
+        context_namespace,
         options,
         CryBase::CouchBase::RetryPolicy.no_retry,
         raise_on_error,
@@ -280,6 +333,10 @@ module CryBase::CouchBase::Services::Query
       options = NamedTuple.new,
       raise_on_error : Bool = true,
     ) : Result
+      context_bucket = context_bucket(query_context, bucket)
+      context_scope = context_scope(query_context, scope)
+      context_namespace = context_namespace(query_context, namespace)
+
       execute_prepared_once(
         prepared,
         positional_args,
@@ -289,9 +346,9 @@ module CryBase::CouchBase::Services::Query
         client_context_id,
         timeout,
         query_context,
-        bucket,
-        scope,
-        namespace,
+        context_bucket,
+        context_scope,
+        context_namespace,
         options,
         CryBase::CouchBase::RetryPolicy.no_retry,
         raise_on_error,
@@ -349,6 +406,10 @@ module CryBase::CouchBase::Services::Query
       raise_on_error : Bool = true,
       & : JSON::Any ->
     ) : Result
+      context_bucket = context_bucket(query_context, bucket)
+      context_scope = context_scope(query_context, scope)
+      context_namespace = context_namespace(query_context, namespace)
+
       with_query_client do |client|
         client.query_each(
           statement,
@@ -359,9 +420,9 @@ module CryBase::CouchBase::Services::Query
           client_context_id: client_context_id,
           timeout: timeout,
           query_context: query_context,
-          bucket: bucket,
-          scope: scope,
-          namespace: namespace,
+          bucket: context_bucket,
+          scope: context_scope,
+          namespace: context_namespace,
           options: options,
           raise_on_error: raise_on_error,
         ) { |row| yield row }
@@ -842,6 +903,27 @@ module CryBase::CouchBase::Services::Query
 
     private def raise_closed! : NoReturn
       raise IO::Error.new("Query cluster is closed")
+    end
+
+    private def context_bucket(
+      query_context : QueryContext | String | Nil,
+      bucket : String?,
+    ) : String?
+      query_context ? bucket : bucket || @default_bucket
+    end
+
+    private def context_scope(
+      query_context : QueryContext | String | Nil,
+      scope : String?,
+    ) : String?
+      query_context ? scope : scope || @default_scope
+    end
+
+    private def context_namespace(
+      query_context : QueryContext | String | Nil,
+      namespace : String?,
+    ) : String?
+      query_context ? namespace : namespace || @default_namespace
     end
 
     private def self.management_scheme?(connection_string : ConnectionString) : Bool

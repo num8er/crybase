@@ -51,11 +51,21 @@ describe KV::Cluster do
   it "exposes delegated client operations" do
     cluster = uninitialized KV::Cluster
 
+    typeof(cluster.bucket = "bucket").should eq(String)
+    typeof(cluster.scope).should eq(String)
+    typeof(cluster.scope = "ecommerce_shop").should eq(String)
+    typeof(cluster.collection).should eq(String)
+    typeof(cluster.collection = "users").should eq(String)
+    typeof(cluster.scope("ecommerce_shop")).should eq(KV::ScopeContext(KV::Cluster))
+    typeof(cluster.scope("ecommerce_shop").collection("users")).should eq(KV::CollectionContext(KV::Cluster))
+    typeof(cluster.collection("users")).should eq(KV::CollectionContext(KV::Cluster))
     typeof(cluster.get("key")).should eq(Bytes)
+    typeof(cluster.get("key", collection_id: 1_u32)).should eq(Bytes)
     typeof(cluster.get("key", expiry: 1_u32)).should eq(Bytes)
     typeof(cluster.get_as("key", String)).should eq(String)
     typeof(cluster.get("key", String)).should eq(String)
     typeof(cluster.set("key", "value")).should eq(UInt64)
+    typeof(cluster.set("key", "value", collection_id: 1_u32)).should eq(UInt64)
     typeof(cluster.set("key", "value", expiry: 1_u32)).should eq(UInt64)
     typeof(cluster.delete("key")).should eq(Nil)
     typeof(cluster.touch("key", 1_u32)).should eq(UInt64)

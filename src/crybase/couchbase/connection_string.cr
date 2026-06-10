@@ -5,7 +5,7 @@ module CryBase::CouchBase
   #
   # * `couchbase://host[,host2][:port]`                  — plaintext
   # * `couchbases://host[,host2][:port]`                 — TLS
-  # * `couchbase://user:pass@host[:port]/bucket?params`  — KV credentials/options
+  # * `couchbase://user:pass@host[:port]/bucket?params`  — credentials/options and default bucket
   # * `http(s)://host[:port]`                            — treated as the Management URL
   #
   # ```

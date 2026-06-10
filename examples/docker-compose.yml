@@ -19,7 +19,7 @@ services:
     volumes:
       - ./volumes/couchbase-data:/opt/couchbase/var
     healthcheck:
-      test: ["CMD", "curl", "-fs", "http://localhost:8091/pools"]
+      test: ["CMD-SHELL", "code=$$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8091/pools || true); [ \"$$code\" = \"200\" ] || [ \"$$code\" = \"401\" ]"]
       interval: 5s
       timeout: 3s
       retries: 60
@@ -34,7 +34,7 @@ services:
     environment:
       COUCHBASE_USER: ${COUCHBASE_USER:-Administrator}
       COUCHBASE_PASS: ${COUCHBASE_PASS:-password}
-      COUCHBASE_BUCKET: ${COUCHBASE_BUCKET:-default}
+      COUCHBASE_BUCKET: ${COUCHBASE_BUCKET:-commerce}
     entrypoint: ["/bin/bash", "-ec"]
     command:
       - |
