@@ -72,6 +72,21 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/Connectivity/HTTPClient" data-name="crybase::connectivity::httpclient">
+      <a href="../../../CryBase/Connectivity/HTTPClient.html">HTTPClient</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/Connectivity/HTTPClient/Client" data-name="crybase::connectivity::httpclient::client">
+      <a href="../../../CryBase/Connectivity/HTTPClient/Client.html">Client</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/Connectivity/SocketConfig" data-name="crybase::connectivity::socketconfig">
       <a href="../../../CryBase/Connectivity/SocketConfig.html">SocketConfig</a>
 
@@ -177,6 +192,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/CollectionContext" data-name="crybase::couchbase::services::kv::collectioncontext(target)">
+      <a href="../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
 
@@ -227,6 +247,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ScopeContext" data-name="crybase::couchbase::services::kv::scopecontext(target)">
+      <a href="../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Serializable" data-name="crybase::couchbase::services::kv::serializable">
       <a href="../../../CryBase/CouchBase/Services/KV/Serializable.html">Serializable</a>
 
@@ -246,6 +271,11 @@
       <a href="../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/BucketContext" data-name="crybase::couchbase::services::query::bucketcontext(target)">
+      <a href="../../../CryBase/CouchBase/Services/Query/BucketContext.html">BucketContext</a>
+
+    </li>
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Client" data-name="crybase::couchbase::services::query::client">
       <a href="../../../CryBase/CouchBase/Services/Query/Client.html">Client</a>
@@ -294,6 +324,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScanConsistency" data-name="crybase::couchbase::services::query::scanconsistency">
       <a href="../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScopeContext" data-name="crybase::couchbase::services::query::scopecontext(target)">
+      <a href="../../../CryBase/CouchBase/Services/Query/ScopeContext.html">ScopeContext</a>
 
     </li>
 
@@ -475,6 +510,13 @@ expiry, counter, and typed JSON helper operations.</p>
     <br/>
 
 
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/collection.cr#L1" target="_blank">
+        crybase/couchbase/services/kv/collection.cr
+      </a>
+
+    <br/>
+
+
       <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/counter.cr#L1" target="_blank">
         crybase/couchbase/services/kv/counter.cr
       </a>
@@ -591,6 +633,11 @@ expiry, counter, and typed JSON helper operations.</p>
   <ul class="list-summary">
 
       <li class="entry-summary">
+        <a href="#collection_key%28collection_id%3AUInt32%2Ckey%3AString%29%3ABytes-class-method" class="signature"><strong>.collection_key</strong>(collection_id : UInt32, key : String) : Bytes</a>
+
+      </li>
+
+      <li class="entry-summary">
         <a href="#counter_extras%28delta%3AUInt64%2Cinitial%3AUInt64%2Cexpiry%3AUInt32%29%3ABytes-class-method" class="signature"><strong>.counter_extras</strong>(delta : UInt64, initial : UInt64, expiry : UInt32) : Bytes</a>
 
       </li>
@@ -602,6 +649,11 @@ expiry, counter, and typed JSON helper operations.</p>
 
       <li class="entry-summary">
         <a href="#expiry_extras%28expiry%3AUInt32%29%3ABytes-class-method" class="signature"><strong>.expiry_extras</strong>(expiry : UInt32) : Bytes</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#unsigned_leb128%28value%3AUInt32%29%3ABytes-class-method" class="signature"><strong>.unsigned_leb128</strong>(value : UInt32) : Bytes</a>
 
       </li>
 
@@ -633,6 +685,22 @@ expiry, counter, and typed JSON helper operations.</p>
 </a>
     Class Method Detail
   </h2>
+
+    <div class="entry-detail" id="collection_key(collection_id:UInt32,key:String):Bytes-class-method">
+      <div class="signature">
+
+        def self.<strong>collection_key</strong>(collection_id : UInt32, key : String) : Bytes
+
+        <a class="method-permalink" href="#collection_key%28collection_id%3AUInt32%2Ckey%3AString%29%3ABytes-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/collection.cr#L2" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
     <div class="entry-detail" id="counter_extras(delta:UInt64,initial:UInt64,expiry:UInt32):Bytes-class-method">
       <div class="signature">
@@ -678,6 +746,22 @@ expiry, counter, and typed JSON helper operations.</p>
       <div>
 
           [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/expiry.cr#L2" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="unsigned_leb128(value:UInt32):Bytes-class-method">
+      <div class="signature">
+
+        def self.<strong>unsigned_leb128</strong>(value : UInt32) : Bytes
+
+        <a class="method-permalink" href="#unsigned_leb128%28value%3AUInt32%29%3ABytes-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/collection.cr#L11" target="_blank">View source</a>]
 
       </div>
     </div>

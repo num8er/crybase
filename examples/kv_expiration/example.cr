@@ -1,9 +1,8 @@
 require "../shared/methods"
 
 private alias Examples = CryBaseExamples
-private alias KVClient = CryBase::CouchBase::KV::Client
 
-kv = KVClient.from_string(Examples.kv_connection_string)
+kv = Examples.open_kv_client
 
 key = "crybase:expiration"
 

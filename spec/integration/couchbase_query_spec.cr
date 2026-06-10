@@ -258,12 +258,72 @@ describe "Couchbase Query integration" do
       CryBaseExamples.delete_query_users(kv, users)
     end
   end
+
+  it "queries bucket scope and collection through connection-level defaults" do
+    users = [] of User
+    default_client = nil.as(Query::Client?)
+    default_cluster = nil.as(Query::Cluster?)
+
+    begin
+      client_with_defaults = Query::Client.from_string(
+        Couchbase.query_connection_string(config),
+        tls_verify: config.tls_verify,
+        tls_hostname: config.tls_hostname,
+      )
+      default_client = client_with_defaults
+      cluster_with_defaults = Query::Cluster.from_string(
+        Couchbase.query_cluster_connection_string(config),
+        tls_verify: config.tls_verify,
+        tls_hostname: config.tls_hostname,
+      )
+      default_cluster = cluster_with_defaults
+
+      client_with_defaults.bucket = config.bucket
+      client_with_defaults.scope = "_default"
+      cluster_with_defaults.bucket = config.bucket
+      cluster_with_defaults.scope = "_default"
+
+      users = CryBaseExamples.seed_query_users(kv)
+      keys = CryBaseExamples.query_user_keys(users)
+      active_users = users.select(&.active?)
+
+      client_rows = with_query_retry do
+        client_with_defaults.query_as(
+          UserRow,
+          seeded_context_users_query,
+          named_args: {keys: keys, type: "User", active: true},
+          readonly: true,
+        )
+      end
+      cluster_rows = with_query_retry do
+        cluster_with_defaults.query_as(
+          UserRow,
+          seeded_context_users_query,
+          named_args: {keys: keys, type: "User", active: true},
+          readonly: true,
+        )
+      end
+
+      client_with_defaults.default_bucket.should eq(config.bucket)
+      client_with_defaults.default_scope.should eq("_default")
+      cluster_with_defaults.default_bucket.should eq(config.bucket)
+      cluster_with_defaults.default_scope.should eq("_default")
+      client_rows.map(&.doc_key).sort!.should eq(active_users.map(&.id).sort!)
+      cluster_rows.map(&.doc_key).sort!.should eq(active_users.map(&.id).sort!)
+      client_rows.each(&.active?.should be_true)
+      cluster_rows.each(&.active?.should be_true)
+    ensure
+      CryBaseExamples.delete_query_users(kv, users)
+      default_client.try(&.close)
+      default_cluster.try(&.close)
+    end
+  end
 end
 
 private def seeded_users_query : String
   <<-N1QL
     SELECT META(u).id AS doc_key, u.id, u.type, u.name, u.email, u.active
-    FROM #{CryBaseExamples.n1ql_bucket} AS u
+    FROM #{CryBaseExamples.n1ql_collection} AS u
     USE KEYS $keys
     WHERE u.type = $type AND u.active = $active
     ORDER BY u.name

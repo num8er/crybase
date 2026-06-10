@@ -58,4 +58,24 @@ describe KV::RequestBuffer do
 
     IO::ByteFormat::BigEndian.decode(UInt16, header[6, 2]).should eq(475_u16)
   end
+
+  it "encodes binary collection-aware keys" do
+    req = KV::Request.new(
+      KV::Opcode::Get,
+      key: KV.collection_key(300_u32, "user:1"),
+      opaque: 9_u32,
+    )
+
+    buffer = req.to_buffer
+    header = buffer[0, KV::Constants::HEADER_SIZE]
+
+    IO::ByteFormat::BigEndian.decode(UInt16, header[2, 2]).should eq(8_u16)
+    IO::ByteFormat::BigEndian.decode(UInt32, header[8, 4]).should eq(8_u32)
+
+    body = buffer[KV::Constants::HEADER_SIZE, 8]
+    body.should eq(Bytes[
+      0xac, 0x02,
+      0x75, 0x73, 0x65, 0x72, 0x3a, 0x31,
+    ])
+  end
 end

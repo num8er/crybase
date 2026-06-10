@@ -41,6 +41,11 @@ module CryBase::CouchBase::Services::KV
     # The bucket selected during the construction handshake.
     getter bucket : String
 
+    getter scope : String
+    getter collection : String
+
+    @collection_ids : Hash(Tuple(String, String), UInt32)
+    @collections_enabled : Bool
     @socket : IO
     @opaque : UInt32
 
@@ -107,6 +112,10 @@ module CryBase::CouchBase::Services::KV
     )
       @socket = open_socket(@endpoint, connect_timeout, tls_verify, tls_hostname, tls_context)
       @opaque = 0_u32
+      @scope = Constants::DEFAULT_SCOPE
+      @collection = Constants::DEFAULT_COLLECTION
+      @collections_enabled = false
+      @collection_ids = {} of Tuple(String, String) => UInt32
       begin
         hello
         sasl_auth_plain(username, password)
@@ -117,6 +126,37 @@ module CryBase::CouchBase::Services::KV
       end
     end
 
+    def bucket=(name : String) : String
+      raise ArgumentError.new("kv bucket required") if name.empty?
+
+      use(name)
+      @bucket = name
+      @collection_ids.clear
+      name
+    end
+
+    def scope=(name : String) : String
+      raise ArgumentError.new("kv scope required") if name.empty?
+
+      @scope = name
+      name
+    end
+
+    def collection=(name : String) : String
+      raise ArgumentError.new("kv collection required") if name.empty?
+
+      @collection = name
+      name
+    end
+
+    def scope(name : String) : ScopeContext(Client)
+      ScopeContext.new(self, scope: name)
+    end
+
+    def collection(name : String) : CollectionContext(Client)
+      CollectionContext.new(self, scope: @scope, collection: name)
+    end
+
     # Fetches the document at *key*. When *expiry* is provided, fetches
     # and updates the document expiration atomically. Raises `NotFound`
     # if absent.
@@ -125,16 +165,22 @@ module CryBase::CouchBase::Services::KV
     # bytes = kv.get("user:42")
     # JSON.parse(String.new(bytes))
     # ```
-    def get(key : String, expiry : UInt32? = nil) : Bytes
+    def get(
+      key : String,
+      expiry : UInt32? = nil,
+      *,
+      collection_id : UInt32? = nil,
+    ) : Bytes
+      request_key = request_key(key, operation_collection_id(collection_id))
       resp = if expiry
                call(
                  Opcode::GetAndTouch,
-                 key: key,
+                 key: request_key,
                  extras: CryBase::CouchBase::Services::KV.expiry_extras(expiry),
                  vbucket: vbucket_id(key)
                )
              else
-               call(Opcode::Get, key: key, vbucket: vbucket_id(key))
+               call(Opcode::Get, key: request_key, vbucket: vbucket_id(key))
              end
       ensure_success!(resp, "GET #{key}")
       resp.value
@@ -157,13 +203,25 @@ module CryBase::CouchBase::Services::KV
     #
     # profile = kv.get_as("user:42", Profile)
     # ```
-    def get_as(key : String, type : T.class, expiry : UInt32? = nil) : T forall T
-      Serializable.decode(get(key, expiry), type)
+    def get_as(
+      key : String,
+      type : T.class,
+      expiry : UInt32? = nil,
+      *,
+      collection_id : UInt32? = nil,
+    ) : T forall T
+      Serializable.decode(get(key, expiry, collection_id: collection_id), type)
     end
 
     # Compatibility alias for `get_as(key, type, expiry)`.
-    def get(key : String, type : T.class, expiry : UInt32? = nil) : T forall T
-      get_as(key, type, expiry)
+    def get(
+      key : String,
+      type : T.class,
+      expiry : UInt32? = nil,
+      *,
+      collection_id : UInt32? = nil,
+    ) : T forall T
+      get_as(key, type, expiry, collection_id: collection_id)
     end
 
     # Stores *value* at *key* with optional *expiry* (seconds, or unix
@@ -173,12 +231,24 @@ module CryBase::CouchBase::Services::KV
     # cas = kv.set("hello", "world")
     # cas = kv.set("hello", "world".to_slice, expiry: 60_u32)
     # ```
-    def set(key : String, value : String | Bytes, expiry : UInt32 = 0_u32) : UInt64
+    def set(
+      key : String,
+      value : String | Bytes,
+      expiry : UInt32 = 0_u32,
+      *,
+      collection_id : UInt32? = nil,
+    ) : UInt64
       bytes = value.is_a?(String) ? value.to_slice : value
       extras = Bytes.new(8)
       IO::ByteFormat::BigEndian.encode(0_u32, extras[0, 4])
       IO::ByteFormat::BigEndian.encode(expiry, extras[4, 4])
-      resp = call(Opcode::Set, key: key, extras: extras, value: bytes, vbucket: vbucket_id(key))
+      resp = call(
+        Opcode::Set,
+        key: request_key(key, operation_collection_id(collection_id)),
+        extras: extras,
+        value: bytes,
+        vbucket: vbucket_id(key)
+      )
       ensure_success!(resp, "SET #{key}")
       resp.cas
     end
@@ -200,8 +270,14 @@ module CryBase::CouchBase::Services::KV
     #
     # cas = kv.set("user:42", Profile.new("ada", 42))
     # ```
-    def set(key : String, value : T, expiry : UInt32 = 0_u32) : UInt64 forall T
-      set(key, Serializable.encode(value), expiry)
+    def set(
+      key : String,
+      value : T,
+      expiry : UInt32 = 0_u32,
+      *,
+      collection_id : UInt32? = nil,
+    ) : UInt64 forall T
+      set(key, Serializable.encode(value), expiry, collection_id: collection_id)
     end
 
     # Deletes the document at *key*. Raises `NotFound` if absent.
@@ -209,17 +285,26 @@ module CryBase::CouchBase::Services::KV
     # ```
     # kv.delete("hello")
     # ```
-    def delete(key : String) : Nil
-      resp = call(Opcode::Delete, key: key, vbucket: vbucket_id(key))
+    def delete(key : String, *, collection_id : UInt32? = nil) : Nil
+      resp = call(
+        Opcode::Delete,
+        key: request_key(key, operation_collection_id(collection_id)),
+        vbucket: vbucket_id(key)
+      )
       ensure_success!(resp, "DELETE #{key}")
     end
 
     # Updates the document expiration without changing its value.
     # Returns the new CAS token.
-    def touch(key : String, expiry : UInt32) : UInt64
+    def touch(
+      key : String,
+      expiry : UInt32,
+      *,
+      collection_id : UInt32? = nil,
+    ) : UInt64
       resp = call(
         Opcode::Touch,
-        key: key,
+        key: request_key(key, operation_collection_id(collection_id)),
         extras: CryBase::CouchBase::Services::KV.expiry_extras(expiry),
         vbucket: vbucket_id(key)
       )
@@ -235,8 +320,10 @@ module CryBase::CouchBase::Services::KV
       delta : UInt64 = 1_u64,
       initial : UInt64 = 0_u64,
       expiry : UInt32 = 0_u32,
+      *,
+      collection_id : UInt32? = nil,
     ) : UInt64
-      counter(Opcode::Increment, "INCREMENT", key, delta, initial, expiry)
+      counter(Opcode::Increment, "INCREMENT", key, delta, initial, expiry, collection_id)
     end
 
     # Atomically decrements the unsigned integer document at *key* by
@@ -246,8 +333,27 @@ module CryBase::CouchBase::Services::KV
       delta : UInt64 = 1_u64,
       initial : UInt64 = 0_u64,
       expiry : UInt32 = 0_u32,
+      *,
+      collection_id : UInt32? = nil,
     ) : UInt64
-      counter(Opcode::Decrement, "DECREMENT", key, delta, initial, expiry)
+      counter(Opcode::Decrement, "DECREMENT", key, delta, initial, expiry, collection_id)
+    end
+
+    def collection_id(scope : String, collection : String) : UInt32
+      raise ArgumentError.new("kv scope required") if scope.empty?
+      raise ArgumentError.new("kv collection required") if collection.empty?
+
+      return Constants::DEFAULT_COLLECTION_ID if default_collection?(scope, collection)
+      raise Error.new(Status::NotSupported, "COLLECTIONS") unless @collections_enabled
+
+      key = {scope, collection}
+      if cached = @collection_ids[key]?
+        return cached
+      end
+
+      id = load_collection_id(scope, collection)
+      @collection_ids[key] = id
+      id
     end
 
     # Closes the underlying socket. Idempotent — safe to call when
@@ -280,10 +386,12 @@ module CryBase::CouchBase::Services::KV
     end
 
     private def hello : Nil
-      features = Bytes.new(2)
+      features = Bytes.new(4)
       IO::ByteFormat::BigEndian.encode(Constants::FEATURE_SELECT_BUCKET, features)
+      IO::ByteFormat::BigEndian.encode(Constants::FEATURE_COLLECTIONS, features[2, 2])
       resp = call(Opcode::Hello, key: Constants::AGENT, value: features)
       ensure_success!(resp, "HELLO")
+      @collections_enabled = feature_enabled?(resp.value, Constants::FEATURE_COLLECTIONS)
     end
 
     private def sasl_auth_plain(username : String, password : String) : Nil
@@ -300,7 +408,7 @@ module CryBase::CouchBase::Services::KV
     private def call(
       opcode : Opcode,
       *,
-      key : String = "",
+      key : String | Bytes = "",
       extras : Bytes = Bytes.empty,
       value : Bytes = Bytes.empty,
       cas : UInt64 = 0_u64,
@@ -315,6 +423,27 @@ module CryBase::CouchBase::Services::KV
       CryBase::CouchBase::Services::KV.vbucket_id(key)
     end
 
+    private def request_key(key : String, collection_id : UInt32?) : String | Bytes
+      return key unless @collections_enabled
+
+      CryBase::CouchBase::Services::KV.collection_key(
+        collection_id || Constants::DEFAULT_COLLECTION_ID,
+        key
+      )
+    end
+
+    private def feature_enabled?(features : Bytes, feature : UInt16) : Bool
+      return false unless features.size % 2 == 0
+
+      offset = 0
+      while offset < features.size
+        return true if IO::ByteFormat::BigEndian.decode(UInt16, features[offset, 2]) == feature
+        offset += 2
+      end
+
+      false
+    end
+
     private def counter(
       opcode : Opcode,
       op : String,
@@ -322,15 +451,52 @@ module CryBase::CouchBase::Services::KV
       delta : UInt64,
       initial : UInt64,
       expiry : UInt32,
+      collection_id : UInt32?,
     ) : UInt64
       resp = call(
         opcode,
-        key: key,
+        key: request_key(key, operation_collection_id(collection_id)),
         extras: CryBase::CouchBase::Services::KV.counter_extras(delta, initial, expiry),
         vbucket: vbucket_id(key)
       )
       ensure_success!(resp, "#{op} #{key}")
       CryBase::CouchBase::Services::KV.counter_value(resp.value)
+    end
+
+    private def default_collection?(scope : String, collection : String) : Bool
+      scope == Constants::DEFAULT_SCOPE && collection == Constants::DEFAULT_COLLECTION
+    end
+
+    private def operation_collection_id(collection_id : UInt32?) : UInt32?
+      return collection_id if collection_id
+      return nil if default_collection?(@scope, @collection)
+
+      self.collection_id(@scope, @collection)
+    end
+
+    private def load_collection_id(scope : String, collection : String) : UInt32
+      resp = call(Opcode::GetCollectionsManifest)
+      ensure_success!(resp, "GET_COLLECTIONS_MANIFEST")
+
+      manifest = JSON.parse(String.new(resp.value))
+      manifest["scopes"].as_a.each do |scope_json|
+        next unless scope_json["name"].as_s == scope
+
+        scope_json["collections"].as_a.each do |collection_json|
+          next unless collection_json["name"].as_s == collection
+
+          return collection_uid(collection_json["uid"].as_s)
+        end
+      end
+
+      raise NotFound.new(Status::KeyNotFound, "COLLECTION #{scope}.#{collection}")
+    end
+
+    private def collection_uid(uid : String) : UInt32
+      value = uid.starts_with?("0x") ? uid[2..] : uid
+      value.to_u32(16)
+    rescue ex : ArgumentError
+      raise IO::Error.new("invalid collection uid #{uid.inspect}: #{ex.message}")
     end
 
     private def ensure_success!(resp : Response, op : String) : Nil

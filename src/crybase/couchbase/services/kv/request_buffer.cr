@@ -2,7 +2,7 @@ module CryBase::CouchBase::Services::KV
   # Builds binary KV request buffers from `Request` values.
   module RequestBuffer
     def self.make(request : Request) : Bytes
-      key_bytes = request.key.to_slice
+      key_bytes = key_bytes(request.key)
       total_body = request.extras.size + key_bytes.size + request.value.size
       buffer = Bytes.new(Constants::HEADER_SIZE + total_body)
 
@@ -22,6 +22,14 @@ module CryBase::CouchBase::Services::KV
       append(buffer, offset, request.value)
 
       buffer
+    end
+
+    private def self.key_bytes(key : String) : Bytes
+      key.to_slice
+    end
+
+    private def self.key_bytes(key : Bytes) : Bytes
+      key
     end
 
     private def self.append(buffer : Bytes, offset : Int32, source : Bytes) : Int32

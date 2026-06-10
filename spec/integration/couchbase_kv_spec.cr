@@ -98,6 +98,45 @@ describe "Couchbase KV integration" do
     String.new(kv.get(key)).should eq("tls-ok")
   end
 
+  it "stores and loads through a scoped collection context" do
+    key = "crybase:collection:#{Time.utc.to_unix_ms}"
+    keys << key
+
+    users = kv.scope("_default").collection("_default")
+
+    users.set(key, "scoped-ok")
+    String.new(users.get(key)).should eq("scoped-ok")
+    users.delete(key)
+    keys.delete(key)
+  end
+
+  it "stores and loads through connection-level scoped collection defaults" do
+    key = "crybase:collection:default:#{Time.utc.to_unix_ms}"
+    pool_key = "#{key}:pool"
+    cluster_key = "#{key}:cluster"
+    keys << key
+    keys << pool_key
+    keys << cluster_key
+
+    kv.bucket = config.bucket
+    kv.scope = "_default"
+    kv.collection = "_default"
+    kv.collection("_default").set(key, "client-default-context")
+    String.new(kv.get(key)).should eq("client-default-context")
+
+    pool.bucket = config.bucket
+    pool.scope = "_default"
+    pool.collection = "_default"
+    pool.collection("_default").set(pool_key, "pool-default-context")
+    String.new(pool.get(pool_key)).should eq("pool-default-context")
+
+    cluster.bucket = config.bucket
+    cluster.scope = "_default"
+    cluster.collection = "_default"
+    cluster.collection("_default").set(cluster_key, "cluster-default-context")
+    String.new(cluster.get(cluster_key)).should eq("cluster-default-context")
+  end
+
   it "reuses pooled connections for KV operations" do
     key = "crybase:pool:#{Time.utc.to_unix_ms}"
     checkout_key = "#{key}:checkout"

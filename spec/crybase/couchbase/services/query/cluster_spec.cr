@@ -95,9 +95,28 @@ describe Query::Cluster do
     context = uninitialized OpenSSL::SSL::Context::Client
 
     typeof(Query::Cluster.from_string(
-      "couchbases://user:pass@127.0.0.1,127.0.0.2:18093?tls_verify=false&tls_hostname=cb.local",
+      "couchbases://user:pass@127.0.0.1,127.0.0.2:18093/commerce?tls_verify=false&tls_hostname=cb.local",
       tls_context: context,
     )).should eq(Query::Cluster)
+  end
+
+  it "uses the connection string bucket as the default query bucket" do
+    cluster = Query::Cluster.from_string("couchbase://user:pass@127.0.0.1:8093/commerce")
+
+    cluster.default_bucket.should eq("commerce")
+  ensure
+    cluster.try(&.close)
+  end
+
+  it "lets an explicit default bucket override the connection string bucket" do
+    cluster = Query::Cluster.from_string(
+      "couchbase://user:pass@127.0.0.1:8093/commerce",
+      bucket: "analytics",
+    )
+
+    cluster.default_bucket.should eq("analytics")
+  ensure
+    cluster.try(&.close)
   end
 
   it "requires credentials when they are not passed or embedded" do
@@ -162,10 +181,94 @@ describe Query::Cluster do
     }))
     cluster = Query::Cluster.new([server.endpoint], "user", "pass")
 
-    cluster.query("SELECT * FROM users", bucket: "travel-sample", scope: "inventory")
+    cluster.query("SELECT * FROM users", bucket: "commerce", scope: "ecommerce_shop")
     request = server.requests.receive
 
-    request.params["query_context"].should eq("default:`travel-sample`.`inventory`")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "passes explicit namespace query context to endpoint clients" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    cluster.query(
+      "SELECT * FROM users",
+      bucket: "commerce",
+      scope: "ecommerce_shop",
+      namespace: "tenant",
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("tenant:`commerce`.`ecommerce_shop`")
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "uses connection-level bucket and scope defaults for collection queries" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    cluster.bucket = "commerce"
+    cluster.scope = "ecommerce_shop"
+    cluster.query("SELECT * FROM users")
+    request = server.requests.receive
+
+    cluster.default_bucket.should eq("commerce")
+    cluster.default_scope.should eq("ecommerce_shop")
+    request.params["statement"].should eq("SELECT * FROM users")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "lets per-query bucket and scope override connection defaults" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    cluster.bucket = "default-bucket"
+    cluster.scope = "default-scope"
+    cluster.query("SELECT * FROM users", bucket: "commerce", scope: "ecommerce_shop")
+    request = server.requests.receive
+
+    request.params["statement"].should eq("SELECT * FROM users")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    cluster.try(&.close)
+    server.try(&.close)
+  end
+
+  it "passes scoped bucket helper context to endpoint clients" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    cluster = Query::Cluster.new([server.endpoint], "user", "pass")
+
+    result = cluster.bucket("commerce").scope("ecommerce_shop").query(
+      "SELECT * FROM users",
+      readonly: true,
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+    request.params["readonly"].should eq("true")
+    cluster.default_bucket.should be_nil
+    cluster.default_scope.should be_nil
+    result.rows.first["ok"].as_bool.should be_true
   ensure
     cluster.try(&.close)
     server.try(&.close)

@@ -1,4 +1,6 @@
 require "../spec_helper"
+require "base64"
+require "http/server"
 
 private alias Connectivity = CryBase::Connectivity
 
@@ -143,6 +145,40 @@ describe Connectivity do
   ensure
     socket.try(&.close)
     server.try(&.close)
+  end
+
+  it "opens HTTP clients through the shared helper" do
+    requests = Channel(HTTP::Request).new(1)
+    server = HTTP::Server.new do |context|
+      requests.send(context.request)
+      context.response.print "ok"
+    end
+    address = server.bind_tcp("127.0.0.1", 0)
+    spawn { server.listen }
+    config = Connectivity::SocketConfig.new(connect_timeout: 100.milliseconds)
+
+    client = Connectivity::HTTPClient.open(
+      "127.0.0.1",
+      address.port,
+      config,
+      username: "user",
+      password: "pass",
+    )
+    response = client.get("/")
+    request = requests.receive
+
+    response.body.should eq("ok")
+    request.headers["Authorization"]?.should eq("Basic #{Base64.strict_encode("user:pass")}")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "opens HTTP clients through the shared helper from host-port strings" do
+    typeof(Connectivity::HTTPClient.open(
+      "127.0.0.1:18093",
+      Connectivity::SocketConfig.new,
+    )).should eq(HTTP::Client)
   end
 
   it "rejects invalid shared helper host-port strings" do

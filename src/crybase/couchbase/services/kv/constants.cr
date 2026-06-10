@@ -15,6 +15,14 @@ module CryBase::CouchBase::Services::KV::Constants
   # Sent during the handshake so the server accepts SELECT_BUCKET.
   FEATURE_SELECT_BUCKET = 0x0008_u16
 
+  # HELLO feature code that opts the connection into collection-aware
+  # document keys.
+  FEATURE_COLLECTIONS = 0x0012_u16
+
+  DEFAULT_SCOPE         = "_default"
+  DEFAULT_COLLECTION    = "_default"
+  DEFAULT_COLLECTION_ID = 0_u32
+
   # Number of vbuckets in Couchbase buckets.
   VBUCKET_COUNT = 1024_u16
 

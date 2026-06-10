@@ -13,6 +13,7 @@ describe KV do
     KV::Opcode::GetAndTouch.value.should eq(0x1D_u8)
     KV::Opcode::Hello.value.should eq(0x1F_u8)
     KV::Opcode::SaslAuth.value.should eq(0x21_u8)
+    KV::Opcode::GetCollectionsManifest.value.should eq(0xBA_u8)
     KV::Opcode::SelectBucket.value.should eq(0x89_u8)
   end
 
@@ -28,6 +29,11 @@ describe KV do
     KV::Constants::REQUEST_MAGIC.should eq(0x80_u8)
     KV::Constants::RESPONSE_MAGIC.should eq(0x81_u8)
     KV::Constants::HEADER_SIZE.should eq(24)
+    KV::Constants::FEATURE_SELECT_BUCKET.should eq(0x0008_u16)
+    KV::Constants::FEATURE_COLLECTIONS.should eq(0x0012_u16)
+    KV::Constants::DEFAULT_SCOPE.should eq("_default")
+    KV::Constants::DEFAULT_COLLECTION.should eq("_default")
+    KV::Constants::DEFAULT_COLLECTION_ID.should eq(0_u32)
     KV::Constants::VBUCKET_COUNT.should eq(1024_u16)
     KV::Constants::EXPIRY_EXTRAS_SIZE.should eq(4)
     KV::Constants::COUNTER_EXTRAS_SIZE.should eq(20)
@@ -65,5 +71,19 @@ describe KV do
     expect_raises(IO::Error, /counter response size/) do
       KV.counter_value(Bytes[1, 2, 3])
     end
+  end
+
+  it "encodes collection ids as unsigned LEB128" do
+    KV.unsigned_leb128(0_u32).should eq(Bytes[0x00])
+    KV.unsigned_leb128(127_u32).should eq(Bytes[0x7f])
+    KV.unsigned_leb128(128_u32).should eq(Bytes[0x80, 0x01])
+    KV.unsigned_leb128(300_u32).should eq(Bytes[0xac, 0x02])
+  end
+
+  it "prefixes collection ids to document keys" do
+    KV.collection_key(300_u32, "user:1").should eq(Bytes[
+      0xac, 0x02,
+      0x75, 0x73, 0x65, 0x72, 0x3a, 0x31,
+    ])
   end
 end

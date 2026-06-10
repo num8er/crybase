@@ -72,6 +72,21 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/Connectivity/HTTPClient" data-name="crybase::connectivity::httpclient">
+      <a href="../../../../CryBase/Connectivity/HTTPClient.html">HTTPClient</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/Connectivity/HTTPClient/Client" data-name="crybase::connectivity::httpclient::client">
+      <a href="../../../../CryBase/Connectivity/HTTPClient/Client.html">Client</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/Connectivity/SocketConfig" data-name="crybase::connectivity::socketconfig">
       <a href="../../../../CryBase/Connectivity/SocketConfig.html">SocketConfig</a>
 
@@ -177,6 +192,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/CollectionContext" data-name="crybase::couchbase::services::kv::collectioncontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="../../../../CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
 
@@ -227,6 +247,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ScopeContext" data-name="crybase::couchbase::services::kv::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Serializable" data-name="crybase::couchbase::services::kv::serializable">
       <a href="../../../../CryBase/CouchBase/Services/KV/Serializable.html">Serializable</a>
 
@@ -246,6 +271,11 @@
       <a href="../../../../CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/BucketContext" data-name="crybase::couchbase::services::query::bucketcontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/BucketContext.html">BucketContext</a>
+
+    </li>
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Client" data-name="crybase::couchbase::services::query::client">
       <a href="../../../../CryBase/CouchBase/Services/Query/Client.html">Client</a>
@@ -294,6 +324,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScanConsistency" data-name="crybase::couchbase::services::query::scanconsistency">
       <a href="../../../../CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScopeContext" data-name="crybase::couchbase::services::query::scopecontext(target)">
+      <a href="../../../../CryBase/CouchBase/Services/Query/ScopeContext.html">ScopeContext</a>
 
     </li>
 
@@ -392,7 +427,8 @@ req.to_buffer <span class="c"># =&gt; Bytes</span></code></pre>
 <p>The fields:</p>
 <ul>
 <li><em>opcode</em>  — the command code (<code><a href="../../../../CryBase/CouchBase/Services/KV/Opcode.html#Get">Opcode::Get</a></code>, <code>::Set</code>, etc.)</li>
-<li><em>key</em>     — the document/operation key (UTF-8 string)</li>
+<li><em>key</em>     — the document/operation key, as UTF-8 text or already encoded
+binary key bytes</li>
 <li><em>extras</em>  — opcode-specific bytes that precede the body</li>
 <li><em>value</em>   — the document/operation body</li>
 <li><em>cas</em>     — compare-and-swap token, or <code>0</code> for &quot;any&quot;</li>
@@ -426,15 +462,15 @@ verbatim in the response</li>
   </h2>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">
-        crybase/couchbase/services/kv/request.cr:23
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L24" target="_blank">
+        crybase/couchbase/services/kv/request.cr:24
       </a>
 
     <br/>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L32" target="_blank">
-        crybase/couchbase/services/kv/request.cr:32
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L33" target="_blank">
+        crybase/couchbase/services/kv/request.cr:33
       </a>
 
     <br/>
@@ -456,7 +492,7 @@ verbatim in the response</li>
   <ul class="list-summary">
 
       <li class="entry-summary">
-        <a href="#new%28opcode%3AOpcode%2Ckey%3AString%3D%22%22%2Cextras%3ABytes%3DBytes.empty%2Cvalue%3ABytes%3DBytes.empty%2Ccas%3AUInt64%3D0_u64%2Copaque%3AUInt32%3D0_u32%2Cvbucket%3AUInt16%3D0_u16%29-class-method" class="signature"><strong>.new</strong>(opcode : Opcode, key : String = <span class="s">&quot;&quot;</span>, extras : Bytes = <span class="t">Bytes</span>.empty, value : Bytes = <span class="t">Bytes</span>.empty, cas : UInt64 = <span class="n">0_u64</span>, opaque : UInt32 = <span class="n">0_u32</span>, vbucket : UInt16 = <span class="n">0_u16</span>)</a>
+        <a href="#new%28opcode%3AOpcode%2Ckey%3AString%7CBytes%3D%22%22%2Cextras%3ABytes%3DBytes.empty%2Cvalue%3ABytes%3DBytes.empty%2Ccas%3AUInt64%3D0_u64%2Copaque%3AUInt32%3D0_u32%2Cvbucket%3AUInt16%3D0_u16%29-class-method" class="signature"><strong>.new</strong>(opcode : Opcode, key : String | Bytes = <span class="s">&quot;&quot;</span>, extras : Bytes = <span class="t">Bytes</span>.empty, value : Bytes = <span class="t">Bytes</span>.empty, cas : UInt64 = <span class="n">0_u64</span>, opaque : UInt32 = <span class="n">0_u32</span>, vbucket : UInt16 = <span class="n">0_u16</span>)</a>
 
       </li>
 
@@ -499,7 +535,7 @@ verbatim in the response</li>
       </li>
 
       <li class="entry-summary">
-        <a href="#key%3AString-instance-method" class="signature"><strong>#key</strong> : String</a>
+        <a href="#key%3AString%7CBytes-instance-method" class="signature"><strong>#key</strong> : String | Bytes</a>
 
       </li>
 
@@ -587,18 +623,18 @@ verbatim in the response</li>
     Constructor Detail
   </h2>
 
-    <div class="entry-detail" id="new(opcode:Opcode,key:String=&quot;&quot;,extras:Bytes=Bytes.empty,value:Bytes=Bytes.empty,cas:UInt64=0_u64,opaque:UInt32=0_u32,vbucket:UInt16=0_u16)-class-method">
+    <div class="entry-detail" id="new(opcode:Opcode,key:String|Bytes=&quot;&quot;,extras:Bytes=Bytes.empty,value:Bytes=Bytes.empty,cas:UInt64=0_u64,opaque:UInt32=0_u32,vbucket:UInt16=0_u16)-class-method">
       <div class="signature">
 
-        def self.<strong>new</strong>(opcode : <a href="../../../../CryBase/CouchBase/Services/KV/Opcode.html">Opcode</a>, key : String = <span class="s">&quot;&quot;</span>, extras : Bytes = <span class="t">Bytes</span>.empty, value : Bytes = <span class="t">Bytes</span>.empty, cas : UInt64 = <span class="n">0_u64</span>, opaque : UInt32 = <span class="n">0_u32</span>, vbucket : UInt16 = <span class="n">0_u16</span>)
+        def self.<strong>new</strong>(opcode : <a href="../../../../CryBase/CouchBase/Services/KV/Opcode.html">Opcode</a>, key : String | Bytes = <span class="s">&quot;&quot;</span>, extras : Bytes = <span class="t">Bytes</span>.empty, value : Bytes = <span class="t">Bytes</span>.empty, cas : UInt64 = <span class="n">0_u64</span>, opaque : UInt32 = <span class="n">0_u32</span>, vbucket : UInt16 = <span class="n">0_u16</span>)
 
-        <a class="method-permalink" href="#new%28opcode%3AOpcode%2Ckey%3AString%3D%22%22%2Cextras%3ABytes%3DBytes.empty%2Cvalue%3ABytes%3DBytes.empty%2Ccas%3AUInt64%3D0_u64%2Copaque%3AUInt32%3D0_u32%2Cvbucket%3AUInt16%3D0_u16%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28opcode%3AOpcode%2Ckey%3AString%7CBytes%3D%22%22%2Cextras%3ABytes%3DBytes.empty%2Cvalue%3ABytes%3DBytes.empty%2Ccas%3AUInt64%3D0_u64%2Copaque%3AUInt32%3D0_u32%2Cvbucket%3AUInt16%3D0_u16%29-class-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L24" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -644,7 +680,7 @@ verbatim in the response</li>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L24" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -660,7 +696,7 @@ verbatim in the response</li>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L24" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -679,12 +715,12 @@ verbatim in the response</li>
       </div>
     </div>
 
-    <div class="entry-detail" id="key:String-instance-method">
+    <div class="entry-detail" id="key:String|Bytes-instance-method">
       <div class="signature">
 
-        def <strong>key</strong> : String
+        def <strong>key</strong> : String | Bytes
 
-        <a class="method-permalink" href="#key%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#key%3AString%7CBytes-instance-method">#</a>
       </div>
 
       <br/>
@@ -737,7 +773,7 @@ verbatim in the response</li>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L34" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/request.cr#L35" target="_blank">View source</a>]
 
       </div>
     </div>

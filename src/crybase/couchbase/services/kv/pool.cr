@@ -44,6 +44,8 @@ module CryBase::CouchBase::Services::KV
 
     getter endpoint : Endpoint
     getter bucket : String
+    getter scope : String
+    getter collection : String
     getter size : Int32
 
     @available : Channel(Client)
@@ -67,10 +69,62 @@ module CryBase::CouchBase::Services::KV
 
       @available = Channel(Client).new(@size)
       @clients = [] of Client
+      @scope = Constants::DEFAULT_SCOPE
+      @collection = Constants::DEFAULT_COLLECTION
       @mutex = Mutex.new
       @closed = false
 
       build_clients(username, password, connect_timeout, tls_verify, tls_hostname, tls_context)
+    end
+
+    def bucket=(name : String) : String
+      raise ArgumentError.new("kv bucket required") if name.empty?
+
+      clients = active_clients
+      clients.each(&.bucket=(name))
+      @mutex.synchronize do
+        raise_closed! if @closed
+        @bucket = name
+      end
+      name
+    end
+
+    def scope=(name : String) : String
+      raise ArgumentError.new("kv scope required") if name.empty?
+
+      clients = active_clients
+      clients.each(&.scope=(name))
+      @mutex.synchronize do
+        raise_closed! if @closed
+        @scope = name
+      end
+      name
+    end
+
+    def collection=(name : String) : String
+      raise ArgumentError.new("kv collection required") if name.empty?
+
+      clients = active_clients
+      clients.each(&.collection=(name))
+      @mutex.synchronize do
+        raise_closed! if @closed
+        @collection = name
+      end
+      name
+    end
+
+    def scope(name : String) : ScopeContext(Pool)
+      ScopeContext.new(self, scope: name)
+    end
+
+    def collection(name : String) : CollectionContext(Pool)
+      CollectionContext.new(self, scope: @scope, collection: name)
+    end
+
+    def collection_id(scope : String, collection : String) : UInt32
+      checkout do |client|
+        client.collection_id(scope, collection)
+      end
     end
 
     private def build_clients(
@@ -110,6 +164,7 @@ module CryBase::CouchBase::Services::KV
       end
 
       begin
+        prepare_client(client)
         yield client
       ensure
         if closed?
@@ -134,6 +189,19 @@ module CryBase::CouchBase::Services::KV
 
     def closed? : Bool
       @mutex.synchronize { @closed }
+    end
+
+    private def active_clients : Array(Client)
+      @mutex.synchronize do
+        raise_closed! if @closed
+        @clients.dup
+      end
+    end
+
+    private def prepare_client(client : Client) : Nil
+      client.bucket = @bucket unless client.bucket == @bucket
+      client.scope = @scope
+      client.collection = @collection
     end
 
     private def raise_closed! : NoReturn

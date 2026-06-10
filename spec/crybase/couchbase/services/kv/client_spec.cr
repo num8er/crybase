@@ -4,6 +4,22 @@ private alias CB = CryBase::CouchBase
 private alias KV = CryBase::CouchBase::Services::KV
 
 describe KV::Client do
+  it "exposes scoped collection helpers" do
+    client = uninitialized KV::Client
+
+    typeof(client.bucket = "bucket").should eq(String)
+    typeof(client.scope).should eq(String)
+    typeof(client.scope = "ecommerce_shop").should eq(String)
+    typeof(client.collection).should eq(String)
+    typeof(client.collection = "users").should eq(String)
+    typeof(client.scope("ecommerce_shop")).should eq(KV::ScopeContext(KV::Client))
+    typeof(client.scope("ecommerce_shop").collection("users")).should eq(KV::CollectionContext(KV::Client))
+    typeof(client.collection("users")).should eq(KV::CollectionContext(KV::Client))
+    typeof(client.get("key", collection_id: 1_u32)).should eq(Bytes)
+    typeof(client.set("key", "value", collection_id: 1_u32)).should eq(UInt64)
+    typeof(client.delete("key", collection_id: 1_u32)).should eq(Nil)
+  end
+
   it "accepts TLS constructor options" do
     endpoint = uninitialized CB::Endpoint
     context = uninitialized OpenSSL::SSL::Context::Client

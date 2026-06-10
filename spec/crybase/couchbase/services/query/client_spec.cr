@@ -17,19 +17,29 @@ describe Query::Client do
     context = uninitialized OpenSSL::SSL::Context::Client
 
     client = Query::Client.from_string(
-      "couchbases://user:pass@127.0.0.1:18093?tls_verify=false&tls_hostname=cb.local",
+      "couchbases://user:pass@127.0.0.1:18093/commerce?tls_verify=false&tls_hostname=cb.local",
       tls_context: context,
     )
 
     client.endpoint.service.should eq(CB::Service::Query)
     client.endpoint.port.should eq(18093)
     client.endpoint.tls?.should be_true
+    client.default_bucket.should eq("commerce")
   end
 
   it "accepts explicit credentials with a connection string endpoint" do
     client = Query::Client.from_string("couchbase://127.0.0.1:8093", "user", "pass")
 
     client.endpoint.service.should eq(CB::Service::Query)
+  end
+
+  it "lets an explicit default bucket override the connection string bucket" do
+    client = Query::Client.from_string(
+      "couchbase://user:pass@127.0.0.1:8093/commerce",
+      bucket: "analytics",
+    )
+
+    client.default_bucket.should eq("analytics")
   end
 
   it "requires credentials when they are not passed or embedded" do
@@ -139,15 +149,142 @@ describe Query::Client do
 
     client.query(
       "SELECT * FROM users",
-      bucket: "travel-sample",
-      scope: "inventory",
+      bucket: "commerce",
+      scope: "ecommerce_shop",
     )
     request = server.requests.receive
 
-    request.params["query_context"].should eq("default:`travel-sample`.`inventory`")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
   ensure
     client.try(&.close)
     server.try(&.close)
+  end
+
+  it "builds query context with an explicit namespace" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.query(
+      "SELECT * FROM users",
+      bucket: "commerce",
+      scope: "ecommerce_shop",
+      namespace: "tenant",
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("tenant:`commerce`.`ecommerce_shop`")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "uses connection-level bucket and scope defaults for collection queries" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.bucket = "commerce"
+    client.scope = "ecommerce_shop"
+    client.query("SELECT * FROM users")
+    request = server.requests.receive
+
+    client.default_bucket.should eq("commerce")
+    client.default_scope.should eq("ecommerce_shop")
+    request.params["statement"].should eq("SELECT * FROM users")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "lets per-query bucket and scope override connection defaults" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.bucket = "default-bucket"
+    client.scope = "default-scope"
+    client.query("SELECT * FROM users", bucket: "commerce", scope: "ecommerce_shop")
+    request = server.requests.receive
+
+    request.params["statement"].should eq("SELECT * FROM users")
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "ignores connection defaults when query_context is explicit" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    client.bucket = "default-bucket"
+    client.scope = "default-scope"
+    client.query(
+      "SELECT * FROM users",
+      query_context: Query::QueryContext.new(bucket: "commerce", scope: "ecommerce_shop"),
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "builds query context from scoped bucket helpers" do
+    server = QueryHelpers.start(%({
+      "status":"success",
+      "results":[{"ok":true}]
+    }))
+    client = Query::Client.new(server.endpoint, "user", "pass")
+
+    result = client.bucket("commerce").scope("ecommerce_shop").query(
+      "SELECT * FROM users",
+      readonly: true,
+    )
+    request = server.requests.receive
+
+    request.params["query_context"].should eq("default:`commerce`.`ecommerce_shop`")
+    request.params["readonly"].should eq("true")
+    client.default_bucket.should be_nil
+    client.default_scope.should be_nil
+    result.rows.first["ok"].as_bool.should be_true
+  ensure
+    client.try(&.close)
+    server.try(&.close)
+  end
+
+  it "exposes scoped query operations" do
+    endpoint = CB::Endpoint.new("127.0.0.1", 8093, CB::Service::Query, false)
+    client = Query::Client.new(endpoint, "user", "pass")
+    scoped = client.bucket("commerce").scope("ecommerce_shop")
+    prepared = Query::PreparedStatement.new("SELECT 1", "plan", nil, JSON.parse(%({"name":"plan"})))
+
+    typeof(scoped.query("SELECT 1")).should eq(Query::Result)
+    typeof(scoped.query("SELECT $1", "value")).should eq(Query::Result)
+    typeof(scoped.query("SELECT $name", named_args: {name: "value"})).should eq(Query::Result)
+    typeof(scoped.query("SELECT 1", adhoc: false)).should eq(Query::Result)
+    typeof(scoped.query("SELECT 1", retry_policy: CB::RetryPolicy.no_retry)).should eq(Query::Result)
+    typeof(scoped.query_as(QueryClientRow, "SELECT name")).should eq(Array(QueryClientRow))
+    typeof(scoped.query_each("SELECT name") { |row| row }).should eq(Query::Result)
+    typeof(scoped.query_each_as(QueryClientRow, "SELECT name") { |row| row }).should eq(Query::Result)
+    typeof(scoped.query_cursor("SELECT name")).should eq(Query::Cursor)
+    typeof(scoped.prepare("SELECT 1")).should eq(Query::PreparedStatement)
+    typeof(scoped.execute_prepared(prepared)).should eq(Query::Result)
+    typeof(scoped.execute_prepared("plan")).should eq(Query::Result)
+  ensure
+    client.try(&.close)
   end
 
   it "maps result rows to typed values" do
@@ -199,14 +336,14 @@ describe Query::Client do
     prepared = client.prepare(
       "SELECT $name AS name",
       "plan",
-      options: {query_context: "default:`travel-sample`.inventory"},
+      options: {query_context: "default:`commerce`.ecommerce_shop"},
     )
     request = server.requests.receive
 
     request.params["statement"].should eq(
       "PREPARE plan AS SELECT $name AS name"
     )
-    request.params["query_context"].should eq("default:`travel-sample`.inventory")
+    request.params["query_context"].should eq("default:`commerce`.ecommerce_shop")
     prepared.statement.should eq("SELECT $name AS name")
     prepared.name.should eq("[127.0.0.1:8093]plan")
     prepared.encoded_plan.should eq("encoded")

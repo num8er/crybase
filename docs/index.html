@@ -72,6 +72,21 @@
 
     </li>
 
+  <li class="parent " data-id="crybase/CryBase/Connectivity/HTTPClient" data-name="crybase::connectivity::httpclient">
+      <a href="CryBase/Connectivity/HTTPClient.html">HTTPClient</a>
+
+        <ul>
+
+  <li class=" " data-id="crybase/CryBase/Connectivity/HTTPClient/Client" data-name="crybase::connectivity::httpclient::client">
+      <a href="CryBase/Connectivity/HTTPClient/Client.html">Client</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/Connectivity/SocketConfig" data-name="crybase::connectivity::socketconfig">
       <a href="CryBase/Connectivity/SocketConfig.html">SocketConfig</a>
 
@@ -177,6 +192,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/CollectionContext" data-name="crybase::couchbase::services::kv::collectioncontext(target)">
+      <a href="CryBase/CouchBase/Services/KV/CollectionContext.html">CollectionContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Constants" data-name="crybase::couchbase::services::kv::constants">
       <a href="CryBase/CouchBase/Services/KV/Constants.html">Constants</a>
 
@@ -227,6 +247,11 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/ScopeContext" data-name="crybase::couchbase::services::kv::scopecontext(target)">
+      <a href="CryBase/CouchBase/Services/KV/ScopeContext.html">ScopeContext</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Serializable" data-name="crybase::couchbase::services::kv::serializable">
       <a href="CryBase/CouchBase/Services/KV/Serializable.html">Serializable</a>
 
@@ -246,6 +271,11 @@
       <a href="CryBase/CouchBase/Services/Query.html">Query</a>
 
         <ul>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/BucketContext" data-name="crybase::couchbase::services::query::bucketcontext(target)">
+      <a href="CryBase/CouchBase/Services/Query/BucketContext.html">BucketContext</a>
+
+    </li>
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/Client" data-name="crybase::couchbase::services::query::client">
       <a href="CryBase/CouchBase/Services/Query/Client.html">Client</a>
@@ -294,6 +324,11 @@
 
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScanConsistency" data-name="crybase::couchbase::services::query::scanconsistency">
       <a href="CryBase/CouchBase/Services/Query/ScanConsistency.html">ScanConsistency</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/Query/ScopeContext" data-name="crybase::couchbase::services::query::scopecontext(target)">
+      <a href="CryBase/CouchBase/Services/Query/ScopeContext.html">ScopeContext</a>
 
     </li>
 
@@ -371,612 +406,49 @@
   </svg>
 </a>CryBase</h1>
 <p><a href="https://crystal-lang.org/"><img src="https://img.shields.io/badge/Crystal-1.20+-000000?logo=crystal&amp;logoColor=white" alt="Crystal" /></a>
-<a href="https://www.couchbase.com/"><img src="https://img.shields.io/badge/Couchbase-KV%20Client-EA2328?logo=couchbase&amp;logoColor=white" alt="Couchbase" /></a></p>
+<a href="https://www.couchbase.com/"><img src="https://img.shields.io/badge/Couchbase-KV%20Client-EA2328?logo=couchbase&amp;logoColor=white" alt="Couchbase KV" /></a>
+<a href="https://www.couchbase.com/"><img src="https://img.shields.io/badge/Couchbase-Query%20Client-EA2328?logo=couchbase&amp;logoColor=white" alt="Couchbase Query" /></a></p>
 <p>Crystal client primitives for Couchbase.</p>
-<p>CryBase is still early, but it now has three useful layers:</p>
-<ul>
-<li>A cluster-level client that expands Couchbase connection strings into service
-endpoints and TCP-probes them.</li>
-<li>A KV client that speaks the Couchbase binary protocol over plaintext or TLS
-sockets for authenticated <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, and counter
-operations, plus fixed-size and seed-failover connection pools.</li>
-<li>A Query client that posts N1QL/SQL++ statements to the Couchbase HTTP Query
-service, with reusable HTTP connections, JSON result parsing, prepared
-statements, typed row helpers, streaming cursors, seed failover, and Query
-node discovery.</li>
-</ul>
-<h2><a id="status" class="anchor" href="#status">
+<p>CryBase currently covers Couchbase endpoint discovery, the KV binary protocol,
+and the Query HTTP service. Search, Analytics, Index, Eventing, Views, and
+Management protocol clients are not implemented yet.</p>
+<h2><a id="index" class="anchor" href="#index">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Status</h2>
-<p>Implemented:</p>
-<ul>
-<li>Connection string parsing for <code>couchbase://</code>, <code>couchbases://</code>, and
-<code>http(s)://</code>.</li>
-<li>Service and endpoint modeling for KV, Query, Search, Analytics, Index,
-Eventing, Views, and Management.</li>
-<li>Plain TCP reachability probing for cluster service endpoints.</li>
-<li>KV binary protocol handshake: <code>HELLO</code>, SASL PLAIN auth, and <code>SELECT_BUCKET</code>.</li>
-<li>TLS socket support for KV operations.</li>
-<li>KV document operations: <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>, <code>increment</code>,
-<code>decrement</code>.</li>
-<li>Couchbase vbucket hashing for KV document routing.</li>
-<li><code>KV::Pool</code> with 10 authenticated connections by default.</li>
-<li><code>KV::Cluster</code> seed failover across multiple KV hosts.</li>
-<li>Query service N1QL/SQL++ execution over reusable HTTP/HTTPS connections.</li>
-<li>Query prepared statement APIs and <code>adhoc: false</code> plan caching.</li>
-<li>Query typed row helpers, streaming row iteration, streaming cursors, and
-bucket/scope query context helpers.</li>
-<li>Per-query Query retry policy values with
-<code>CryBase::CouchBase::RetryPolicy.no_retry</code> as the default.</li>
-<li><code>Query::Cluster</code> seed failover across multiple Query hosts.</li>
-<li><code>Query::Cluster</code> Query node discovery from Couchbase cluster topology.</li>
-<li>Real Couchbase integration specs in GitHub Actions.</li>
-</ul>
-<p>Not implemented yet:</p>
-<ul>
-<li>KV cluster config loading and node/vbucket map routing.</li>
-<li>Automatic retry/reconnect execution, durability, observe, CAS helpers,
-scopes, or collections.</li>
-<li>Search, Analytics, Index, Eventing, Views, and Management protocols.</li>
-</ul>
-<h2><a id="installation" class="anchor" href="#installation">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Installation</h2>
-<p>Add CryBase to <code>shard.yml</code>:</p>
-<pre><code class="language-yaml">dependencies:
-  crybase:
-    github: shardscry/crybase</code></pre>
-<p>Then install dependencies:</p>
-<pre><code class="language-sh">shards install</code></pre>
-<h2><a id="quick-start" class="anchor" href="#quick-start">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Quick Start</h2>
-<h3><a id="probe-cluster-endpoints" class="anchor" href="#probe-cluster-endpoints">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Probe Cluster Endpoints</h3>
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
-
-client <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Client</span>.new(<span class="s">&quot;couchbase://node1,node2&quot;</span>)
-
-puts <span class="s">&quot;Cluster nodes:&quot;</span>
-client.connection_string.hosts.each <span class="k">do</span> <span class="o">|</span>host<span class="o">|</span>
-  puts <span class="s">&quot;  - </span><span class="i">#{</span>host<span class="i">}</span><span class="s">&quot;</span>
-<span class="k">end</span>
-
-puts <span class="s">&quot;Reachable endpoints:&quot;</span>
-client.connect.each <span class="k">do</span> <span class="o">|</span>endpoint<span class="o">|</span>
-  puts <span class="s">&quot;  - </span><span class="i">#{</span>endpoint<span class="i">}</span><span class="s">&quot;</span>
-<span class="k">end</span>
-
-client.close</code></pre>
-<h3><a id="use-one-kv-connection" class="anchor" href="#use-one-kv-connection">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Use One KV Connection</h3>
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
-
-kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
-)
-
-kv.set(<span class="s">&quot;crybase:hello&quot;</span>, <span class="s">%({&quot;hello&quot;:&quot;world&quot;})</span>)
-puts <span class="t">String</span>.new(kv.get(<span class="s">&quot;crybase:hello&quot;</span>))
-kv.touch(<span class="s">&quot;crybase:hello&quot;</span>, <span class="n">3600_u32</span>)
-puts <span class="t">String</span>.new(kv.get(<span class="s">&quot;crybase:hello&quot;</span>, expiry: <span class="n">3600_u32</span>))
-kv.delete(<span class="s">&quot;crybase:hello&quot;</span>)
-kv.close</code></pre>
-<p>Use a TLS KV endpoint with <code>couchbases://</code>:</p>
-<pre><code class="language-crystal">kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(
-  <span class="s">&quot;couchbases://Administrator:password@127.0.0.1:11207/default?tls_verify=false&quot;</span>,
-)</code></pre>
-<p><code>tls_verify</code> defaults to <code>true</code>. Pass <code>tls_hostname:</code> when the certificate
-hostname differs from the endpoint host, or <code>tls_context:</code> with a configured
-<code>OpenSSL::SSL::Context::Client</code> for a custom cluster CA.</p>
-<h3><a id="store-typed-kv-values" class="anchor" href="#store-typed-kv-values">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Store Typed KV Values</h3>
-<p>Include Crystal's <code>JSON::Serializable</code> on JSON-backed value types, then use
-<code>get_as</code>:</p>
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;json&quot;</span>
-<span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
-
-<span class="k">struct</span> <span class="t">Profile</span>
-  <span class="k">include</span> <span class="t">JSON</span><span class="t">::</span><span class="t">Serializable</span>
-
-  property name : <span class="t">String</span>
-  property score : <span class="t">Int32</span>
-
-  <span class="k">def</span> <span class="m">initialize</span>(@name : <span class="t">String</span>, @score : <span class="t">Int32</span>)
-  <span class="k">end</span>
-<span class="k">end</span>
-
-kv.set(<span class="s">&quot;crybase:profile&quot;</span>, <span class="t">Profile</span>.new(<span class="s">&quot;ada&quot;</span>, <span class="n">42</span>))
-profile <span class="o">=</span> kv.get_as(<span class="s">&quot;crybase:profile&quot;</span>, <span class="t">Profile</span>)
-puts profile.name</code></pre>
-<p>Values that do not include <code>JSON::Serializable</code> are stored with <code>to_s</code>; read
-them back with <code>get(key, String)</code> or raw <code>get(key)</code>.</p>
-<h3><a id="use-the-kv-pool" class="anchor" href="#use-the-kv-pool">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Use The KV Pool</h3>
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;crybase&quot;</span>
-
-pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
-)
-
-pool.set(<span class="s">&quot;crybase:pooled&quot;</span>, <span class="s">&quot;value&quot;</span>)
-puts <span class="t">String</span>.new(pool.get(<span class="s">&quot;crybase:pooled&quot;</span>))
-
-pool.checkout <span class="k">do</span> <span class="o">|</span>client<span class="o">|</span>
-  client.set(<span class="s">&quot;crybase:borrowed&quot;</span>, <span class="s">&quot;value&quot;</span>)
-<span class="k">end</span>
-
-pool.increment(<span class="s">&quot;crybase:counter&quot;</span>, delta: <span class="n">2_u64</span>, initial: <span class="n">10_u64</span>)
-pool.decrement(<span class="s">&quot;crybase:counter&quot;</span>, delta: <span class="n">1_u64</span>)
-pool.touch(<span class="s">&quot;crybase:pooled&quot;</span>, <span class="n">3600_u32</span>)
-
-pool.close</code></pre>
-<p><code>KV::Pool</code> opens 10 connections by default. Override it with <code>size:</code>:</p>
-<pre><code class="language-crystal">pool <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Pool</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/default&quot;</span>,
-  size: <span class="n">20</span>,
-)</code></pre>
-<p><code>KV::Pool</code> accepts the same <code>tls_verify:</code>, <code>tls_hostname:</code>, and <code>tls_context:</code>
-options as <code>KV::Client</code> and passes them to each pooled connection.</p>
-<p><code>KV::Client</code> and <code>KV::Pool</code> both expose <code>get</code>, <code>set</code>, <code>delete</code>, <code>touch</code>,
-<code>increment</code>, <code>decrement</code>, and <code>close</code>. Pass <code>expiry:</code> to <code>get</code> to fetch a
-document and reset expiration atomically.
-Each <code>KV::Pool</code> operation checks out one authenticated client, delegates the
-call, and returns that client to the pool.
-<code>KV::Pool</code> also exposes <code>checkout</code>, <code>closed?</code>, <code>size</code>, <code>endpoint</code>, and <code>bucket</code>.</p>
-<h3><a id="use-seed-failover" class="anchor" href="#use-seed-failover">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Use Seed Failover</h3>
-<p><code>KV::Cluster</code> accepts multiple seed hosts and keeps one active <code>KV::Pool</code>.
-It tries the next seed if the active seed cannot connect or a delegated
-operation hits a connection-level failure. This is seed failover, not
-vbucket-map routing.</p>
-<pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Services</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@node1,node2,node3/default&quot;</span>,
-  size: <span class="n">10</span>,
-)
-
-cluster.set(<span class="s">&quot;crybase:cluster&quot;</span>, <span class="s">&quot;value&quot;</span>)
-puts <span class="t">String</span>.new(cluster.get(<span class="s">&quot;crybase:cluster&quot;</span>))
-cluster.close</code></pre>
-<h3><a id="run-n1-ql-queries" class="anchor" href="#run-n1-ql-queries">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Run N1QL Queries</h3>
-<p>Use <code>Query::Client</code> for one Query endpoint:</p>
-<pre><code class="language-crystal">client <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Client</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1&quot;</span>,
-)
-
-result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT $name AS name, $score AS score&quot;</span>,
-  named_args: {name: <span class="s">&quot;crybase&quot;</span>, score: <span class="n">42</span>},
-  readonly: <span class="n">true</span>,
-)
-
-puts result.rows.first[<span class="s">&quot;name&quot;</span>].as_s</code></pre>
-<p><code>readonly: true</code> marks a Query request as read-only and sends the Couchbase
-Query <code>readonly=true</code> option. Use it for <code>SELECT</code> and other non-mutating
-statements. Leave it unset for <code>INSERT</code>, <code>UPDATE</code>, <code>UPSERT</code>, <code>DELETE</code>, and
-other mutations.</p>
-<p>Use bucket/scope context helpers when your statement should resolve collection
-names relative to a Couchbase scope:</p>
-<pre><code class="language-crystal">context <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">QueryContext</span>.new(
-  <span class="s">&quot;travel-sample&quot;</span>,
-  <span class="s">&quot;inventory&quot;</span>,
-)
-
-result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u&quot;</span>,
-  query_context: context,
-  readonly: <span class="n">true</span>,
-)</code></pre>
-<p>Use <code>bucket:</code> and <code>scope:</code> as shorthand when you do not need to keep a context
-object:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u&quot;</span>,
-  bucket: <span class="s">&quot;travel-sample&quot;</span>,
-  scope: <span class="s">&quot;inventory&quot;</span>,
-  readonly: <span class="n">true</span>,
-)</code></pre>
-<p>Pass positional parameters after the statement:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(<span class="s">&quot;SELECT $1 AS query_value&quot;</span>, <span class="s">&quot;hello&quot;</span>, readonly: <span class="n">true</span>)
-puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s</code></pre>
-<p>Use typed scan consistency values when needed:</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT 1 AS one&quot;</span>,
-  scan_consistency: <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">ScanConsistency</span><span class="t">::</span><span class="t">RequestPlus</span>,
-)</code></pre>
-<p>Pass a per-query retry policy when a call should carry explicit retry intent.
-<code>CryBase::CouchBase::RetryPolicy.no_retry</code> is the default. Passing a policy
-currently does not add automatic retry execution; it keeps the policy separate
-from the N1QL form options for the future retry path.</p>
-<pre><code class="language-crystal">policy <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">RetryPolicy</span>.new(
-  max_attempts: <span class="n">3</span>,
-  delay: <span class="n">50</span>.milliseconds,
-  jitter: <span class="n">0.2</span>,
-  max_elapsed: <span class="n">500</span>.milliseconds,
-)
-
-result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT 1 AS one&quot;</span>,
-  readonly: <span class="n">true</span>,
-  retry_policy: policy,
-)</code></pre>
-<p><code>Query::Cluster.from_string</code> accepts multiple seed hosts, loads Query node
-topology from Couchbase Management when available, and falls back to the
-original Query seed endpoints when topology discovery is unavailable. It tries
-the next endpoint when a transport failure or retryable Query service HTTP
-error occurs.</p>
-<pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@node1,node2,node3&quot;</span>,
-)
-
-puts cluster.query(<span class="s">&quot;SELECT 1 AS one&quot;</span>).rows.first[<span class="s">&quot;one&quot;</span>].as_i
-cluster.close</code></pre>
-<p><code>Query::Client</code> reuses its HTTP connection until <code>close</code>. <code>Query::Cluster</code>
-keeps one reusable endpoint client per discovered Query endpoint and closes
-stale clients when topology changes or failover replaces the active endpoint.</p>
-<p>Prepare a statement explicitly when you want to manage the prepared plan:</p>
-<pre><code class="language-crystal">prepared <span class="o">=</span> client.prepare(
-  <span class="s">&quot;SELECT $name AS name, $score AS score&quot;</span>,
-  readonly: <span class="n">true</span>,
-)
-
-result <span class="o">=</span> client.execute_prepared(
-  prepared,
-  named_args: {name: <span class="s">&quot;crybase&quot;</span>, score: <span class="n">42</span>},
-  readonly: <span class="n">true</span>,
-)
-
-puts result.rows.first[<span class="s">&quot;score&quot;</span>].as_i</code></pre>
-<p><code>adhoc: true</code> is the default and sends the statement directly as a one-off
-Query request. Pass <code>adhoc: false</code> when the same statement shape will be reused:
-CryBase prepares the statement, caches the prepared plan, and executes by
-prepared name. If Couchbase reports that the prepared statement no longer
-exists, CryBase clears that cache entry and prepares it once again.</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(
-  <span class="s">&quot;SELECT $1 AS query_value&quot;</span>,
-  <span class="s">&quot;cached&quot;</span>,
-  readonly: <span class="n">true</span>,
-  adhoc: <span class="n">false</span>,
-)
-
-puts result.rows.first[<span class="s">&quot;query_value&quot;</span>].as_s
-client.close</code></pre>
-<p>Map rows into Crystal types with <code>query_as</code>, stream rows through a block with
-<code>query_each_as</code>, or keep a single-use streaming cursor with <code>query_cursor</code>:</p>
-<pre><code class="language-crystal"><span class="k">struct</span> <span class="t">UserRow</span>
-  <span class="k">include</span> <span class="t">JSON</span><span class="t">::</span><span class="t">Serializable</span>
-
-  getter doc_key : <span class="t">String</span>
-  getter name : <span class="t">String</span>
-<span class="k">end</span>
-
-rows <span class="o">=</span> client.query_as(
-  <span class="t">UserRow</span>,
-  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u&quot;</span>,
-  bucket: <span class="s">&quot;travel-sample&quot;</span>,
-  scope: <span class="s">&quot;inventory&quot;</span>,
-  readonly: <span class="n">true</span>,
-)
-
-client.query_each_as(
-  <span class="t">UserRow</span>,
-  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u&quot;</span>,
-  bucket: <span class="s">&quot;travel-sample&quot;</span>,
-  scope: <span class="s">&quot;inventory&quot;</span>,
-  readonly: <span class="n">true</span>,
-) <span class="k">do</span> <span class="o">|</span>row<span class="o">|</span>
-  puts row.name
-<span class="k">end</span>
-
-cursor <span class="o">=</span> client.query_cursor(
-  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u&quot;</span>,
-  bucket: <span class="s">&quot;travel-sample&quot;</span>,
-  scope: <span class="s">&quot;inventory&quot;</span>,
-  readonly: <span class="n">true</span>,
-)
-
-result <span class="o">=</span> cursor.each_as(<span class="t">UserRow</span>) <span class="k">do</span> <span class="o">|</span>row<span class="o">|</span>
-  puts row.name
-<span class="k">end</span>
-
-puts result.metrics</code></pre>
-<p><code>query_cursor</code> starts the request when <code>each</code> or <code>each_as</code> is called. It yields
-rows as the response body is parsed and does not retain them in
-<code>result.rows</code>.</p>
-<p>Run raw SQL++ mutation statements through <code>query</code> too. Do not pass
-<code>readonly: true</code> for mutations; use <code>RETURNING</code> when you want changed rows
-back.</p>
-<pre><code class="language-crystal">result <span class="o">=</span> client.query(
-  <span class="s">&lt;&lt;-SQL</span>,
-<span class="s">    UPDATE users AS u
-    USE KEYS $id
-    SET event.done = true FOR event IN u.events WHEN event.name = $event END
-    WHERE u.type = &quot;User&quot;
-    RETURNING META(u).id AS doc_key, u.events
-    SQL</span>
-  named_args: {id: <span class="s">&quot;User:01...&quot;</span>, event: <span class="s">&quot;welcome&quot;</span>},
-  bucket: <span class="s">&quot;travel-sample&quot;</span>,
-  scope: <span class="s">&quot;inventory&quot;</span>,
-)</code></pre>
-<p>If the Management API uses a non-default port, pass <code>management_port:</code>. Use
-<code>discover_topology: false</code> to keep static seed-only routing.</p>
-<pre><code class="language-crystal">cluster <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Cluster</span>.from_string(
-  <span class="s">&quot;couchbase://Administrator:password@node1,node2&quot;</span>,
-  management_port: <span class="n">19091</span>,
-)
-
-cluster.refresh_topology
-cluster.close</code></pre>
-<h2><a id="public-api-map" class="anchor" href="#public-api-map">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Public API Map</h2>
-<p>| Module / Type | Purpose |
-| ------------- | ------- |
-| <code><a href="CryBase.html">CryBase</a></code> | Top-level namespace and shard entry point. |
-| <code><a href="CryBase/Connectivity.html">CryBase::Connectivity</a></code> | Shared plaintext TCP and TLS socket construction helpers, including <code>host:port</code> overloads. |
-| <code><a href="CryBase/Connectivity/HostPort.html">CryBase::Connectivity::HostPort</a></code> | Strict parser/value object for <code>host:port</code> strings. |
-| <code><a href="CryBase/Connectivity/SocketConfig.html">CryBase::Connectivity::SocketConfig</a></code> | Shared timeout and TLS socket options. |
-| <code><a href="CryBase/CouchBase.html">CryBase::CouchBase</a></code> | Couchbase-specific namespace. |
-| <code><a href="CryBase/CouchBase/ConnectionString.html">CryBase::CouchBase::ConnectionString</a></code> | Parses supported connection string schemes and seed hosts. |
-| <code><a href="CryBase/CouchBase/Endpoint.html">CryBase::CouchBase::Endpoint</a></code> | Value type for one Couchbase service endpoint, with <code>from_string</code> parsing. |
-| <code><a href="CryBase/CouchBase/Service.html">CryBase::CouchBase::Service</a></code> | Service enum with plaintext and TLS default ports. |
-| <code><a href="CryBase/CouchBase/Client.html">CryBase::CouchBase::Client</a></code> | Cluster endpoint enumerator and TCP probe client. |
-| <code><a href="CryBase/CouchBase/Policies/RetryPolicy.html">CryBase::CouchBase::Policies::RetryPolicy</a></code> | Canonical per-query retry policy value. |
-| <code><a href="CryBase/CouchBase/RetryPolicy.html">CryBase::CouchBase::RetryPolicy</a></code> | Short alias for <code>Policies::RetryPolicy</code>. |
-| <code><a href="CryBase/CouchBase/Services.html">CryBase::CouchBase::Services</a></code> | Namespace for service-specific protocol clients. |
-| <code><a href="CryBase/CouchBase/KV.html">CryBase::CouchBase::KV</a></code> | Alias for <code><a href="CryBase/CouchBase/Services/KV.html">CryBase::CouchBase::Services::KV</a></code>. |
-| <code><a href="CryBase/CouchBase/Query.html">CryBase::CouchBase::Query</a></code> | Alias for <code><a href="CryBase/CouchBase/Services/Query.html">CryBase::CouchBase::Services::Query</a></code>. |
-| <code><a href="CryBase/CouchBase/Services/KV.html">CryBase::CouchBase::Services::KV</a></code> | Couchbase binary KV protocol namespace. |
-| <code><a href="CryBase/CouchBase/Services/KV/Client.html">CryBase::CouchBase::Services::KV::Client</a></code> | Single authenticated KV connection. |
-| <code><a href="CryBase/CouchBase/Services/KV/Pool.html">CryBase::CouchBase::Services::KV::Pool</a></code> | Fixed-size pool of authenticated KV clients. |
-| <code><a href="CryBase/CouchBase/Services/KV/Cluster.html">CryBase::CouchBase::Services::KV::Cluster</a></code> | Seed-failover KV client backed by one active pool. |
-| <code><a href="CryBase/CouchBase/Services/Query.html">CryBase::CouchBase::Services::Query</a></code> | Couchbase HTTP Query service namespace. |
-| <code><a href="CryBase/CouchBase/Services/Query/Client.html">CryBase::CouchBase::Services::Query::Client</a></code> | Authenticated N1QL/SQL++ Query endpoint client. |
-| <code><a href="CryBase/CouchBase/Services/Query/Cluster.html">CryBase::CouchBase::Services::Query::Cluster</a></code> | Query client over discovered topology with seed fallback. |
-| <code><a href="CryBase/CouchBase/Services/Query/Cursor.html">CryBase::CouchBase::Services::Query::Cursor</a></code> | Single-use streaming Query row cursor. |
-| <code><a href="CryBase/CouchBase/Services/Query/QueryContext.html">CryBase::CouchBase::Services::Query::QueryContext</a></code> | Bucket/scope Query context formatter. |
-| <code><a href="CryBase/CouchBase/Services/Query/PreparedStatement.html">CryBase::CouchBase::Services::Query::PreparedStatement</a></code> | Prepared Query statement name and metadata. |
-| <code><a href="CryBase/CouchBase/Services/Query/Result.html">CryBase::CouchBase::Services::Query::Result</a></code> | Parsed Query response rows, metadata, warnings, and errors. |
-| <code><a href="CryBase/CouchBase/Services/Query/Topology.html">CryBase::CouchBase::Services::Query::Topology</a></code> | Parsed Query endpoints from Couchbase nodeServices payloads. |
-| <code><a href="CryBase/CouchBase/Services/Query/TopologyClient.html">CryBase::CouchBase::Services::Query::TopologyClient</a></code> | Authenticated Management API client for Query topology loading. |
-| <code><a href="CryBase/Interfaces.html">CryBase::Interfaces</a></code> | Abstract interface aliases for connection strings, endpoints, and clients. |</p>
-<p>Generated API docs are committed in <a href="docs/index.html"><code>docs/</code></a>.</p>
-<p>Feature notes:</p>
-<ul>
-<li><a href="docs/1.FEAT_kv-client.md">KV Client</a></li>
-<li><a href="docs/2.FEAT_kv-client-pool.md">KV Client Pool</a></li>
-<li><a href="docs/3.FEAT_connection-string-to-endpoint-conversion.md">Connection String To Endpoint Conversion</a></li>
-<li><a href="docs/4.FEAT_kv-cluster.md">KV Cluster</a></li>
-<li><a href="docs/5.FEAT_query-service.md">Query Service</a></li>
-<li><a href="docs/6.FEAT_connectivity.md">Connectivity</a></li>
-<li><a href="docs/7.FEAT_query-topology-discovery.md">Query Topology Discovery</a></li>
-<li><a href="docs/8.FEAT_query-prepared-statements.md">Query Prepared Statements</a></li>
-<li><a href="docs/9.FEAT_query-reuse-context-and-typed-rows.md">Query Reuse Context And Typed Rows</a></li>
-<li><a href="docs/10.FEAT_query-cursor.md">Query Cursor</a></li>
-<li><a href="docs/11.FEAT_examples-layout.md">Examples Layout</a></li>
-<li><a href="docs/12.FEAT_query-retry-policy-option.md">Query Retry Policy Option</a></li>
-</ul>
-<h2><a id="connection-strings" class="anchor" href="#connection-strings">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Connection Strings</h2>
-<p>| Scheme | TLS | Notes |
-| ------ | --- | ----- |
-| <code>couchbase://</code> | no | Plaintext service ports. Used by default if the scheme is omitted. |
-| <code>couchbases://</code> | yes | TLS service ports. |
-| <code>http://</code> | no | Treated as a Management URL. |
-| <code>https://</code> | yes | Treated as a Management URL. |</p>
-<p>Multiple seed nodes are comma-separated:</p>
-<pre><code class="language-text">couchbase://node1,node2,node3</code></pre>
-<p>KV connection strings may include credentials, bucket, and supported query
-parameters:</p>
-<pre><code class="language-text">couchbases://user:pass@node1:11207/default?tls_verify=false&amp;tls_hostname=cb.local</code></pre>
-<p><code>KV::Client.from_string</code>, <code>KV::Pool.from_string</code>, and <code>KV::Cluster.from_string</code>
-use <code>user</code>, <code>pass</code>, and <code>bucket</code> from the URI when they are not passed as
-arguments. <code>Query::Client.from_string</code> and <code>Query::Cluster.from_string</code> use
-<code>user</code> and <code>pass</code> from the URI. Supported query parameters are <code>tls_verify</code>
-(<code>true</code>, <code>false</code>, <code>1</code>, <code>0</code>), <code>tls_hostname</code>, and <code>network</code> for topology
-alternate address selection.</p>
-<p>An explicit <code>:port</code> is currently forwarded to the Management endpoint only.
-Other services use their standard Couchbase ports when using
-<code><a href="CryBase/CouchBase/Client.html">CryBase::CouchBase::Client</a></code> for cluster probing.</p>
-<p>For one concrete endpoint, <code>Endpoint.from_string</code> uses the first host and
-honors an explicit port:</p>
-<pre><code class="language-crystal"><span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbase://node1&quot;</span>)
-<span class="c"># =&gt; Data (KV) couchbase://node1:11210</span>
-
-<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbases://node1:11217&quot;</span>)
-<span class="c"># =&gt; Data (KV) couchbases://node1:11217</span>
-
-<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(<span class="s">&quot;couchbases://user:pass@node1:11217/default&quot;</span>)
-<span class="c"># =&gt; Data (KV) couchbases://node1:11217</span>
-
-<span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Endpoint</span>.from_string(
-  <span class="s">&quot;couchbases://node1&quot;</span>,
-  <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Service</span><span class="t">::</span><span class="t">Query</span>,
-)
-<span class="c"># =&gt; Query (N1QL) https://node1:18093</span></code></pre>
-<h2><a id="service-ports" class="anchor" href="#service-ports">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Service Ports</h2>
-<p>| Service | Plaintext | TLS |
-| ------- | --------- | --- |
-| Data (KV) | 11210 | 11207 |
-| Query (N1QL) | 8093 | 18093 |
-| Search (FTS) | 8094 | 18094 |
-| Analytics | 8095 | 18095 |
-| Index | 9102 | 19102 |
-| Eventing | 8096 | 18096 |
-| Views | 8092 | 18092 |
-| Management | 8091 | 18091 |</p>
-<h2><a id="examples" class="anchor" href="#examples">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Examples</h2>
-<p>The <code>examples/</code> directory contains one runnable entry point per example:</p>
-<ul>
-<li><code>cluster_probe/example.cr</code> - probe reachable service endpoints.</li>
-<li><code>kv_basics/example.cr</code> - run a basic KV set/get flow against one endpoint.</li>
-<li><code>kv_cluster/example.cr</code> - run a basic KV set/get flow through seed failover.</li>
-<li><code>kv_expiration/example.cr</code> - run KV expiry, touch, and get-and-touch
-operations.</li>
-<li><code>kv_endpoint_from_cluster/example.cr</code> - probe the cluster, pick a KV
-endpoint, and run a KV operation.</li>
-<li><code>query_basics/example.cr</code> - seed <code>type = &quot;User&quot;</code> documents with ULID keys
-and query them with bucket/scope context, <code>query_as</code>, <code>query_each_as</code>, and
-<code>query_cursor</code>.</li>
-<li><code>query_cursor/example.cr</code> - stream seeded <code>type = &quot;User&quot;</code> documents through
-<code>Query::Cursor#each_as</code>.</li>
-<li><code>query_prepared/example.cr</code> - seed <code>type = &quot;User&quot;</code> documents with ULID keys,
-prepare a N1QL statement with query context, and run it with explicit and
-<code>adhoc: false</code> prepared execution.</li>
-<li><code>query_retry_policy/example.cr</code> - pass an explicit
-<code><a href="CryBase/CouchBase/RetryPolicy.html">CryBase::CouchBase::RetryPolicy</a></code> to client and cluster Query calls.</li>
-<li><code>query_mutations/example.cr</code> - run raw SQL++ <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>,
-<code>UPSERT</code>, and <code>SET ... FOR ... END</code> mutations through Query using query
-context.</li>
-<li><code>shared/constants.cr</code> - shared environment parsing.</li>
-<li><code>shared/methods.cr</code> - entry point for shared example helper methods.</li>
-<li><code>shared/methods/*.cr</code> - one shared helper method per file.</li>
-<li><code>shared/structs.cr</code> - entry point for shared example document and row types
-under <code>CryBaseExamples::Structs</code>.</li>
-<li><code>shared/structs/*.cr</code> - one shared example struct per file.</li>
-<li><code>shared/ulid.cr</code> - timestamp-based ULID utility for example document keys.</li>
-<li><code>docker-compose.yml</code> - local Couchbase Community setup for development.</li>
-</ul>
-<p>Run an example with its directory entry point:</p>
-<pre><code class="language-sh">crystal run examples/query_basics/example.cr</code></pre>
-<p>The examples read Couchbase settings through <code>examples/shared/constants.cr</code>
-from environment variables. The checked-in <code>examples/.env</code> file contains the
-same defaults for local shells that load it:</p>
-<pre><code class="language-sh">export COUCHBASE_HOST=127.0.0.1
-export COUCHBASE_SEEDS=127.0.0.1
-export COUCHBASE_KV_PORT=
-export COUCHBASE_USER=Administrator
-export COUCHBASE_PASS=password
-export COUCHBASE_BUCKET=default
-export COUCHBASE_TLS=false
-export COUCHBASE_TLS_VERIFY=true
-export COUCHBASE_TLS_HOSTNAME=
-export COUCHBASE_QUERY_PORT=</code></pre>
-<p>When adding another runnable example, put it in
-<code>examples/&lt;example_name&gt;/example.cr</code>, require <code>../shared/methods</code>, put shared
-types in <code>examples/shared/structs/&lt;name&gt;.cr</code> under
-<code>CryBaseExamples::Structs</code>, local types in
-<code>examples/&lt;example_name&gt;/structs/&lt;name&gt;.cr</code>, and only add
-<code>examples/&lt;example_name&gt;/helpers.cr</code> for helpers used by that example.</p>
-<h2><a id="development" class="anchor" href="#development">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Development</h2>
-<p>Run checks:</p>
-<pre><code class="language-sh">crystal tool format --check
-crystal build --no-codegen src/crybase.cr
-crystal spec --error-trace</code></pre>
-<p>Generate API docs:</p>
-<pre><code class="language-sh">crystal docs -o docs --project-version=main-dev --source-refname=main
-find docs -name '*.html' -print0 | xargs -0 perl -pi -e 's/[ \t]+$//'</code></pre>
-<p>Run real Couchbase integration specs:</p>
-<pre><code class="language-sh">COUCHBASE_INTEGRATION=1 crystal spec spec/integration --error-trace</code></pre>
-<p>Run TLS KV integration specs against a TLS-enabled Couchbase node:</p>
-<pre><code class="language-sh">COUCHBASE_INTEGRATION=1 \
-COUCHBASE_TLS=true \
-COUCHBASE_TLS_VERIFY=false \
-COUCHBASE_KV_PORT=11217 \
-COUCHBASE_MANAGEMENT_PORT=8097 \
-crystal spec spec/integration --error-trace</code></pre>
-<p><code>COUCHBASE_TLS</code> and <code>COUCHBASE_TLS_VERIFY</code> accept <code>true</code>/<code>false</code> and <code>1</code>/<code>0</code>.</p>
-<p>Enable local hooks once per clone:</p>
-<pre><code class="language-sh">git config core.hooksPath .githooks</code></pre>
-<p>The pre-commit hook:</p>
-<ul>
-<li>Checks Crystal formatting.</li>
-<li>Runs Ameba from <code>bin/ameba</code> on staged Crystal files.</li>
-<li>Verifies the library builds.</li>
-<li>Regenerates <code>docs/</code> with deterministic project metadata.</li>
-<li>Strips trailing whitespace from generated HTML docs.</li>
-<li>Fails if regenerated docs are not staged.</li>
-<li>Runs the spec suite.</li>
-</ul>
-<h2><a id="git-hub-actions" class="anchor" href="#git-hub-actions">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>GitHub Actions</h2>
-<p>CI runs:</p>
-<ul>
-<li>Unit specs.</li>
-<li>Formatting.</li>
-<li>Real Couchbase integration specs against <code>couchbase:community-7.6.0</code> and
-<code>couchbase:community-8.0.0</code>.</li>
-<li>Real Couchbase Query TLS integration specs against
-<code>couchbase:enterprise-7.6.0</code> and <code>couchbase:enterprise-8.0.0</code>.</li>
-<li>Real Couchbase Community Query TLS integration specs through an nginx TLS
-reverse proxy.</li>
-</ul>
-<h2><a id="project-conventions" class="anchor" href="#project-conventions">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Project Conventions</h2>
-<ul>
-<li>One flat module per file, for example <code>module <a href="CryBase/CouchBase.html">CryBase::CouchBase</a></code>.</li>
-<li>Folder paths mirror namespaces.</li>
-<li>Every <code>class</code>, <code>struct</code>, and <code>record</code> has its own file.</li>
-<li>Prefer small value types and explicit protocol framing.</li>
-<li>Keep comments focused on non-obvious behavior.</li>
-</ul>
-<h2><a id="contributing" class="anchor" href="#contributing">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Contributing</h2>
+</a>Index</h2>
 <ol>
-<li>Fork the repository.</li>
-<li>Create a feature branch.</li>
-<li>Run format, build, specs, and docs generation.</li>
-<li>Commit using Conventional Commits.</li>
-<li>Open a pull request.</li>
+<li><a href="docs/1.MANUAL_glossary.md">Glossary</a></li>
+<li><a href="docs/2.MANUAL_installation.md">Installation</a></li>
+<li><a href="docs/3.MANUAL_quick-start.md">Quick start</a></li>
+<li><a href="docs/4.MANUAL_key-value-service.md">Key Value service</a></li>
+<li><a href="docs/5.MANUAL_query-service.md">Query service</a></li>
 </ol>
-<h2><a id="contributors" class="anchor" href="#contributors">
+<h2><a id="small-use-cases" class="anchor" href="#small-use-cases">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Contributors</h2>
-<ul>
-<li><a href="https://github.com/num8er">Anar K. Jafarov</a> - creator and maintainer</li>
-</ul>
+</a>Small Use Cases</h2>
+<pre><code class="language-crystal">kv <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">KV</span><span class="t">::</span><span class="t">Client</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/commerce&quot;</span>,
+)
+
+kv.scope <span class="o">=</span> <span class="s">&quot;ecommerce_shop&quot;</span>
+kv.collection <span class="o">=</span> <span class="s">&quot;users&quot;</span>
+kv.set(<span class="s">&quot;user:1&quot;</span>, <span class="s">%({&quot;name&quot;:&quot;Ada&quot;})</span>)
+puts <span class="t">String</span>.new(kv.get(<span class="s">&quot;user:1&quot;</span>))
+
+admins <span class="o">=</span> kv.collection(<span class="s">&quot;admins&quot;</span>)
+admins.set(<span class="s">&quot;admin:1&quot;</span>, <span class="s">%({&quot;name&quot;:&quot;Grace&quot;})</span>)</code></pre>
+<pre><code class="language-crystal">query <span class="o">=</span> <span class="t">CryBase</span><span class="t">::</span><span class="t">CouchBase</span><span class="t">::</span><span class="t">Query</span><span class="t">::</span><span class="t">Client</span>.from_string(
+  <span class="s">&quot;couchbase://Administrator:password@127.0.0.1/commerce&quot;</span>,
+)
+
+query.scope <span class="o">=</span> <span class="s">&quot;ecommerce_shop&quot;</span>
+
+rows <span class="o">=</span> query.query(
+  <span class="s">&quot;SELECT META(u).id AS doc_key, u.name FROM users AS u LIMIT 5&quot;</span>,
+)</code></pre>
 </div>
 </body>
 </html>

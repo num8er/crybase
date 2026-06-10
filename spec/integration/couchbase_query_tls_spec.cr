@@ -107,13 +107,16 @@ describe "Couchbase Query TLS integration" do
     keys = documents.map(&.[:key])
 
     begin
+      client.bucket = config.bucket
+      client.scope = "_default"
+      cluster.bucket = config.bucket
+      cluster.scope = "_default"
+
       documents.each do |document|
         with_tls_query_retry do
           client.query(
             tls_upsert_user_statement,
             named_args: {doc_key: document[:key], doc: document[:doc]},
-            bucket: config.bucket,
-            scope: "_default",
           )
         end
       end
@@ -123,8 +126,6 @@ describe "Couchbase Query TLS integration" do
           TLSQueryUserRow,
           tls_users_query,
           named_args: {keys: keys, type: type},
-          bucket: config.bucket,
-          scope: "_default",
           readonly: true,
         )
       end
@@ -133,12 +134,14 @@ describe "Couchbase Query TLS integration" do
           TLSQueryUserRow,
           tls_users_query,
           named_args: {keys: keys, type: type},
-          bucket: config.bucket,
-          scope: "_default",
           readonly: true,
         )
       end
 
+      client.default_bucket.should eq(config.bucket)
+      client.default_scope.should eq("_default")
+      cluster.default_bucket.should eq(config.bucket)
+      cluster.default_scope.should eq("_default")
       client.endpoint.tls?.should be_true
       cluster.active_endpoint.try(&.tls?).should be_true
       client_rows.map(&.doc_key).should eq(keys)
@@ -152,8 +155,6 @@ describe "Couchbase Query TLS integration" do
         client.query(
           tls_delete_users_statement,
           named_args: {keys: keys},
-          bucket: config.bucket,
-          scope: "_default",
         ) rescue nil
       end
     end
