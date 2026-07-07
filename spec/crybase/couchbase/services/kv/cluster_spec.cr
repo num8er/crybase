@@ -34,6 +34,27 @@ describe KV::Cluster do
     endpoints.map(&.port).should eq([11231, 11232])
   end
 
+  it "builds management endpoints from Couchbase seed hosts" do
+    connection_string = CB::ConnectionString.parse("couchbase://user:pass@n1:11231,n2:11232/default")
+
+    endpoints = KV.management_endpoints(connection_string)
+
+    endpoints.map(&.host).should eq(["n1", "n2"])
+    endpoints.map(&.port).should eq([8091, 8091])
+    endpoints.each do |endpoint|
+      endpoint.service.should eq(CB::Service::Management)
+      endpoint.tls?.should be_false
+    end
+  end
+
+  it "uses explicit management endpoint port overrides" do
+    connection_string = CB::ConnectionString.parse("couchbase://user:pass@n1,n2/default")
+
+    endpoints = KV.management_endpoints(connection_string, 19091)
+
+    endpoints.map(&.port).should eq([19091, 19091])
+  end
+
   it "requires at least one seed endpoint" do
     expect_raises(ArgumentError, /seed endpoint/) do
       KV::Cluster.new([] of CB::Endpoint, "user", "pass", "bucket")
@@ -52,6 +73,8 @@ describe KV::Cluster do
     cluster = uninitialized KV::Cluster
 
     typeof(cluster.bucket = "bucket").should eq(String)
+    typeof(cluster.vbucket_count).should eq(UInt16)
+    typeof(cluster.vbucket_count = 64_u16).should eq(UInt16)
     typeof(cluster.scope).should eq(String)
     typeof(cluster.scope = "ecommerce_shop").should eq(String)
     typeof(cluster.collection).should eq(String)
@@ -80,6 +103,7 @@ describe KV::Cluster do
     typeof(KV::Cluster.from_string(
       "couchbases://user:pass@127.0.0.1,127.0.0.2:11217/bucket?tls_verify=false&tls_hostname=cb.local",
       size: 2,
+      discover_bucket_config: false,
       tls_context: context,
     )).should eq(KV::Cluster)
   end

@@ -20,6 +20,8 @@ describe KV::Pool do
     pool = uninitialized KV::Pool
 
     typeof(pool.bucket = "bucket").should eq(String)
+    typeof(pool.vbucket_count).should eq(UInt16)
+    typeof(pool.vbucket_count = 64_u16).should eq(UInt16)
     typeof(pool.scope).should eq(String)
     typeof(pool.scope = "ecommerce_shop").should eq(String)
     typeof(pool.collection).should eq(String)
@@ -54,6 +56,7 @@ describe KV::Pool do
       tls_verify: false,
       tls_hostname: "cb.local",
       tls_context: context,
+      vbucket_count: 64_u16,
     )).should eq(KV::Pool)
   end
 
@@ -63,6 +66,7 @@ describe KV::Pool do
     typeof(KV::Pool.from_string(
       "couchbases://user:pass@127.0.0.1:11217/bucket?tls_verify=false&tls_hostname=cb.local",
       size: 2,
+      discover_bucket_config: false,
       tls_context: context,
     )).should eq(KV::Pool)
   end
@@ -74,6 +78,7 @@ describe KV::Pool do
       "pass",
       "bucket",
       size: 2,
+      discover_bucket_config: false,
       tls_verify: false,
     )).should eq(KV::Pool)
   end

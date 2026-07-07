@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../../js/doc.js"></script>
 
   <meta name="repository-name" content="crybase">
-  <title>CryBase::CouchBase::Services::KV::Response - crybase main-dev</title>
+  <title>CryBase::CouchBase::Services::KV::BucketConfigClient - crybase main-dev</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../../";
   </script>
@@ -187,7 +187,7 @@
 
     </li>
 
-  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/BucketConfigClient" data-name="crybase::couchbase::services::kv::bucketconfigclient">
+  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/BucketConfigClient" data-name="crybase::couchbase::services::kv::bucketconfigclient">
       <a href="../../../../CryBase/CouchBase/Services/KV/BucketConfigClient.html">BucketConfigClient</a>
 
     </li>
@@ -247,7 +247,7 @@
 
     </li>
 
-  <li class=" current" data-id="crybase/CryBase/CouchBase/Services/KV/Response" data-name="crybase::couchbase::services::kv::response">
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Response" data-name="crybase::couchbase::services::kv::response">
       <a href="../../../../CryBase/CouchBase/Services/KV/Response.html">Response</a>
 
     </li>
@@ -407,38 +407,16 @@
 <h1 class="type-name">
 
   <span class="kind">
-    struct
-  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>Response
+    class
+  </span> CryBase::<wbr>CouchBase::<wbr>Services::<wbr>KV::<wbr>BucketConfigClient
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../../CryBase/CouchBase/Services/KV/Response.html">CryBase::CouchBase::Services::KV::Response</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../../CryBase/CouchBase/Services/KV/BucketConfigClient.html">CryBase::CouchBase::Services::KV::BucketConfigClient</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
-
-  <h2>
-    <a id="overview" class="anchor" href="#overview">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Overview
-  </h2>
-
-  <p>One decoded inbound packet from the KV service. Produced by
-<code>ResponseReader#read</code>.</p>
-<pre><code class="language-crystal">resp <span class="o">=</span> <span class="t">KV</span><span class="t">::</span><span class="t">Response</span>.new(
-  opcode: <span class="t">KV</span><span class="t">::</span><span class="t">Opcode</span><span class="t">::</span><span class="t">Get</span>.value,
-  status: <span class="t">KV</span><span class="t">::</span><span class="t">Status</span><span class="t">::</span><span class="t">Success</span>,
-  cas: <span class="n">0_u64</span>,
-  extras: <span class="t">Bytes</span>.empty,
-  key: <span class="s">&quot;&quot;</span>,
-  value: <span class="s">&quot;world&quot;</span>.to_slice,
-)
-resp.success?          <span class="c"># =&gt; true</span>
-<span class="t">String</span>.new(resp.value) <span class="c"># =&gt; &quot;world&quot;</span></code></pre>
 
 
 
@@ -465,15 +443,8 @@ resp.success?          <span class="c"># =&gt; true</span>
   </h2>
 
 
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L17" target="_blank">
-        crybase/couchbase/services/kv/response.cr:17
-      </a>
-
-    <br/>
-
-
-      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L25" target="_blank">
-        crybase/couchbase/services/kv/response.cr:25
+      <a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L1" target="_blank">
+        crybase/couchbase/services/kv/bucket_config_client.cr
       </a>
 
     <br/>
@@ -495,13 +466,30 @@ resp.success?          <span class="c"># =&gt; true</span>
   <ul class="list-summary">
 
       <li class="entry-summary">
-        <a href="#new%28opcode%3AUInt8%2Cstatus%3AStatus%2Ccas%3AUInt64%2Cextras%3ABytes%2Ckey%3AString%2Cvalue%3ABytes%29-class-method" class="signature"><strong>.new</strong>(opcode : UInt8, status : Status, cas : UInt64, extras : Bytes, key : String, value : Bytes)</a>
+        <a href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2Cread_timeout%3ATime%3A%3ASpan%3D5.seconds%2Cwrite_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(endpoint : Endpoint, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds, read_timeout : Time::Span = <span class="n">5</span>.seconds, write_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)</a>
 
       </li>
 
   </ul>
 
 
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#path%28bucket%3AString%29%3AString-class-method" class="signature"><strong>.path</strong>(bucket : String) : String</a>
+
+      </li>
+
+  </ul>
 
 
 
@@ -518,47 +506,17 @@ resp.success?          <span class="c"># =&gt; true</span>
   <ul class="list-summary">
 
       <li class="entry-summary">
-        <a href="#cas%3AUInt64-instance-method" class="signature"><strong>#cas</strong> : UInt64</a>
+        <a href="#bucket%3AString-instance-method" class="signature"><strong>#bucket</strong> : String</a>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
+        <a href="#endpoint%3AEndpoint-instance-method" class="signature"><strong>#endpoint</strong> : Endpoint</a>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#copy_with%28opcode_opcode%3D%40opcode%2Cstatus_status%3D%40status%2Ccas_cas%3D%40cas%2Cextras_extras%3D%40extras%2Ckey_key%3D%40key%2Cvalue_value%3D%40value%29-instance-method" class="signature"><strong>#copy_with</strong>(opcode _opcode = @opcode, status _status = @status, cas _cas = @cas, extras _extras = @extras, key _key = @key, value _value = @value)</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#extras%3ABytes-instance-method" class="signature"><strong>#extras</strong> : Bytes</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#key%3AString-instance-method" class="signature"><strong>#key</strong> : String</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#opcode%3AUInt8-instance-method" class="signature"><strong>#opcode</strong> : UInt8</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#status%3AStatus-instance-method" class="signature"><strong>#status</strong> : Status</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#success%3F%3ABool-instance-method" class="signature"><strong>#success?</strong> : Bool</a>
-
-      </li>
-
-      <li class="entry-summary">
-        <a href="#value%3ABytes-instance-method" class="signature"><strong>#value</strong> : Bytes</a>
+        <a href="#fetch%3ABucketConfig-instance-method" class="signature"><strong>#fetch</strong> : BucketConfig</a>
 
       </li>
 
@@ -567,19 +525,6 @@ resp.success?          <span class="c"># =&gt; true</span>
 
 
   <div class="methods-inherited">
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -619,23 +564,49 @@ resp.success?          <span class="c"># =&gt; true</span>
     Constructor Detail
   </h2>
 
-    <div class="entry-detail" id="new(opcode:UInt8,status:Status,cas:UInt64,extras:Bytes,key:String,value:Bytes)-class-method">
+    <div class="entry-detail" id="new(endpoint:Endpoint,username:String,password:String,bucket:String,connect_timeout:Time::Span=5.seconds,read_timeout:Time::Span=5.seconds,write_timeout:Time::Span=5.seconds,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil)-class-method">
       <div class="signature">
 
-        def self.<strong>new</strong>(opcode : UInt8, status : <a href="../../../../CryBase/CouchBase/Services/KV/Status.html">Status</a>, cas : UInt64, extras : Bytes, key : String, value : Bytes)
+        def self.<strong>new</strong>(endpoint : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>, username : String, password : String, bucket : String, connect_timeout : Time::Span = <span class="n">5</span>.seconds, read_timeout : Time::Span = <span class="n">5</span>.seconds, write_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28opcode%3AUInt8%2Cstatus%3AStatus%2Ccas%3AUInt64%2Cextras%3ABytes%2Ckey%3AString%2Cvalue%3ABytes%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28endpoint%3AEndpoint%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2Cread_timeout%3ATime%3A%3ASpan%3D5.seconds%2Cwrite_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L17" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L5" target="_blank">View source</a>]
 
       </div>
     </div>
 
 
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+
+    <div class="entry-detail" id="path(bucket:String):String-class-method">
+      <div class="signature">
+
+        def self.<strong>path</strong>(bucket : String) : String
+
+        <a class="method-permalink" href="#path%28bucket%3AString%29%3AString-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L35" target="_blank">View source</a>]
+
+      </div>
+    </div>
 
 
 
@@ -651,134 +622,50 @@ resp.success?          <span class="c"># =&gt; true</span>
     Instance Method Detail
   </h2>
 
-    <div class="entry-detail" id="cas:UInt64-instance-method">
+    <div class="entry-detail" id="bucket:String-instance-method">
       <div class="signature">
 
-        def <strong>cas</strong> : UInt64
+        def <strong>bucket</strong> : String
 
-        <a class="method-permalink" href="#cas%3AUInt64-instance-method">#</a>
+        <a class="method-permalink" href="#bucket%3AString-instance-method">#</a>
       </div>
 
       <br/>
       <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L3" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="clone-instance-method">
+    <div class="entry-detail" id="endpoint:Endpoint-instance-method">
       <div class="signature">
 
-        def <strong>clone</strong>
+        def <strong>endpoint</strong> : <a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>
 
-        <a class="method-permalink" href="#clone-instance-method">#</a>
+        <a class="method-permalink" href="#endpoint%3AEndpoint-instance-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L17" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L2" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="copy_with(opcode_opcode=@opcode,status_status=@status,cas_cas=@cas,extras_extras=@extras,key_key=@key,value_value=@value)-instance-method">
+    <div class="entry-detail" id="fetch:BucketConfig-instance-method">
       <div class="signature">
 
-        def <strong>copy_with</strong>(opcode _opcode = @opcode, status _status = @status, cas _cas = @cas, extras _extras = @extras, key _key = @key, value _value = @value)
+        def <strong>fetch</strong> : <a href="../../../../CryBase/CouchBase/Services/KV/BucketConfig.html">BucketConfig</a>
 
-        <a class="method-permalink" href="#copy_with%28opcode_opcode%3D%40opcode%2Cstatus_status%3D%40status%2Ccas_cas%3D%40cas%2Cextras_extras%3D%40extras%2Ckey_key%3D%40key%2Cvalue_value%3D%40value%29-instance-method">#</a>
+        <a class="method-permalink" href="#fetch%3ABucketConfig-instance-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L17" target="_blank">View source</a>]
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="extras:Bytes-instance-method">
-      <div class="signature">
-
-        def <strong>extras</strong> : Bytes
-
-        <a class="method-permalink" href="#extras%3ABytes-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="key:String-instance-method">
-      <div class="signature">
-
-        def <strong>key</strong> : String
-
-        <a class="method-permalink" href="#key%3AString-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="opcode:UInt8-instance-method">
-      <div class="signature">
-
-        def <strong>opcode</strong> : UInt8
-
-        <a class="method-permalink" href="#opcode%3AUInt8-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="status:Status-instance-method">
-      <div class="signature">
-
-        def <strong>status</strong> : <a href="../../../../CryBase/CouchBase/Services/KV/Status.html">Status</a>
-
-        <a class="method-permalink" href="#status%3AStatus-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="success?:Bool-instance-method">
-      <div class="signature">
-
-        def <strong>success?</strong> : Bool
-
-        <a class="method-permalink" href="#success%3F%3ABool-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
-
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/response.cr#L26" target="_blank">View source</a>]
-
-      </div>
-    </div>
-
-    <div class="entry-detail" id="value:Bytes-instance-method">
-      <div class="signature">
-
-        def <strong>value</strong> : Bytes
-
-        <a class="method-permalink" href="#value%3ABytes-instance-method">#</a>
-      </div>
-
-      <br/>
-      <div>
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/bucket_config_client.cr#L21" target="_blank">View source</a>]
 
       </div>
     </div>

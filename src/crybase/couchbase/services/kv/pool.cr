@@ -23,27 +23,49 @@ module CryBase::CouchBase::Services::KV
       size : Int32 = DEFAULT_SIZE,
       connect_timeout : Time::Span = 5.seconds,
       *,
+      vbucket_count : UInt16? = nil,
+      discover_bucket_config : Bool = true,
+      management_port : Int32? = nil,
       tls_verify : Bool? = nil,
       tls_hostname : String? = nil,
       tls_context : OpenSSL::SSL::Context::Client? = nil,
     ) : Pool
       connection_string = ConnectionString.parse(uri)
+      resolved_username = required(username || connection_string.username, "username")
+      resolved_password = required(password || connection_string.password, "password")
+      resolved_bucket = required(bucket || connection_string.bucket, "bucket")
+      resolved_tls_verify = tls_verify.nil? ? connection_string.bool_param("tls_verify", true) : tls_verify
+      resolved_tls_hostname = tls_hostname || connection_string.param("tls_hostname")
+      resolved_vbucket_count = vbucket_count || if discover_bucket_config
+        CryBase::CouchBase::Services::KV.discover_vbucket_count(
+          CryBase::CouchBase::Services::KV.management_endpoints(connection_string, management_port),
+          resolved_username,
+          resolved_password,
+          resolved_bucket,
+          connect_timeout,
+          tls_verify: resolved_tls_verify,
+          tls_hostname: resolved_tls_hostname,
+          tls_context: tls_context,
+        )
+      end
 
       new(
         Endpoint.from_string(uri, Service::KV),
-        required(username || connection_string.username, "username"),
-        required(password || connection_string.password, "password"),
-        required(bucket || connection_string.bucket, "bucket"),
+        resolved_username,
+        resolved_password,
+        resolved_bucket,
         size,
         connect_timeout,
-        tls_verify: tls_verify.nil? ? connection_string.bool_param("tls_verify", true) : tls_verify,
-        tls_hostname: tls_hostname || connection_string.param("tls_hostname"),
+        tls_verify: resolved_tls_verify,
+        tls_hostname: resolved_tls_hostname,
         tls_context: tls_context,
+        vbucket_count: resolved_vbucket_count || Constants::VBUCKET_COUNT,
       )
     end
 
     getter endpoint : Endpoint
     getter bucket : String
+    getter vbucket_count : UInt16
     getter scope : String
     getter collection : String
     getter size : Int32
@@ -64,8 +86,10 @@ module CryBase::CouchBase::Services::KV
       tls_verify : Bool = true,
       tls_hostname : String? = nil,
       tls_context : OpenSSL::SSL::Context::Client? = nil,
+      @vbucket_count : UInt16 = Constants::VBUCKET_COUNT,
     )
       raise ArgumentError.new("pool size must be at least 1") if @size < 1
+      validate_vbucket_count(@vbucket_count)
 
       @available = Channel(Client).new(@size)
       @clients = [] of Client
@@ -87,6 +111,18 @@ module CryBase::CouchBase::Services::KV
         @bucket = name
       end
       name
+    end
+
+    def vbucket_count=(count : UInt16) : UInt16
+      validate_vbucket_count(count)
+
+      clients = active_clients
+      clients.each(&.vbucket_count=(count))
+      @mutex.synchronize do
+        raise_closed! if @closed
+        @vbucket_count = count
+      end
+      count
     end
 
     def scope=(name : String) : String
@@ -145,6 +181,7 @@ module CryBase::CouchBase::Services::KV
           tls_verify: tls_verify,
           tls_hostname: tls_hostname,
           tls_context: tls_context,
+          vbucket_count: @vbucket_count,
         )
         @clients << client
         @available.send(client)
@@ -200,6 +237,7 @@ module CryBase::CouchBase::Services::KV
 
     private def prepare_client(client : Client) : Nil
       client.bucket = @bucket unless client.bucket == @bucket
+      client.vbucket_count = @vbucket_count unless client.vbucket_count == @vbucket_count
       client.scope = @scope
       client.collection = @collection
     end
@@ -210,6 +248,10 @@ module CryBase::CouchBase::Services::KV
 
     private def self.required(value : String?, name : String) : String
       value || raise ArgumentError.new("#{name} required")
+    end
+
+    private def validate_vbucket_count(count : UInt16) : Nil
+      raise ArgumentError.new("vbucket count must be greater than 0") if count == 0
     end
   end
 end

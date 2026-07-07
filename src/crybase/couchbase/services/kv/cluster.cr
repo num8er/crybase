@@ -21,6 +21,7 @@ module CryBase::CouchBase::Services::KV
 
     getter seeds : Array(Endpoint)
     getter bucket : String
+    getter vbucket_count : UInt16
     getter scope : String
     getter collection : String
     getter size : Int32
@@ -52,22 +53,43 @@ module CryBase::CouchBase::Services::KV
       size : Int32 = DEFAULT_SIZE,
       connect_timeout : Time::Span = 5.seconds,
       *,
+      vbucket_count : UInt16? = nil,
+      discover_bucket_config : Bool = true,
+      management_port : Int32? = nil,
       tls_verify : Bool? = nil,
       tls_hostname : String? = nil,
       tls_context : OpenSSL::SSL::Context::Client? = nil,
     ) : Cluster
       connection_string = ConnectionString.parse(uri)
+      resolved_username = required(username || connection_string.username, "username")
+      resolved_password = required(password || connection_string.password, "password")
+      resolved_bucket = required(bucket || connection_string.bucket, "bucket")
+      resolved_tls_verify = tls_verify.nil? ? connection_string.bool_param("tls_verify", true) : tls_verify
+      resolved_tls_hostname = tls_hostname || connection_string.param("tls_hostname")
+      resolved_vbucket_count = vbucket_count || if discover_bucket_config
+        CryBase::CouchBase::Services::KV.discover_vbucket_count(
+          CryBase::CouchBase::Services::KV.management_endpoints(connection_string, management_port),
+          resolved_username,
+          resolved_password,
+          resolved_bucket,
+          connect_timeout,
+          tls_verify: resolved_tls_verify,
+          tls_hostname: resolved_tls_hostname,
+          tls_context: tls_context,
+        )
+      end
 
       new(
         seed_endpoints(connection_string),
-        required(username || connection_string.username, "username"),
-        required(password || connection_string.password, "password"),
-        required(bucket || connection_string.bucket, "bucket"),
+        resolved_username,
+        resolved_password,
+        resolved_bucket,
         size,
         connect_timeout,
-        tls_verify: tls_verify.nil? ? connection_string.bool_param("tls_verify", true) : tls_verify,
-        tls_hostname: tls_hostname || connection_string.param("tls_hostname"),
+        tls_verify: resolved_tls_verify,
+        tls_hostname: resolved_tls_hostname,
         tls_context: tls_context,
+        vbucket_count: resolved_vbucket_count || Constants::VBUCKET_COUNT,
       )
     end
 
@@ -92,9 +114,11 @@ module CryBase::CouchBase::Services::KV
       @tls_verify : Bool = true,
       @tls_hostname : String? = nil,
       @tls_context : OpenSSL::SSL::Context::Client? = nil,
+      @vbucket_count : UInt16 = Constants::VBUCKET_COUNT,
     )
       raise ArgumentError.new("at least one KV seed endpoint required") if @seeds.empty?
       raise ArgumentError.new("cluster pool size must be at least 1") if @size < 1
+      validate_vbucket_count(@vbucket_count)
 
       @pool = nil
       @active_index = nil
@@ -115,6 +139,18 @@ module CryBase::CouchBase::Services::KV
       end
       pool.try(&.bucket=(name))
       name
+    end
+
+    def vbucket_count=(count : UInt16) : UInt16
+      validate_vbucket_count(count)
+
+      pool = @mutex.synchronize do
+        raise_closed! if @closed
+        @vbucket_count = count
+        @pool
+      end
+      pool.try(&.vbucket_count=(count))
+      count
     end
 
     def scope=(name : String) : String
@@ -244,6 +280,7 @@ module CryBase::CouchBase::Services::KV
             tls_verify: @tls_verify,
             tls_hostname: @tls_hostname,
             tls_context: @tls_context,
+            vbucket_count: @vbucket_count,
           )
           pool.scope = @scope
           pool.collection = @collection
@@ -264,6 +301,10 @@ module CryBase::CouchBase::Services::KV
 
     private def self.required(value : String?, name : String) : String
       value || raise ArgumentError.new("#{name} required")
+    end
+
+    private def validate_vbucket_count(count : UInt16) : Nil
+      raise ArgumentError.new("vbucket count must be greater than 0") if count == 0
     end
   end
 end

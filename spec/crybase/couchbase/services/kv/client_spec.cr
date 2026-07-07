@@ -2,12 +2,15 @@ require "../../../../spec_helper"
 
 private alias CB = CryBase::CouchBase
 private alias KV = CryBase::CouchBase::Services::KV
+private alias KVSpec = CryBase::SpecHelpers::KVHelpers
 
 describe KV::Client do
   it "exposes scoped collection helpers" do
     client = uninitialized KV::Client
 
     typeof(client.bucket = "bucket").should eq(String)
+    typeof(client.vbucket_count).should eq(UInt16)
+    typeof(client.vbucket_count = 64_u16).should eq(UInt16)
     typeof(client.scope).should eq(String)
     typeof(client.scope = "ecommerce_shop").should eq(String)
     typeof(client.collection).should eq(String)
@@ -32,6 +35,7 @@ describe KV::Client do
       tls_verify: false,
       tls_hostname: "cb.local",
       tls_context: context,
+      vbucket_count: 64_u16,
     )).should eq(KV::Client)
   end
 
@@ -40,6 +44,7 @@ describe KV::Client do
 
     typeof(KV::Client.from_string(
       "couchbases://user:pass@127.0.0.1:11217/bucket?tls_verify=false&tls_hostname=cb.local",
+      discover_bucket_config: false,
       tls_context: context,
     )).should eq(KV::Client)
   end
@@ -50,6 +55,7 @@ describe KV::Client do
       "user",
       "pass",
       "bucket",
+      discover_bucket_config: false,
       tls_verify: false,
     )).should eq(KV::Client)
   end
@@ -70,5 +76,21 @@ describe KV::Client do
     expect_raises(ArgumentError, /tls_verify/) do
       KV::Client.from_string("couchbase://user:pass@127.0.0.1/default?tls_verify=nope")
     end
+  end
+
+  it "uses the configured vbucket count for document requests" do
+    server = KVSpec.start_server(4)
+    client = KV::Client.new(server.endpoint, "user", "pass", "bucket", vbucket_count: 64_u16)
+
+    client.increment("User::seq_no", delta: 1_u64, initial: 1_u64).should eq(1_u64)
+    3.times { server.requests.receive }
+    request = server.requests.receive
+
+    request.opcode.should eq(KV::Opcode::Increment.value)
+    request.key.should eq("User::seq_no")
+    request.vbucket.should eq(60_u16)
+  ensure
+    client.try(&.close)
+    server.try(&.close)
   end
 end

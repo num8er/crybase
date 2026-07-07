@@ -42,6 +42,13 @@ describe KV do
   it "maps document keys to Couchbase vbuckets" do
     KV.vbucket_id("crybase:hello").should eq(475_u16)
     KV.vbucket_id("crybase:demo").should eq(1009_u16)
+    KV.vbucket_id("User::seq_no", 64_u16).should eq(60_u16)
+  end
+
+  it "rejects zero vbucket counts" do
+    expect_raises(ArgumentError, /vbucket count/) do
+      KV.vbucket_id("key", 0_u16)
+    end
   end
 
   it "encodes counter extras as delta, initial, expiry" do

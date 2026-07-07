@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Query Default Context](docs/16.FEAT_query-default-context.md), and
   [KV Scoped Collections](docs/17.FEAT_kv-scoped-collections.md), and
   [KV Default Context](docs/18.FEAT_kv-default-context.md), and
-  [Query Connection Defaults](docs/19.FEAT_query-connection-defaults.md).
+  [Query Connection Defaults](docs/19.FEAT_query-connection-defaults.md), and
+  [KV Bucket Config Vbucket Count](docs/20.FEAT_kv-bucket-config-vbucket-count.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -79,6 +80,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bucket/scope/collection defaults and current-scope collection contexts.
 - Collection-aware KV key encoding and collection manifest lookup for scoped
   collection operations.
+- `KV::BucketConfig`, `KV::BucketConfigClient`, and Management bucket config
+  discovery so KV clients can hash document keys with a bucket-specific
+  `numVBuckets` value.
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics/example.cr` for a readonly parameterized Query
   service call.
@@ -118,6 +122,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and
   TLS setup.
+- `KV::Client.from_string`, `KV::Pool.from_string`, and
+  `KV::Cluster.from_string` now discover bucket vbucket counts from Management
+  by default, with explicit `vbucket_count:` and `discover_bucket_config: false`
+  options for callers that cannot use Management.
 - Query service and topology HTTP clients now use
   `CryBase::Connectivity::HTTPClient` for HTTP construction.
 - `Query::Cluster.from_string` now discovers Query nodes from Couchbase

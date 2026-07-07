@@ -182,6 +182,16 @@
 
     </li>
 
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/BucketConfig" data-name="crybase::couchbase::services::kv::bucketconfig">
+      <a href="../../../../CryBase/CouchBase/Services/KV/BucketConfig.html">BucketConfig</a>
+
+    </li>
+
+  <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/BucketConfigClient" data-name="crybase::couchbase::services::kv::bucketconfigclient">
+      <a href="../../../../CryBase/CouchBase/Services/KV/BucketConfigClient.html">BucketConfigClient</a>
+
+    </li>
+
   <li class=" " data-id="crybase/CryBase/CouchBase/Services/KV/Client" data-name="crybase::couchbase::services::kv::client">
       <a href="../../../../CryBase/CouchBase/Services/KV/Client.html">Client</a>
 
@@ -495,14 +505,14 @@ cluster.close</code></pre>
   <ul class="list-summary">
 
       <li class="entry-summary">
-        <a href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method" class="signature"><strong>.from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : Cluster</a>
+        <a href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Cvbucket_count%3AUInt16%7CNil%3Dnil%2Cdiscover_bucket_config%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method" class="signature"><strong>.from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, vbucket_count : UInt16 | Nil = <span class="n">nil</span>, discover_bucket_config : Bool = <span class="n">true</span>, management_port : Int32 | Nil = <span class="n">nil</span>, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : Cluster</a>
 
           <div class="summary"><p>Parses <em>uri</em>, builds KV seed endpoints for every host in the connection string, and connects to the first reachable/authenticated seed.</p></div>
 
       </li>
 
       <li class="entry-summary">
-        <a href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(seeds : Array(Endpoint), username : String, password : String, bucket : String, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)</a>
+        <a href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cvbucket_count%3AUInt16%3DConstants%3A%3AVBUCKET_COUNT%29-class-method" class="signature"><strong>.new</strong>(seeds : Array(Endpoint), username : String, password : String, bucket : String, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, vbucket_count : UInt16 = <span class="t">Constants</span><span class="t">::</span><span class="t">VBUCKET_COUNT</span>)</a>
 
       </li>
 
@@ -655,6 +665,16 @@ cluster.close</code></pre>
 
       </li>
 
+      <li class="entry-summary">
+        <a href="#vbucket_count%3AUInt16-instance-method" class="signature"><strong>#vbucket_count</strong> : UInt16</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#vbucket_count%3D%28count%3AUInt16%29%3AUInt16-instance-method" class="signature"><strong>#vbucket_count=</strong>(count : UInt16) : UInt16</a>
+
+      </li>
+
   </ul>
 
 
@@ -699,12 +719,12 @@ cluster.close</code></pre>
     Constructor Detail
   </h2>
 
-    <div class="entry-detail" id="from_string(uri:String,username:String|Nil=nil,password:String|Nil=nil,bucket:String|Nil=nil,size:Int32=DEFAULT_SIZE,connect_timeout:Time::Span=5.seconds,*,tls_verify:Bool|Nil=nil,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil):Cluster-class-method">
+    <div class="entry-detail" id="from_string(uri:String,username:String|Nil=nil,password:String|Nil=nil,bucket:String|Nil=nil,size:Int32=DEFAULT_SIZE,connect_timeout:Time::Span=5.seconds,*,vbucket_count:UInt16|Nil=nil,discover_bucket_config:Bool=true,management_port:Int32|Nil=nil,tls_verify:Bool|Nil=nil,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil):Cluster-class-method">
       <div class="signature">
 
-        def self.<strong>from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : <a href="../../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
+        def self.<strong>from_string</strong>(uri : String, username : String | Nil = <span class="n">nil</span>, password : String | Nil = <span class="n">nil</span>, bucket : String | Nil = <span class="n">nil</span>, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, vbucket_count : UInt16 | Nil = <span class="n">nil</span>, discover_bucket_config : Bool = <span class="n">true</span>, management_port : Int32 | Nil = <span class="n">nil</span>, tls_verify : Bool | Nil = <span class="n">nil</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>) : <a href="../../../../CryBase/CouchBase/Services/KV/Cluster.html">Cluster</a>
 
-        <a class="method-permalink" href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method">#</a>
+        <a class="method-permalink" href="#from_string%28uri%3AString%2Cusername%3AString%7CNil%3Dnil%2Cpassword%3AString%7CNil%3Dnil%2Cbucket%3AString%7CNil%3Dnil%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Cvbucket_count%3AUInt16%7CNil%3Dnil%2Cdiscover_bucket_config%3ABool%3Dtrue%2Cmanagement_port%3AInt32%7CNil%3Dnil%2Ctls_verify%3ABool%7CNil%3Dnil%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29%3ACluster-class-method">#</a>
       </div>
 
         <div class="doc">
@@ -718,23 +738,23 @@ embedded as <code>couchbase://user:pass@host1,host2/bucket</code>.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L47" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L48" target="_blank">View source</a>]
 
       </div>
     </div>
 
-    <div class="entry-detail" id="new(seeds:Array(Endpoint),username:String,password:String,bucket:String,size:Int32=DEFAULT_SIZE,connect_timeout:Time::Span=5.seconds,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil)-class-method">
+    <div class="entry-detail" id="new(seeds:Array(Endpoint),username:String,password:String,bucket:String,size:Int32=DEFAULT_SIZE,connect_timeout:Time::Span=5.seconds,*,tls_verify:Bool=true,tls_hostname:String|Nil=nil,tls_context:OpenSSL::SSL::Context::Client|Nil=nil,vbucket_count:UInt16=Constants::VBUCKET_COUNT)-class-method">
       <div class="signature">
 
-        def self.<strong>new</strong>(seeds : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>), username : String, password : String, bucket : String, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>)
+        def self.<strong>new</strong>(seeds : Array(<a href="../../../../CryBase/CouchBase/Endpoint.html">Endpoint</a>), username : String, password : String, bucket : String, size : Int32 = <span class="t">DEFAULT_SIZE</span>, connect_timeout : Time::Span = <span class="n">5</span>.seconds, *, tls_verify : Bool = <span class="n">true</span>, tls_hostname : String | Nil = <span class="n">nil</span>, tls_context : OpenSSL::SSL::Context::Client | Nil = <span class="n">nil</span>, vbucket_count : UInt16 = <span class="t">Constants</span><span class="t">::</span><span class="t">VBUCKET_COUNT</span>)
 
-        <a class="method-permalink" href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28seeds%3AArray%28Endpoint%29%2Cusername%3AString%2Cpassword%3AString%2Cbucket%3AString%2Csize%3AInt32%3DDEFAULT_SIZE%2Cconnect_timeout%3ATime%3A%3ASpan%3D5.seconds%2C%2A%2Ctls_verify%3ABool%3Dtrue%2Ctls_hostname%3AString%7CNil%3Dnil%2Ctls_context%3AOpenSSL%3A%3ASSL%3A%3AContext%3A%3AClient%7CNil%3Dnil%2Cvbucket_count%3AUInt16%3DConstants%3A%3AVBUCKET_COUNT%29-class-method">#</a>
       </div>
 
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L84" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L106" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -768,7 +788,7 @@ mode and explicit port, when present.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L76" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L98" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -804,7 +824,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L35" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L36" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -836,7 +856,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L108" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L132" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -852,7 +872,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L158" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L194" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -868,7 +888,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L176" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L212" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -884,7 +904,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L190" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L226" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -900,7 +920,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L148" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L184" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -916,7 +936,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L25" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L26" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -932,7 +952,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L132" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L168" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -948,7 +968,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L152" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L188" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -1044,7 +1064,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L144" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L180" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -1060,7 +1080,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L24" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L25" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -1076,7 +1096,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L120" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L156" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -1124,7 +1144,7 @@ cluster is closed before any pool was built.</p>
       <br/>
       <div>
 
-          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L26" target="_blank">View source</a>]
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L27" target="_blank">View source</a>]
 
       </div>
     </div>
@@ -1141,6 +1161,38 @@ cluster is closed before any pool was built.</p>
       <div>
 
           [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L18" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="vbucket_count:UInt16-instance-method">
+      <div class="signature">
+
+        def <strong>vbucket_count</strong> : UInt16
+
+        <a class="method-permalink" href="#vbucket_count%3AUInt16-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L24" target="_blank">View source</a>]
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="vbucket_count=(count:UInt16):UInt16-instance-method">
+      <div class="signature">
+
+        def <strong>vbucket_count=</strong>(count : UInt16) : UInt16
+
+        <a class="method-permalink" href="#vbucket_count%3D%28count%3AUInt16%29%3AUInt16-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+          [<a href="https://github.com/shardscry/crybase/blob/main/src/crybase/couchbase/services/kv/cluster.cr#L144" target="_blank">View source</a>]
 
       </div>
     </div>

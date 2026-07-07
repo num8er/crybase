@@ -2,7 +2,7 @@
 
 ## Overview
 
-CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, scoped collection contexts, connection-level KV bucket/scope/collection defaults, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and `Query::Cluster`; it supports bucket/scope Query context defaults, connection-string bucket paths, prepared statements, `adhoc: false` plan caching, Query-node discovery from Couchbase Management topology, static seed fallback, and per-query `CryBase::CouchBase::RetryPolicy` values that default to `no_retry`. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
+CryBase is a Crystal language client library for Couchbase. Current status: **early, but past the TCP-probe-only scaffold**. The cluster-level `CryBase::CouchBase::Client` expands Couchbase connection strings into service endpoints and TCP-probes them. The service-specific KV client speaks the Couchbase binary protocol over plaintext or TLS sockets: `HELLO`, SASL PLAIN auth, `SELECT_BUCKET`, document `get`/`set`/`delete`/`touch`, get-and-touch, counters, typed value helpers, scoped collection contexts, connection-level KV bucket/scope/collection defaults, Management bucket config vbucket-count discovery, fixed-size `KV::Pool`, and seed-failover `KV::Cluster`. The Query service client speaks N1QL/SQL++ over HTTP/HTTPS with `Query::Client` and `Query::Cluster`; it supports bucket/scope Query context defaults, connection-string bucket paths, prepared statements, `adhoc: false` plan caching, Query-node discovery from Couchbase Management topology, static seed fallback, and per-query `CryBase::CouchBase::RetryPolicy` values that default to `no_retry`. Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
 
 ## Repository Structure
 
@@ -34,6 +34,7 @@ crybase/
 │       │           ├── client.cr       # Authenticated KV protocol client
 │       │           ├── pool.cr         # Fixed-size KV client pool
 │       │           ├── cluster.cr      # Seed-failover KV pool wrapper
+│       │           ├── bucket_config*.cr # Management bucket config helpers
 │       │           ├── constants.cr    # KV protocol constants
 │       │           ├── request*.cr     # KV request value/framing helpers
 │       │           └── response*.cr    # KV response value/framing helpers
@@ -105,7 +106,7 @@ crystal tool format   # format code
 ## Current Limitations
 
 - Cluster-level `CryBase::CouchBase::Client#connect` validates TCP reachability only; protocol handshakes live in service-specific clients.
-- KV cluster config loading and node/vbucket map routing are not implemented; `KV::Cluster` is seed failover only and keeps one active `KV::Pool`.
+- KV cluster config loading and node/vbucket map routing are not implemented; `KV::Cluster` discovers bucket vbucket counts from Management when built with `from_string`, but remains seed failover only and keeps one active `KV::Pool`.
 - Query support has HTTP endpoint execution, prepared statements, seed failover, and Query-node topology discovery; Query connection pooling is not implemented yet.
 - Search, Analytics, Index, Eventing, Views, and Management protocol clients are not implemented yet.
 - Automatic retry/reconnect execution, durability, observe, and CAS helpers are not implemented.

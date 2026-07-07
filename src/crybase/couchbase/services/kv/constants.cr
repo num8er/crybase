@@ -23,7 +23,7 @@ module CryBase::CouchBase::Services::KV::Constants
   DEFAULT_COLLECTION    = "_default"
   DEFAULT_COLLECTION_ID = 0_u32
 
-  # Number of vbuckets in Couchbase buckets.
+  # Default number of vbuckets used when bucket config is not loaded.
   VBUCKET_COUNT = 1024_u16
 
   # Fixed-width extras size for KV expiration operations.

@@ -15,9 +15,10 @@
 
 Crystal client primitives for Couchbase.
 
-CryBase currently covers Couchbase endpoint discovery, the KV binary protocol,
-and the Query HTTP service. Search, Analytics, Index, Eventing, Views, and
-Management protocol clients are not implemented yet.
+CryBase currently covers Couchbase endpoint discovery, the KV binary protocol
+with bucket vbucket-count discovery, and the Query HTTP service. Search,
+Analytics, Index, Eventing, Views, and Management protocol clients are not
+implemented yet.
 
 ## Index
 
