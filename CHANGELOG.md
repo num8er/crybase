@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-07-07
+
+### Added
+- Feature implementation note under `docs/`: [KV Bucket Config Vbucket Count](docs/20.FEAT_kv-bucket-config-vbucket-count.md).
+- `KV::BucketConfig`, `KV::BucketConfigClient`, and Management bucket config
+  discovery so KV clients can hash document keys with a bucket-specific
+  `numVBuckets` value.
+- `vbucket_count:` and `discover_bucket_config:` options on
+  `KV::Client.from_string`, `KV::Pool.from_string`, and
+  `KV::Cluster.from_string` for callers that need explicit vbucket-count
+  control.
+
+### Changed
+- `KV::Client.from_string`, `KV::Pool.from_string`, and
+  `KV::Cluster.from_string` now discover bucket vbucket counts from Management
+  by default, falling back to the historical 1024-vbucket default when bucket
+  config cannot be loaded.
+- `KV::Client`, `KV::Pool`, and `KV::Cluster` now keep configurable
+  `vbucket_count` state for document, expiration, counter, and typed value
+  operations.
+- `shard.yml` and `CryBase::VERSION` were bumped to `0.0.5`.
+
+### Fixed
+- Fixed `NotMyVbucket` routing failures for Couchbase buckets that report a
+  `numVBuckets` value other than 1024.
+
+## [0.0.4] - 2026-07-04
+
 ### Added
 - Feature implementation notes under `docs/`: [KV Client](docs/1.FEAT_kv-client.md),
   [KV Client Pool](docs/2.FEAT_kv-client-pool.md),
@@ -26,8 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Query Default Context](docs/16.FEAT_query-default-context.md), and
   [KV Scoped Collections](docs/17.FEAT_kv-scoped-collections.md), and
   [KV Default Context](docs/18.FEAT_kv-default-context.md), and
-  [Query Connection Defaults](docs/19.FEAT_query-connection-defaults.md), and
-  [KV Bucket Config Vbucket Count](docs/20.FEAT_kv-bucket-config-vbucket-count.md).
+  [Query Connection Defaults](docs/19.FEAT_query-connection-defaults.md).
 - `AGENTS.md` project guide with feature-documentation and session-startup
   documentation check rules.
 - `CryBase::CouchBase::Query::Client` for authenticated N1QL/SQL++ statements
@@ -80,9 +107,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bucket/scope/collection defaults and current-scope collection contexts.
 - Collection-aware KV key encoding and collection manifest lookup for scoped
   collection operations.
-- `KV::BucketConfig`, `KV::BucketConfigClient`, and Management bucket config
-  discovery so KV clients can hash document keys with a bucket-specific
-  `numVBuckets` value.
 - Query result parsing for rows, metadata, warnings, and errors.
 - `examples/query_basics/example.cr` for a readonly parameterized Query
   service call.
@@ -122,10 +146,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   after `crystal docs`.
 - KV and Query clients now reuse the shared connectivity layer for socket and
   TLS setup.
-- `KV::Client.from_string`, `KV::Pool.from_string`, and
-  `KV::Cluster.from_string` now discover bucket vbucket counts from Management
-  by default, with explicit `vbucket_count:` and `discover_bucket_config: false`
-  options for callers that cannot use Management.
 - Query service and topology HTTP clients now use
   `CryBase::Connectivity::HTTPClient` for HTTP construction.
 - `Query::Cluster.from_string` now discovers Query nodes from Couchbase
@@ -143,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   client classes to keep example bodies concise.
 - Query docs, examples, and specs now avoid reserved `value` and `key` aliases
   in runnable N1QL statements.
+- `shard.yml` and `CryBase::VERSION` were bumped to `0.0.4`.
 - CHANGELOG now records the `v0.0.2` release contents from the git tag range.
 
 ## [0.0.2] - 2026-05-22
@@ -222,6 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `KV::Pool` now generates its pooled client forwarding methods through an
   internal `ClientDelegator` macro while preserving the same public API.
 
-[Unreleased]: https://github.com/shardscry/crybase/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/shardscry/crybase/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/shardscry/crybase/compare/v0.0.4...v0.0.5
+[0.0.4]: https://github.com/shardscry/crybase/compare/v0.0.2...v0.0.4
 [0.0.2]: https://github.com/shardscry/crybase/releases/tag/v0.0.2
 [0.0.1]: https://github.com/shardscry/crybase/releases/tag/v0.0.1
